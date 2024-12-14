@@ -9,8 +9,7 @@ export async function GET(request: Request) {
     let totalRevenue: number = 0;
 
     const requestOptions = {
-        method: "POST",
-        redirect: "follow"
+        method: "POST"
     };
 
     const response = await fetch(`https://api.checkoutchamp.com/reports/projected-billing/?loginId=revboostapirs.nymbus&password=RSsfFrR2nN5PcC6L1pSRs&startDate=${startDate}&endDate=${endDate}&reportType=campaign&cycle1Attrition=80&cycle2Attrition=80&cycle3Attrition=80&cycle4PlusAttrition=80`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
