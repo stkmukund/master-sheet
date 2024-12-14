@@ -22,7 +22,7 @@ function Navbar({ className }: { className?: string }) {
         { href: '/', label: <BarChart /> },
         { href: '/reports/projected-rebill-revenue', label: 'Projected Rebill Revenue' },
         { href: '/reports/total-vip-tracking', label: 'Total VIP Tracking' },
-        { href: '/reports/upsell-take-rate-report', label: 'Upsell Take Rate Report' },
+        { href: '/reports/upsell-take-rate-report', label: 'Upsell Take Rate Report', active },
     ];
     return (
         <div
