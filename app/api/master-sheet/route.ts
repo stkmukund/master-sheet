@@ -1,5 +1,5 @@
 
-export async function GET(request: Request) {
+export async function GET() {
     // Example of making an external GET request (if needed)
     // You can use fetch or any other HTTP client to fetch data
     // const response = await fetch('https://api.example.com/data');

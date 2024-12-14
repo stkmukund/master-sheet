@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { NavBar } from "./components/NavBar";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +33,7 @@ export default function RootLayout({
         <div className="mt-32">
           {children}
         </div>
-        <script src="https://cdn.lordicon.com/lordicon.js"></script>
+        <Script src="https://cdn.lordicon.com/lordicon.js" strategy="afterInteractive" />
       </body>
     </html>
   );

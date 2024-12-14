@@ -1,5 +1,5 @@
 
-export default function Table({ tableHead, tableBody }: { tableHead: String[], tableBody: Object }) {
+export default function Table({ tableHead, tableBody }: { tableHead: string[], tableBody: object }) {
     return (
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
             <table className="w-full text-sm text-left rtl:text-right text-gray-500">

@@ -11,7 +11,7 @@ export default function ProjectedRebillRevenue() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    const handleInputChange = (e: any) => {
+    const handleInputChange = (e: React.KeyboardEvent<HTMLInputElement>) => {
         const date = e.target.value;
         // Remove non-numeric characters
         const numericValue = date.replace(/\D/g, "");
@@ -34,14 +34,14 @@ export default function ProjectedRebillRevenue() {
         else if (e.target.id === "endDate") setEndDate(formattedValue);
     };
 
-    const handleKeyDown = (e: any) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         // Prevent invalid key inputs
         if (!/^[0-9]$/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "Tab") {
             e.preventDefault();
         }
     };
 
-    const handleSubmit = async (e: any) => {
+    const handleSubmit = async (e: React.KeyboardEvent<HTMLInputElement>) => {
         e.preventDefault();
         setLoading(true);
         const response = await fetch(`/master-sheet/projected-rebill-revenue/?startDate=${startDate}&endDate=${endDate}`).then(result => result.json());

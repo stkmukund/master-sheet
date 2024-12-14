@@ -1,10 +1,10 @@
 "use client";
-import React, { useState } from "react";
-import { HoveredLink, Menu, MenuItem, ProductItem } from "./ui/navbar-menu";
 import { cn } from "@/lib/utils";
-import BarChart from "./icon/BarChart";
-import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import BarChart from "./icon/BarChart";
+import { Menu } from "./ui/navbar-menu";
 
 export function NavBar() {
     return (
