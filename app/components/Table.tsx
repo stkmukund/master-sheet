@@ -14,11 +14,11 @@ export default function Table({ tableHead, tableBody }: { tableHead: string[], t
                 </thead>
                 <tbody>
                     <tr className="odd:bg-white even:bg-gray-50 border-b">
-                        {Object.keys(tableBody).map((key, index) => (
+                        {/* {Object.keys(tableBody).map((key, index) => (
                             <td key={index} className="px-6 py-4">
                                 {tableBody[key]}
                             </td>
-                        ))}
+                        ))} */}
 
                     </tr>
                 </tbody>
