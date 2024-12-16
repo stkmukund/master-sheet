@@ -3,9 +3,19 @@ import BeanEater from "@/app/components/BeanEater";
 import Button from "@/app/components/Button";
 import Table from "@/app/components/Table";
 import TableWithLoading from "@/app/components/TableWithLoading";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 
-export default function ProjectedRebillRevenue() {
+type tableHeading = {
+    projectedRebillRevenue: string[];
+    totalVipTracking: string[];
+    upsellTakeRateReport: string[];
+}
+
+export default function masterSheet() {
+    const params: { reportName: string[] } = useParams();
+    const sheetName = params.reportName[1] as keyof tableHeading;
+    console.log("sheetName", sheetName);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [tableData, setTableData] = useState({});
@@ -69,10 +79,14 @@ export default function ProjectedRebillRevenue() {
                 {error && (<div className="mt-1 text-red-600 font-semibold text-sm">{error}</div>)}
             </section>
             <section id="table" className="mt-2">
-                {Object.keys(tableData).length > 0 ? <Table tableHead={tableHead} tableBody={tableData} /> : <TableWithLoading />}
+                {Object.keys(tableData).length > 0 ? <Table tableHead={tableHead[sheetName]} tableBody={tableData} /> : <TableWithLoading tableHead={tableHead[sheetName]} />}
             </section>
         </div>
     )
 }
 
-const tableHead = ["Date (Next 30)", "Total Revenue", "Report Date", "Projected Approved Rebill Count"];
+const tableHead: tableHeading = {
+    projectedRebillRevenue: ["Date (Next 30)", "Total Revenue", "Report Date", "Projected Approved Rebill Count"],
+    totalVipTracking: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Secret Lane", "Invisilift", "Indestructible Tights", "Scarlett Envy", "Mangolift", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"],
+    upsellTakeRateReport: ["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"]
+};
