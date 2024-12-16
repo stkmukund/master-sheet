@@ -1,6 +1,5 @@
 
-export default function Table({ tableHead, tableBody }: { tableHead: string[], tableBody: object }) {
-    console.log(tableHead, tableBody);
+export default function Table({ tableHead, tableBody }: { tableHead: string[]; tableBody: object }) {
     return (
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
             <table className="w-full text-sm text-left rtl:text-right text-gray-500">
@@ -15,12 +14,11 @@ export default function Table({ tableHead, tableBody }: { tableHead: string[], t
                 </thead>
                 <tbody>
                     <tr className="odd:bg-white even:bg-gray-50 border-b">
-                        {/* {Object.keys(tableBody).map((key, index) => ( */}
-                        <td className="px-6 py-4">
-                            {/* {tableBody} */}
-                        </td>
-                        {/* ))} */}
-
+                        {Object.entries(tableBody).map(([key, value]) => (
+                            <td key={key} className="px-6 py-4">
+                                {value}
+                            </td>
+                        ))}
                     </tr>
                 </tbody>
             </table>

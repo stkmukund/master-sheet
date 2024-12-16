@@ -1,5 +1,6 @@
 'use client'
-import MagnifierFlat from "@/app/components/icon/MagnifierFlat";
+import BeanEater from "@/app/components/BeanEater";
+import Button from "@/app/components/Button";
 import Table from "@/app/components/Table";
 import TableWithLoading from "@/app/components/TableWithLoading";
 import { useState } from "react";
@@ -12,7 +13,8 @@ export default function ProjectedRebillRevenue() {
     const [error, setError] = useState("");
 
     const handleInputChange = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        const date = e.target.value;
+        const target = e.target as HTMLInputElement;
+        const date = target.value;
         // Remove non-numeric characters
         const numericValue = date.replace(/\D/g, "");
 
@@ -30,8 +32,8 @@ export default function ProjectedRebillRevenue() {
                 numericValue.slice(4, 6);
         }
 
-        if (e.target.id === "startDate") setStartDate(formattedValue);
-        else if (e.target.id === "endDate") setEndDate(formattedValue);
+        if (target.id === "startDate") setStartDate(formattedValue);
+        else if (target.id === "endDate") setEndDate(formattedValue);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -41,7 +43,7 @@ export default function ProjectedRebillRevenue() {
         }
     };
 
-    const handleSubmit = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         const response = await fetch(`/master-sheet/projected-rebill-revenue/?startDate=${startDate}&endDate=${endDate}`).then(result => result.json());
@@ -61,9 +63,8 @@ export default function ProjectedRebillRevenue() {
                 <form onSubmit={handleSubmit} className="flex items-center gap-4 text-black">
                     <input type="text" id="startDate" value={startDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="Start Date: MMDDYY" required />
                     <input type="text" id="endDate" value={endDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="End Date: MMDDYY" required />
-                    <button disabled={loading}>
-                        <MagnifierFlat loading={loading} />
-                    </button>
+                    {!loading && <Button name="Calculate" type="submit" disabled={loading} />}
+                    {loading && <BeanEater width={60} height={60} />}
                 </form>
                 {error && (<div className="mt-1 text-red-600 font-semibold text-sm">{error}</div>)}
             </section>

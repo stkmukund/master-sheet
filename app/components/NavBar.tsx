@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import BarChart from "./icon/BarChart";
 import { Menu } from "./ui/navbar-menu";
 
 export function NavBar() {
@@ -19,7 +18,7 @@ function Navbar({ className }: { className?: string }) {
     const pathname = usePathname(); // Get the current path
 
     const links = [
-        { href: '/', label: <BarChart /> },
+        { href: '/', label: "" },
         { href: '/reports/projected-rebill-revenue', label: 'Projected Rebill Revenue' },
         { href: '/reports/total-vip-tracking', label: 'Total VIP Tracking' },
         { href: '/reports/upsell-take-rate-report', label: 'Upsell Take Rate Report', active },
