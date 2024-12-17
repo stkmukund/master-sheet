@@ -19,9 +19,7 @@ export async function GET(request: Request) {
     if (response.result === "ERROR") return apiResponse({ result: "ERROR", message: response.message });
     if (response.result === "SUCCESS") {
         const data = response.message;
-
         return apiResponse({ result: "SUCCESS", message: { totalResults: data.totalResults } });
-
     }
 }
 
