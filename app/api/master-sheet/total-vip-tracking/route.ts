@@ -1,3 +1,4 @@
+export const maxDuration = 60 // 60sec max duration
 export async function GET(request: Request) {
     // Access the query string parameters from the URL
     const url = new URL(request.url); // `request.url` is the full URL
