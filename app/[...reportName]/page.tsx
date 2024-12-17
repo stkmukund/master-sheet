@@ -4,7 +4,7 @@ import Button from "@/app/components/Button";
 import Table from "@/app/components/Table";
 import TableWithLoading from "@/app/components/TableWithLoading";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type tableHeading = {
     projectedRebillRevenue: tableSheet;
@@ -14,6 +14,15 @@ type tableHeading = {
 
 type tableSheet = {
     tableHeading: string[];
+    campaignIds?: {
+        lashCosmetics: number[];
+        browCharm: number[];
+        floralSecrets: number[];
+        invisilift: number[];
+        indestructibleTights: number[];
+        fitcharm: number[];
+        browPro: number[];
+    };
 }
 
 export default function masterSheet() {
@@ -24,6 +33,12 @@ export default function masterSheet() {
     const [tableData, setTableData] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+
+    useEffect(() => {
+        // For VIP
+        if (sheetName === "totalVipTracking") setStartDate("01/01/2010");
+        // VIP End
+    }, [])
 
     const handleInputChange = (e: React.KeyboardEvent<HTMLInputElement>) => {
         const target = e.target as HTMLInputElement;
@@ -59,21 +74,100 @@ export default function masterSheet() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
-        try {
-            const response = await fetch(`/api/master-sheet/projected-rebill-revenue/?startDate=${startDate}&endDate=${endDate}`).then(result => result.json());
-            if (response.result === 'ERROR') {
-                setError(response.message);
+        if (sheetName === "totalVipTracking") await handleTotalVipTracking();
+        else {
+            try {
+                const response = await fetch(`/api/master-sheet/projected-rebill-revenue/?startDate=${startDate}&endDate=${endDate}`).then(result => result.json());
+                if (response.result === 'ERROR') {
+                    setError(response.message);
+                    setLoading(false);
+                }
+                if (response.result === 'SUCCESS') {
+                    setTableData(response.message);
+                    setLoading(false);
+                }
+            } catch (error) {
+                console.error(error);
                 setLoading(false);
             }
-            if (response.result === 'SUCCESS') {
-                setTableData(response.message);
-                setLoading(false);
-            }
-        } catch (error) {
-            console.error(error);
-            setLoading(false);
         }
 
+    };
+
+    const handleTotalVipTracking = async () => {
+        const vipTableData: any = {
+            dataPulled: endDate,
+        }
+        const campaignIds = tableHead[sheetName].campaignIds;
+
+        for (const [key, ids] of Object.entries(campaignIds!)) {
+            const stringOfIds = ids?.join(",");
+            try {
+                const response = await fetch(
+                    `/api/master-sheet/total-vip-tracking/?startDate=${startDate}&endDate=${endDate}&campaignId=${stringOfIds}`
+                ).then(result => result.json());
+
+                if (response.result === 'ERROR') {
+                    setError(response.message);
+                    setLoading(false);
+                    return; // Exit the function if an error occurs
+                }
+
+                if (response.result === 'SUCCESS') {
+                    vipTableData[key] = response.message.totalResults;
+                    setTableData(vipTableData);
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                setLoading(false);
+                return;
+            }
+        }
+        await calculateTotalVips(vipTableData);
+        const totalRecycle = await calculateTotalVipRecycle();
+        vipTableData.totalRecycle = totalRecycle;
+        setTableData(vipTableData);
+        setLoading(false);
+    };
+
+    const calculateTotalVips = async (data: any) => {
+        const totalVips: any = Object.values(data);
+        let sum = 0;
+        for (let index = 1; index < totalVips.length; index++) {
+            const element: number = totalVips[index];
+            sum += element;
+        };
+        data.totalVips = sum;
+        setTableData(data);
+    }
+
+    const calculateTotalVipRecycle = async () => {
+        const campaignIds = tableHead[sheetName].campaignIds;
+
+        let totalRecycle = 0;
+        for (const [key, ids] of Object.entries(campaignIds!)) {
+            const stringOfIds = ids?.join(",");
+            try {
+                const response = await fetch(
+                    `/api/master-sheet/total-vip-tracking/?startDate=${startDate}&endDate=${endDate}&campaignId=${stringOfIds}&status=RECYCLE_BILLING`
+                ).then(result => result.json());
+
+                if (response.result === 'ERROR') {
+                    setError(response.message);
+                    setLoading(false);
+                    return; // Exit the function if an error occurs
+                }
+
+                if (response.result === 'SUCCESS') {
+                    totalRecycle += response.message.totalResults;
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                setLoading(false);
+                return;
+            }
+        }
+        return totalRecycle;
     }
 
     return (
@@ -99,7 +193,16 @@ const tableHead: tableHeading = {
         tableHeading: ["Date (Next 30)", "Total Revenue", "Report Date", "Projected Approved Rebill Count"]
     },
     totalVipTracking: {
-        tableHeading: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Secret Lane", "Invisilift", "Indestructible Tights", "Scarlett Envy", "Mangolift", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"]
+        tableHeading: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Invisilift", "Indestructible Tights", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"],
+        campaignIds: {
+            lashCosmetics: [61, 47, 1, 68, 9, 6, 67, 69, 70],
+            browCharm: [88, 48, 24, 8, 20, 10, 28, 34, 35, 45, 83, 82],
+            floralSecrets: [38, 46, 85, 12, 71, 55, 21, 15],
+            invisilift: [16, 53, 31, 19],
+            indestructibleTights: [56, 58, 59],
+            fitcharm: [76, 81, 79],
+            browPro: [97, 101, 99]
+        }
     },
     upsellTakeRateReport: {
         tableHeading: ["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"]
