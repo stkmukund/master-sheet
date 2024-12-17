@@ -7,15 +7,18 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 
 type tableHeading = {
-    projectedRebillRevenue: string[];
-    totalVipTracking: string[];
-    upsellTakeRateReport: string[];
+    projectedRebillRevenue: tableSheet;
+    totalVipTracking: tableSheet;
+    upsellTakeRateReport: tableSheet;
+}
+
+type tableSheet = {
+    tableHeading: string[];
 }
 
 export default function masterSheet() {
     const params: { reportName: string[] } = useParams();
-    const sheetName = params.reportName[1] as keyof tableHeading;
-    console.log("sheetName", sheetName);
+    const sheetName = params.reportName[1] as keyof tableHeading;;
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [tableData, setTableData] = useState({});
@@ -56,15 +59,21 @@ export default function masterSheet() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
-        const response = await fetch(`/master-sheet/projected-rebill-revenue/?startDate=${startDate}&endDate=${endDate}`).then(result => result.json());
-        if (response.result === 'ERROR') {
-            setError(response.message);
+        try {
+            const response = await fetch(`/api/master-sheet/projected-rebill-revenue/?startDate=${startDate}&endDate=${endDate}`).then(result => result.json());
+            if (response.result === 'ERROR') {
+                setError(response.message);
+                setLoading(false);
+            }
+            if (response.result === 'SUCCESS') {
+                setTableData(response.message);
+                setLoading(false);
+            }
+        } catch (error) {
+            console.error(error);
             setLoading(false);
         }
-        if (response.result === 'SUCCESS') {
-            setTableData(response.message);
-            setLoading(false);
-        }
+
     }
 
     return (
@@ -79,14 +88,20 @@ export default function masterSheet() {
                 {error && (<div className="mt-1 text-red-600 font-semibold text-sm">{error}</div>)}
             </section>
             <section id="table" className="mt-2">
-                {Object.keys(tableData).length > 0 ? <Table tableHead={tableHead[sheetName]} tableBody={tableData} /> : <TableWithLoading tableHead={tableHead[sheetName]} />}
+                {Object.keys(tableData).length > 0 ? <Table tableHead={tableHead[sheetName].tableHeading} tableBody={tableData} /> : <TableWithLoading tableHead={tableHead[sheetName].tableHeading} />}
             </section>
         </div>
     )
 }
 
 const tableHead: tableHeading = {
-    projectedRebillRevenue: ["Date (Next 30)", "Total Revenue", "Report Date", "Projected Approved Rebill Count"],
-    totalVipTracking: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Secret Lane", "Invisilift", "Indestructible Tights", "Scarlett Envy", "Mangolift", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"],
-    upsellTakeRateReport: ["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"]
+    projectedRebillRevenue: {
+        tableHeading: ["Date (Next 30)", "Total Revenue", "Report Date", "Projected Approved Rebill Count"]
+    },
+    totalVipTracking: {
+        tableHeading: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Secret Lane", "Invisilift", "Indestructible Tights", "Scarlett Envy", "Mangolift", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"]
+    },
+    upsellTakeRateReport: {
+        tableHeading: ["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"]
+    }
 };
