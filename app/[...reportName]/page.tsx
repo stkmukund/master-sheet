@@ -25,7 +25,21 @@ type tableSheet = {
     };
 }
 
-export default function masterSheet() {
+type vipTableData = {
+    dataPulled?: string;
+    lashCosmetics?: number;
+    browCharm?: number;
+    floralSecrets?: number;
+    invisilift?: number;
+    indestructibleTights?: number;
+    fitcharm?: number;
+    browPro?: number;
+    totalVips?: number;
+    totalRecycle?: number;
+    [key: string]: string | number | undefined; // Index signature
+}
+
+export default function MasterSheet() {
     const params: { reportName: string[] } = useParams();
     const sheetName = params.reportName[1] as keyof tableHeading;;
     const [startDate, setStartDate] = useState("");
@@ -38,7 +52,7 @@ export default function masterSheet() {
         // For VIP
         if (sheetName === "totalVipTracking") setStartDate("01/01/2010");
         // VIP End
-    }, [])
+    }, [sheetName])
 
     const handleInputChange = (e: React.KeyboardEvent<HTMLInputElement>) => {
         const target = e.target as HTMLInputElement;
@@ -95,7 +109,7 @@ export default function masterSheet() {
     };
 
     const handleTotalVipTracking = async () => {
-        const vipTableData: any = {
+        const vipTableData: vipTableData = {
             dataPulled: endDate,
         }
         const campaignIds = tableHead[sheetName].campaignIds;
@@ -114,7 +128,7 @@ export default function masterSheet() {
                 }
 
                 if (response.result === 'SUCCESS') {
-                    vipTableData[key] = response.message.totalResults;
+                    vipTableData[key as keyof vipTableData] = response.message.totalResults;
                     setTableData(vipTableData);
                 }
             } catch (error) {
@@ -124,24 +138,23 @@ export default function masterSheet() {
             }
         }
         await calculateTotalVips(vipTableData);
-        const totalRecycle = await calculateTotalVipRecycle();
-        vipTableData.totalRecycle = totalRecycle;
-        setTableData(vipTableData);
+        await calculateTotalVipRecycle(vipTableData);
         setLoading(false);
     };
 
-    const calculateTotalVips = async (data: any) => {
-        const totalVips: any = Object.values(data);
+    const calculateTotalVips = async (data: vipTableData) => {
+        const totalVips = Object.values(data);
+        console.log("totalVips", totalVips)
         let sum = 0;
         for (let index = 1; index < totalVips.length; index++) {
-            const element: number = totalVips[index];
+            const element = +totalVips[index]!;
             sum += element;
         };
         data.totalVips = sum;
         setTableData(data);
     }
 
-    const calculateTotalVipRecycle = async () => {
+    const calculateTotalVipRecycle = async (data: vipTableData) => {
         const campaignIds = tableHead[sheetName].campaignIds;
 
         let totalRecycle = 0;
@@ -162,11 +175,13 @@ export default function masterSheet() {
                     totalRecycle += response.message.totalResults;
                 }
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.error(key, "Error fetching data:", error);
                 setLoading(false);
                 return;
             }
         }
+        data.totalRecycle = totalRecycle;
+        setTableData(data);
         return totalRecycle;
     }
 

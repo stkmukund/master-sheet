@@ -9,8 +9,6 @@ export async function GET(request: Request) {
     if (status) fetchStatus = status;
 
     if (!startDate || !endDate) return apiResponse({ result: "Error", message: "Missing startDate or endDate" });
-    let totalCount = 0;
-    let totalRevenue: number = 0;
 
     const requestOptions = {
         method: "POST"
