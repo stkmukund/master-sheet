@@ -6,39 +6,6 @@ import TableWithLoading from "@/app/components/TableWithLoading";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-type tableHeading = {
-    projectedRebillRevenue: tableSheet;
-    totalVipTracking: tableSheet;
-    upsellTakeRateReport: tableSheet;
-}
-
-type tableSheet = {
-    tableHeading: string[];
-    campaignIds?: {
-        lashCosmetics: number[];
-        browCharm: number[];
-        floralSecrets: number[];
-        invisilift: number[];
-        indestructibleTights: number[];
-        fitcharm: number[];
-        browPro: number[];
-    };
-}
-
-type vipTableData = {
-    dataPulled?: string;
-    lashCosmetics?: number;
-    browCharm?: number;
-    floralSecrets?: number;
-    invisilift?: number;
-    indestructibleTights?: number;
-    fitcharm?: number;
-    browPro?: number;
-    totalVips?: number;
-    totalRecycle?: number;
-    [key: string]: string | number | undefined; // Index signature
-}
-
 export default function MasterSheet() {
     const params: { reportName: string[] } = useParams();
     const sheetName = params.reportName[1] as keyof tableHeading;;
@@ -89,6 +56,7 @@ export default function MasterSheet() {
         e.preventDefault();
         setLoading(true);
         if (sheetName === "totalVipTracking") await handleTotalVipTracking();
+        else if (sheetName === "upsellTakeRateReport") await handleUpsellTakeRateReport();
         else {
             try {
                 const response = await fetch(`/api/master-sheet/projected-rebill-revenue/?startDate=${startDate}&endDate=${endDate}`).then(result => result.json());
@@ -185,6 +153,86 @@ export default function MasterSheet() {
         return totalRecycle;
     }
 
+    // UpsellTakeRateReport Start
+    const handleUpsellTakeRateReport = async () => {
+        const upsellTakeData: upsellTakeData = {};
+        const upsellProductIds: upsellProductIdsInterface = tableHead.upsellTakeRateReport.productIds!;
+        for (const [key, ids] of Object.entries(upsellProductIds)) {
+            try {
+                const response = await fetch(
+                    `/api/master-sheet/upsell-take-rate-report/?startDate=${startDate}&endDate=${endDate}&campaignProductId=${ids}`
+                ).then(result => result.json());
+
+                if (response.result === 'ERROR') {
+                    setError(response.message);
+                    setLoading(false);
+                    return; // Exit the function if an error occurs
+                }
+
+                if (response.result === 'SUCCESS') {
+                    upsellTakeData[key as keyof upsellTakeData] = response.message
+                    setLoading(false);
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                setLoading(false);
+                return;
+            }
+        }
+        const totalSales = totalSalesCount(upsellTakeData);
+        // Generate the report
+        const upsellReport = generateUpsellReport(upsellTakeData, startDate, endDate, totalSales);
+        console.log("upsellReport", JSON.stringify(upsellReport, null, 2));
+    }
+
+    const totalSalesCount = (data: upsellTakeData) => {
+        let total = 0;
+        Object.values(data).map((product) => {
+            total += product.salesCount;
+        })
+        return total;
+    }
+    const percentageData = (amount: number, total: number) => {
+        return ((amount / total) * 100).toFixed(2);
+    }
+    const earningsData = (amount: number, total: number) => {
+        return (((amount / total) * 100) / 100).toFixed(2);
+    }
+    // Generate the report
+    const generateUpsellReport = (
+        upsellTakeData: Record<string, { salesRev: number }>,
+        startDate: string,
+        endDate: string,
+        total: number
+    ): UpsellReport => {
+        const percentage: Record<string, number | string> = { dateRange: `${startDate}-${endDate}` };
+        const earnings: Record<string, number | string> = { dateRange: `${startDate}-${endDate}` };
+
+        let earningsTotal = 0;
+
+        for (const key in upsellTakeData) {
+            const salesRev = upsellTakeData[key].salesRev;
+
+            // Calculate percentage and earnings
+            percentage[key] = percentageData(salesRev, total);
+            const earning = earningsData(salesRev, total);
+            earnings[key] = earning;
+
+            // Add to earningsTotal
+            earningsTotal += parseFloat(earning);
+        }
+
+        // Add totals to both objects
+        percentage.total = total;
+        earnings.total = earningsTotal;
+
+        return {
+            percentageData: percentage,
+            earningsData: earnings
+        };
+    };
+    // UpsellTakeRateReport End
+
     return (
         <div className="max-w-screen-lg mx-auto">
             <section id="form">
@@ -220,6 +268,84 @@ const tableHead: tableHeading = {
         }
     },
     upsellTakeRateReport: {
-        tableHeading: ["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"]
+        tableHeading: ["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"],
+        productIds: {
+            offer1_upProdId: '1047,103,542,174,698,362,986,919,802,1179,8,51,791,249,220,452,1200,1100',
+            offer1_downProductId: '699,221,496,9,1201,543,52,250,920,363,987,1101,104,1048,175,308,1251,803,453,406',
+            offer2_upProdId: '498,316,1258,399,656,408',
+            offer2_downProductId: '499,1259,657,409',
+            offer3_upProdId: '317,1240,294,398,488,662',
+            offer3_downProductId: '318,394,1229,146,110'
+        }
     }
+};
+
+// Types
+type tableHeading = {
+    projectedRebillRevenue: tableSheet;
+    totalVipTracking: tableSheet;
+    upsellTakeRateReport: tableSheet;
+}
+
+type tableSheet = {
+    tableHeading: string[];
+    campaignIds?: {
+        lashCosmetics: number[];
+        browCharm: number[];
+        floralSecrets: number[];
+        invisilift: number[];
+        indestructibleTights: number[];
+        fitcharm: number[];
+        browPro: number[];
+    };
+    productIds?: upsellProductIdsInterface
+}
+
+type upsellProductIdsInterface = {
+    offer1_upProdId: string;
+    offer1_downProductId: string;
+    offer2_upProdId: string;
+    offer2_downProductId: string;
+    offer3_upProdId: string;
+    offer3_downProductId: string;
+}
+
+type vipTableData = {
+    dataPulled?: string;
+    lashCosmetics?: number;
+    browCharm?: number;
+    floralSecrets?: number;
+    invisilift?: number;
+    indestructibleTights?: number;
+    fitcharm?: number;
+    browPro?: number;
+    totalVips?: number;
+    totalRecycle?: number;
+    [key: string]: string | number | undefined; // Index signature
+}
+
+type upsellTakeData = {
+    offer1_upProdId?: upsellTakeProduct;
+    offer1_downProductId?: upsellTakeProduct;
+    offer2_upProdId?: upsellTakeProduct;
+    offer2_downProductId?: upsellTakeProduct;
+    offer3_upProdId?: upsellTakeProduct;
+    offer3_downProductId?: upsellTakeProduct;
+}
+
+type upsellTakeProduct = {
+    salesCount: number;
+    salesRev: number;
+}
+
+// Building the upsell report dynamically
+type UpsellReport = {
+    percentageData: {
+        dateRange: string;
+        [key: string]: number | string;
+    };
+    earningsData: {
+        dateRange: string;
+        [key: string]: number | string;
+    };
 };
