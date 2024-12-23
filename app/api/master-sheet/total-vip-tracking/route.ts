@@ -6,6 +6,8 @@ export async function GET(request: Request) {
     const endDate = url.searchParams.get('endDate');
     const campaignId = url.searchParams.get('campaignId');
     const status = url.searchParams.get('status');
+    const brandName = url.searchParams.get('brandName');
+    const brand = JSON.parse(process.env[brandName!] || '');
     let fetchStatus = "ACTIVE";
     if (status) fetchStatus = status;
 
@@ -15,7 +17,7 @@ export async function GET(request: Request) {
         method: "POST"
     };
 
-    const response = await fetch(`https://api.checkoutchamp.com/purchase/query/?loginId=revboostapirs.nymbus&password=RSsfFrR2nN5PcC6L1pSRs&startDate=${startDate}&endDate=${endDate}&status=${fetchStatus}&campaignId=${campaignId}&resultsPerPage=1`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
+    const response = await fetch(`https://api.checkoutchamp.com/purchase/query/?loginId=${brand.loginId}&password=${brand.password}&startDate=${startDate}&endDate=${endDate}&status=${fetchStatus}&campaignId=${campaignId}&resultsPerPage=1`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
     if (response.result === "ERROR") return apiResponse({ result: "ERROR", message: response.message });
     if (response.result === "SUCCESS") {
         const data = response.message;

@@ -54,14 +54,13 @@ export default function MasterSheet() {
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        console.log(brandName)
         e.preventDefault();
         setLoading(true);
         if (sheetName === "totalVipTracking") await handleTotalVipTracking();
         else if (sheetName === "upsellTakeRateReport") await handleUpsellTakeRateReport();
         else {
             try {
-                const response = await fetch(`/api/master-sheet/projected-rebill-revenue/?startDate=${startDate}&endDate=${endDate}`).then(result => result.json());
+                const response = await fetch(`/api/master-sheet/projected-rebill-revenue/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}`).then(result => result.json());
                 if (response.result === 'ERROR') {
                     setError(response.message);
                     setLoading(false);
@@ -88,7 +87,7 @@ export default function MasterSheet() {
             const stringOfIds = ids?.join(",");
             try {
                 const response = await fetch(
-                    `/api/master-sheet/total-vip-tracking/?startDate=${startDate}&endDate=${endDate}&campaignId=${stringOfIds}`
+                    `/api/master-sheet/total-vip-tracking/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&campaignId=${stringOfIds}`
                 ).then(result => result.json());
 
                 if (response.result === 'ERROR') {
@@ -162,7 +161,7 @@ export default function MasterSheet() {
         for (const [key, ids] of Object.entries(upsellProductIds)) {
             try {
                 const response = await fetch(
-                    `/api/master-sheet/upsell-take-rate-report/?startDate=${startDate}&endDate=${endDate}&campaignProductId=${ids}`
+                    `/api/master-sheet/upsell-take-rate-report/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&campaignProductId=${ids}`
                 ).then(result => result.json());
 
                 if (response.result === 'ERROR') {
@@ -239,11 +238,11 @@ export default function MasterSheet() {
         <div className="max-w-screen-lg mx-auto">
             <section id="form">
                 <form onSubmit={handleSubmit} className="flex items-center gap-4 text-black h-16">
-                    <select onChange={(e) => setBrandName(e.target.value)} value={brandName} className="h-[40px] rounded-md" name="brandList" id="brand-list">
+                    <select onChange={(e) => setBrandName(e.target.value)} value={brandName} className="cursor-pointer h-[40px] rounded-md" name="brandList" id="brand-list">
                         <option disabled>Select Brand</option>
-                        <option value="NYMBUS">Nymbus</option>
-                        <option value="CREATUNITY">Creatunity</option>
-                        <option value="HELIKON">Helikon</option>
+                        <option className="text-center" value="NYMBUS">Nymbus</option>
+                        <option className="text-center" value="CREATUNITY">Creatunity</option>
+                        <option className="text-center" value="HELIKON">Helikon</option>
                     </select>
                     <input type="text" id="startDate" value={startDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="Start Date: MMDDYY" required />
                     <input type="text" id="endDate" value={endDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="End Date: MMDDYY" required />

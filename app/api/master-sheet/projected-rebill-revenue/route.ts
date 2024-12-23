@@ -3,6 +3,8 @@ export async function GET(request: Request) {
     const url = new URL(request.url); // `request.url` is the full URL
     const startDate = url.searchParams.get('startDate');
     const endDate = url.searchParams.get('endDate');
+    const brandName = url.searchParams.get('brandName');
+    const brand = JSON.parse(process.env[brandName!] || '');
 
     if (!startDate || !endDate) return apiResponse({ result: "Error", message: "Missing startDate or endDate" });
     let totalCount = 0;
@@ -12,7 +14,7 @@ export async function GET(request: Request) {
         method: "POST"
     };
 
-    const response = await fetch(`https://api.checkoutchamp.com/reports/projected-billing/?loginId=revboostapirs.nymbus&password=RSsfFrR2nN5PcC6L1pSRs&startDate=${startDate}&endDate=${endDate}&reportType=campaign&cycle1Attrition=80&cycle2Attrition=80&cycle3Attrition=80&cycle4PlusAttrition=80`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
+    const response = await fetch(`https://api.checkoutchamp.com/reports/projected-billing/?loginId=${brand.loginId}&password=${brand.password}&startDate=${startDate}&endDate=${endDate}&reportType=campaign&cycle1Attrition=80&cycle2Attrition=80&cycle3Attrition=80&cycle4PlusAttrition=80`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
     if (response.result === "ERROR") return apiResponse({ result: "ERROR", message: response.message });
     if (response.result === "SUCCESS") {
         const data = response.message;
