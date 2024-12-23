@@ -252,7 +252,7 @@ export default function MasterSheet() {
                 {error && (<div className="mt-1 text-red-600 font-semibold text-sm">{error}</div>)}
             </section>
             <section id="table" className="mt-2">
-                {Object.keys(tableData).length > 0 ? <Table tableHead={tableHead[sheetName].tableHeading} tableBody={tableData} /> : <TableWithLoading tableHead={tableHead[sheetName].tableHeading} />}
+                {Object.keys(tableData).length > 0 ? <Table tableHead={tableHead[sheetName].tableHeading[brandName]} tableBody={tableData} /> : <TableWithLoading tableHead={tableHead[sheetName].tableHeading[brandName]} />}
             </section>
         </div>
     )
@@ -260,22 +260,45 @@ export default function MasterSheet() {
 
 const tableHead: tableHeading = {
     projectedRebillRevenue: {
-        tableHeading: ["Date (Next 30)", "Total Revenue", "Report Date", "Projected Approved Rebill Count"]
+        tableHeading: {
+            NYMBUS: ["Date (Next 30)", "Total Revenue", "Report Date", "Projected Approved Rebill Count"],
+            CREATUNITY: ["Date (Next 30)", "Total Revenue", "Report Date", "Projected Approved Rebill Count"],
+            HELIKON: ["Date (Next 30)", "Total Revenue", "Report Date", "Projected Approved Rebill Count"]
+        }
     },
     totalVipTracking: {
-        tableHeading: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Invisilift", "Indestructible Tights", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"],
+        tableHeading: {
+            NYMBUS: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Invisilift", "Indestructible Tights", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"],
+            CREATUNITY: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Invisilift", "Indestructible Tights", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"],
+            HELIKON: ["Date Pulled", "Total Andor VIPs", "Total VIP Recycling", "Total Andor VIP's Paused Status"],
+        },
         campaignIds: {
-            lashCosmetics: [61, 47, 1, 68, 9, 6, 67, 69, 70],
-            browCharm: [88, 48, 24, 8, 20, 10, 28, 34, 35, 45, 83, 82],
-            floralSecrets: [38, 46, 85, 12, 71, 55, 21, 15],
-            invisilift: [16, 53, 31, 19],
-            indestructibleTights: [56, 58, 59],
-            fitcharm: [76, 81, 79],
-            browPro: [97, 101, 99]
+            NYMBUS: {
+                lashCosmetics: [61, 47, 1, 68, 9, 6, 67, 69, 70],
+                browCharm: [88, 48, 24, 8, 20, 10, 28, 34, 35, 45, 83, 82],
+                floralSecrets: [38, 46, 85, 12, 71, 55, 21, 15],
+                invisilift: [16, 53, 31, 19],
+                indestructibleTights: [56, 58, 59],
+                fitcharm: [76, 81, 79],
+                browPro: [97, 101, 99]
+            },
+            HELIKON: {
+                lashCosmetics: [61, 47, 1, 68, 9, 6, 67, 69, 70],
+                browCharm: [88, 48, 24, 8, 20, 10, 28, 34, 35, 45, 83, 82],
+                floralSecrets: [38, 46, 85, 12, 71, 55, 21, 15],
+                invisilift: [16, 53, 31, 19],
+                indestructibleTights: [56, 58, 59],
+                fitcharm: [76, 81, 79],
+                browPro: [97, 101, 99]
+            }
         }
     },
     upsellTakeRateReport: {
-        tableHeading: ["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"],
+        tableHeading: {
+            NYMBUS: ["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"],
+            CREATUNITY: ["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"],
+            HELIKON: ["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"],
+        },
         productIds: {
             offer1_upProdId: '1047,103,542,174,698,362,986,919,802,1179,8,51,791,249,220,452,1200,1100',
             offer1_downProductId: '699,221,496,9,1201,543,52,250,920,363,987,1101,104,1048,175,308,1251,803,453,406',
@@ -295,16 +318,24 @@ type tableHeading = {
 }
 
 type tableSheet = {
-    tableHeading: string[];
-    campaignIds?: {
-        lashCosmetics: number[];
-        browCharm: number[];
-        floralSecrets: number[];
-        invisilift: number[];
-        indestructibleTights: number[];
-        fitcharm: number[];
-        browPro: number[];
+    tableHeading: {
+        NYMBUS: string[];
+        CREATUNITY: string[];
+        HELIKON: string[];
+        [key: string]: string[]; // Index signature
     };
+    campaignIds?: {
+        NYMBUS?: {
+            lashCosmetics: number[];
+            browCharm: number[];
+            floralSecrets: number[];
+            invisilift: number[];
+            indestructibleTights: number[];
+            fitcharm: number[];
+            browPro: number[];
+        };
+        HELIKON?: {};
+    }
     productIds?: upsellProductIdsInterface
 }
 
