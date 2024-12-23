@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 
 export default function MasterSheet() {
     const params: { reportName: string[] } = useParams();
-    const sheetName = params.reportName[1] as keyof tableHeading;;
+    const sheetName = params.reportName[1] as keyof tableHeading;
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [tableData, setTableData] = useState({});
@@ -184,7 +184,7 @@ export default function MasterSheet() {
         const upsellReport = generateUpsellReport(upsellTakeData, startDate, endDate, totalSales);
         console.log("upsellReport", JSON.stringify(upsellReport, null, 2));
     }
-
+    
     const totalSalesCount = (data: upsellTakeData) => {
         let total = 0;
         Object.values(data).map((product) => {

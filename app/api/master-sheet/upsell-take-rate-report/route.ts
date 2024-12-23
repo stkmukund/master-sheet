@@ -15,7 +15,7 @@ export async function GET(request: Request) {
         method: "POST"
     };
 
-    const response = await fetch(`https://api.checkoutchamp.com/transactions/summary/?loginId=revboostapirs.nymbus&password=RSsfFrR2nN5PcC6L1pSRs&startDate=${startDate}&endDate=${endDate}&campaignProductId=${campaignProductId}&reportType=product`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
+    const response = await fetch(`https://api.checkoutchamp.com/transactions/summary/?loginId=revbdevdsg.helikon&password=yk5Z549ZN2KFz&startDate=${startDate}&endDate=${endDate}&campaignProductId=${campaignProductId}&reportType=product`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
     if (response.result === "ERROR") return apiResponse({
         result: "SUCCESS", message: {
             salesCount: 0,
