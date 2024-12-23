@@ -13,6 +13,7 @@ export default function MasterSheet() {
     const [endDate, setEndDate] = useState("");
     const [tableData, setTableData] = useState({});
     const [loading, setLoading] = useState(false);
+    const [brandName, setBrandName] = useState("NYMBUS");
     const [error, setError] = useState("");
 
     useEffect(() => {
@@ -53,6 +54,7 @@ export default function MasterSheet() {
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        console.log(brandName)
         e.preventDefault();
         setLoading(true);
         if (sheetName === "totalVipTracking") await handleTotalVipTracking();
@@ -184,7 +186,7 @@ export default function MasterSheet() {
         const upsellReport = generateUpsellReport(upsellTakeData, startDate, endDate, totalSales);
         console.log("upsellReport", JSON.stringify(upsellReport, null, 2));
     }
-    
+
     const totalSalesCount = (data: upsellTakeData) => {
         let total = 0;
         Object.values(data).map((product) => {
@@ -236,7 +238,13 @@ export default function MasterSheet() {
     return (
         <div className="max-w-screen-lg mx-auto">
             <section id="form">
-                <form onSubmit={handleSubmit} className="flex items-center gap-4 text-black">
+                <form onSubmit={handleSubmit} className="flex items-center gap-4 text-black h-16">
+                    <select onChange={(e) => setBrandName(e.target.value)} value={brandName} className="h-[40px] rounded-md" name="brandList" id="brand-list">
+                        <option disabled>Select Brand</option>
+                        <option value="NYMBUS">Nymbus</option>
+                        <option value="CREATUNITY">Creatunity</option>
+                        <option value="HELIKON">Helikon</option>
+                    </select>
                     <input type="text" id="startDate" value={startDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="Start Date: MMDDYY" required />
                     <input type="text" id="endDate" value={endDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="End Date: MMDDYY" required />
                     {!loading && <Button name="Calculate" type="submit" disabled={loading} />}

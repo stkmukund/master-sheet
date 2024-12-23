@@ -46,5 +46,5 @@ function Navbar({ className }: { className?: string }) {
 
 const styles = {
     activeLink: "text-[#E6151C] hover:underline",
-    link: "text-[#F1D302] hover:underline"
+    link: "text-[#374151] hover:underline"
 }
