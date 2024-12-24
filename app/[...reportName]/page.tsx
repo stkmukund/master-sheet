@@ -84,6 +84,7 @@ export default function MasterSheet() {
         const campaignIds = tableHead[sheetName].campaignIds;
 
         for (const [key, ids] of Object.entries(campaignIds!)) {
+            console.log(key, ids)
             const stringOfIds = ids?.join(",");
             try {
                 const response = await fetch(
@@ -274,22 +275,19 @@ const tableHead: tableHeading = {
         },
         campaignIds: {
             NYMBUS: {
-                lashCosmetics: [61, 47, 1, 68, 9, 6, 67, 69, 70],
-                browCharm: [88, 48, 24, 8, 20, 10, 28, 34, 35, 45, 83, 82],
-                floralSecrets: [38, 46, 85, 12, 71, 55, 21, 15],
-                invisilift: [16, 53, 31, 19],
-                indestructibleTights: [56, 58, 59],
-                fitcharm: [76, 81, 79],
-                browPro: [97, 101, 99]
+                lashCosmetics: "61, 47, 1, 68, 9, 6, 67, 69, 70",
+                browCharm: "88, 48, 24, 8, 20, 10, 28, 34, 35, 45, 83, 82",
+                floralSecrets: "38, 46, 85, 12, 71, 55, 21, 15",
+                invisilift: "16, 53, 31, 19",
+                indestructibleTights: "56, 58, 59",
+                fitcharm: "76, 81, 79",
+                browPro: "97, 101, 99"
             },
             HELIKON: {
-                lashCosmetics: [61, 47, 1, 68, 9, 6, 67, 69, 70],
-                browCharm: [88, 48, 24, 8, 20, 10, 28, 34, 35, 45, 83, 82],
-                floralSecrets: [38, 46, 85, 12, 71, 55, 21, 15],
-                invisilift: [16, 53, 31, 19],
-                indestructibleTights: [56, 58, 59],
-                fitcharm: [76, 81, 79],
-                browPro: [97, 101, 99]
+                mLab: "1,2,4,5,7,8,9,13,21",
+                checkoutChamp: "6,20",
+                flexiHealth: "11",
+                bankSites: "14,15,16,17,18"
             }
         }
     },
@@ -326,13 +324,13 @@ type tableSheet = {
     };
     campaignIds?: {
         NYMBUS?: {
-            lashCosmetics: number[];
-            browCharm: number[];
-            floralSecrets: number[];
-            invisilift: number[];
-            indestructibleTights: number[];
-            fitcharm: number[];
-            browPro: number[];
+            lashCosmetics: string;
+            browCharm: string;
+            floralSecrets: string;
+            invisilift: string;
+            indestructibleTights: string;
+            fitcharm: string;
+            browPro: string;
         };
         HELIKON?: {};
     }
