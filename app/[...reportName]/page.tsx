@@ -11,9 +11,9 @@ export default function MasterSheet() {
     const sheetName = params.reportName[1] as keyof tableHeading;
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
-    const [tableData, setTableData] = useState({});
+    const [tableData, setTableData] = useState<tableData>({ NYMBUS: {}, HELIKON: {} });
     const [loading, setLoading] = useState(false);
-    const [brandName, setBrandName] = useState("NYMBUS");
+    const [brandName, setBrandName] = useState<string>("NYMBUS");
     const [error, setError] = useState("");
 
     useEffect(() => {
@@ -66,7 +66,7 @@ export default function MasterSheet() {
                     setLoading(false);
                 }
                 if (response.result === 'SUCCESS') {
-                    setTableData(response.message);
+                    setTableData((prev) => ({ ...prev, [brandName]: response.message }));
                     setLoading(false);
                 }
             } catch (error) {
@@ -97,7 +97,7 @@ export default function MasterSheet() {
 
                 if (response.result === 'SUCCESS') {
                     vipTableData[key as keyof vipTableData] = response.message.totalResults;
-                    setTableData(vipTableData);
+                    setTableData((prev) => ({ ...prev, [brandName]: vipTableData }));
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -118,7 +118,7 @@ export default function MasterSheet() {
             sum += element;
         };
         data.totalVips = sum;
-        setTableData(data);
+        setTableData((prev) => ({ ...prev, [brandName]: data }));
     }
 
     const calculateTotalVipRecycle = async (data: vipTableData) => {
@@ -147,7 +147,7 @@ export default function MasterSheet() {
             }
         }
         data.totalRecycle = totalRecycle;
-        setTableData(data);
+        setTableData((prev) => ({ ...prev, [brandName]: data }));
         return totalRecycle;
     }
 
@@ -249,7 +249,7 @@ export default function MasterSheet() {
                 {error && (<div className="mt-1 text-red-600 font-semibold text-sm">{error}</div>)}
             </section>
             <section id="table" className="mt-2">
-                {Object.keys(tableData).length > 0 ? <Table tableHead={tableHead[sheetName].tableHeading[brandName]} tableBody={tableData} /> : <TableWithLoading tableHead={tableHead[sheetName].tableHeading[brandName]} />}
+                {Object.keys(tableData[brandName]!).length > 0 ? <Table tableHead={tableHead[sheetName].tableHeading[brandName]} tableBody={tableData[brandName]!} /> : <TableWithLoading tableHead={tableHead[sheetName].tableHeading[brandName]} />}
             </section>
         </div>
     )
@@ -267,7 +267,7 @@ const tableHead: tableHeading = {
         tableHeading: {
             NYMBUS: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Invisilift", "Indestructible Tights", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"],
             CREATUNITY: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Invisilift", "Indestructible Tights", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"],
-            HELIKON: ["Date Pulled", "mLab™", "CheckoutChamp", "Flexi Health™", "Bank Sites","Total Andor VIPs", "Total VIP Recycling", "Total Andor VIP's Paused Status"],
+            HELIKON: ["Date Pulled", "mLab™", "CheckoutChamp", "Flexi Health™", "Bank Sites", "Total Andor VIPs", "Total VIP Recycling", "Total Andor VIP's Paused Status"],
         },
         campaignIds: {
             NYMBUS: {
@@ -305,6 +305,19 @@ const tableHead: tableHeading = {
 };
 
 // Types
+type tableData = {
+    NYMBUS: {
+        [key: string]: string[]
+    };
+    CREATUNITY?: {
+        [key: string]: string[]
+    };
+    HELIKON: {
+        [key: string]: string[]
+    };
+    [key: string]: object | undefined;
+}
+
 type tableHeading = {
     projectedRebillRevenue: tableSheet;
     totalVipTracking: tableSheet;
