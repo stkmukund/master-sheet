@@ -332,7 +332,12 @@ type tableSheet = {
             fitcharm: string;
             browPro: string;
         };
-        HELIKON?: {};
+        HELIKON?: {
+            mLab: string;
+            checkoutChamp: string;
+            flexiHealth: string;
+            bankSites: string;
+        };
     }
     productIds?: upsellProductIdsInterface
 }
