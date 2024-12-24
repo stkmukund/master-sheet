@@ -5,7 +5,7 @@ export async function GET(request: Request) {
     const startDate = url.searchParams.get('startDate');
     const endDate = url.searchParams.get('endDate');
     const campaignProductId = url.searchParams.get('campaignProductId');
-    const status = url.searchParams.get('status');
+    // const status = url.searchParams.get('status');
     // let fetchStatus = "ACTIVE";
     // if (status) fetchStatus = status;
 
