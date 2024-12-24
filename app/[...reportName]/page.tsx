@@ -393,11 +393,11 @@ type upsellTakeProduct = {
 // Building the upsell report dynamically
 type UpsellReport = {
     percentageData: {
-        dateRange: string;
-        [key: string]: number | string;
+        dateRange?: string;
+        [key: string]: number | string | undefined;
     };
     earningsData: {
-        dateRange: string;
-        [key: string]: number | string;
+        dateRange?: string;
+        [key: string]: number | string | undefined;
     };
 };
