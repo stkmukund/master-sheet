@@ -18,7 +18,10 @@ export async function GET(request: Request) {
     };
 
     const response = await fetch(`https://api.checkoutchamp.com/purchase/query/?loginId=${brand.loginId}&password=${brand.password}&startDate=${startDate}&endDate=${endDate}&status=${fetchStatus}&campaignId=${campaignId}&resultsPerPage=1`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
-    if (response.result === "ERROR") return apiResponse({ result: "ERROR", message: response.message });
+    if (response.result === "ERROR") {
+        if (response.message === "No purchases matching those parameters could be found") return apiResponse({ result: "SUCCESS", message: { totalResults: 0 } });
+        else return apiResponse({ result: "ERROR", message: response.message })
+    };
     if (response.result === "SUCCESS") {
         const data = response.message;
         return apiResponse({ result: "SUCCESS", message: { totalResults: data.totalResults } });

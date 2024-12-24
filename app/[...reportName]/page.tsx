@@ -81,14 +81,12 @@ export default function MasterSheet() {
         const vipTableData: vipTableData = {
             dataPulled: endDate,
         }
-        const campaignIds = tableHead[sheetName].campaignIds;
+        const campaignIds = tableHead[sheetName].campaignIds![brandName];
 
         for (const [key, ids] of Object.entries(campaignIds!)) {
-            console.log(key, ids)
-            const stringOfIds = ids?.join(",");
             try {
                 const response = await fetch(
-                    `/api/master-sheet/total-vip-tracking/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&campaignId=${stringOfIds}`
+                    `/api/master-sheet/total-vip-tracking/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&campaignId=${ids}`
                 ).then(result => result.json());
 
                 if (response.result === 'ERROR') {
@@ -114,7 +112,6 @@ export default function MasterSheet() {
 
     const calculateTotalVips = async (data: vipTableData) => {
         const totalVips = Object.values(data);
-        console.log("totalVips", totalVips)
         let sum = 0;
         for (let index = 1; index < totalVips.length; index++) {
             const element = +totalVips[index]!;
@@ -125,14 +122,13 @@ export default function MasterSheet() {
     }
 
     const calculateTotalVipRecycle = async (data: vipTableData) => {
-        const campaignIds = tableHead[sheetName].campaignIds;
+        const campaignIds = tableHead[sheetName].campaignIds![brandName];
 
         let totalRecycle = 0;
         for (const [key, ids] of Object.entries(campaignIds!)) {
-            const stringOfIds = ids?.join(",");
             try {
                 const response = await fetch(
-                    `/api/master-sheet/total-vip-tracking/?startDate=${startDate}&endDate=${endDate}&campaignId=${stringOfIds}&status=RECYCLE_BILLING`
+                    `/api/master-sheet/total-vip-tracking/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&campaignId=${ids}&status=RECYCLE_BILLING`
                 ).then(result => result.json());
 
                 if (response.result === 'ERROR') {
@@ -271,7 +267,7 @@ const tableHead: tableHeading = {
         tableHeading: {
             NYMBUS: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Invisilift", "Indestructible Tights", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"],
             CREATUNITY: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Invisilift", "Indestructible Tights", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"],
-            HELIKON: ["Date Pulled", "Total Andor VIPs", "Total VIP Recycling", "Total Andor VIP's Paused Status"],
+            HELIKON: ["Date Pulled", "mLab™", "CheckoutChamp", "Flexi Health™", "Bank Sites","Total Andor VIPs", "Total VIP Recycling", "Total Andor VIP's Paused Status"],
         },
         campaignIds: {
             NYMBUS: {
@@ -331,6 +327,7 @@ type tableSheet = {
             indestructibleTights: string;
             fitcharm: string;
             browPro: string;
+            [key: string]: string;
         };
         HELIKON?: {
             mLab: string;
@@ -338,7 +335,8 @@ type tableSheet = {
             flexiHealth: string;
             bankSites: string;
         };
-    }
+        [key: string]: object | undefined; // This allows other dynamic keys with object values
+    };
     productIds?: upsellProductIdsInterface
 }
 
