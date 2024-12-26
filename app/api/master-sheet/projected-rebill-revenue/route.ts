@@ -1,11 +1,14 @@
-import sheets from '../../utils/sheets';
+import { addOneDay, calculateEndDate } from '@/lib/date-utils';
+import { apiResponse } from '@/lib/utils';
 const spreadsheetId = "1ViQHXWJaaHzn_9XYrgzwy1eOzQVGFdEapYeuEpBBjNY";
 
 export async function GET(request: Request) {
     // Access the query string parameters from the URL
     const url = new URL(request.url); // `request.url` is the full URL
-    const startDate = url.searchParams.get('startDate');
-    const endDate = url.searchParams.get('endDate');
+    const reportDate = url.searchParams.get('startDate');
+    const startDate = addOneDay(reportDate!);
+    let endDate = url.searchParams.get('endDate');
+    if (!endDate) endDate = calculateEndDate(startDate!);
     const brandName = url.searchParams.get('brandName');
     const brand = JSON.parse(process.env[brandName!] || '');
 
@@ -34,68 +37,7 @@ export async function GET(request: Request) {
         // console.log(JSON.stringify(campaignData, null, 2));
         totalRevenue = +totalRevenue.toFixed(2);
     }
-    const message = { date: startDate + " - " + endDate, totalRevenue, reportDate: "need to add", totalCount };
-    addDataToSheet(message);
+    const message = { date: startDate + " - " + endDate, totalRevenue, reportDate, totalCount };
+    // addDataToSheet(message);
     return apiResponse({ result: "SUCCESS", message });
-}
-
-const apiResponse = (message: object, status: number = 200) => {
-    return new Response(JSON.stringify(message), {
-        status: status,
-        headers: { 'Content-Type': 'application/json' },
-    });
-}
-const addDataToSheet=async(message: object)=>
-{
-    const resource = {
-        values: [
-            [message.date, message.totalRevenue, message.reportDate, message.totalCount] // Correct structure
-        ]
-
-    };
-    const response = await sheets.spreadsheets.values.append({
-        spreadsheetId, range: "Projected Rebill Revenue - Next 30 Days!A:A",
-        valueInputOption: "USER_ENTERED",
-        resource
-    });
-    const updates = response.data.updates;
-    async function getStartingRow(range:string) {
-        // Split the range into sheet name and cell range
-        const cellRange = range.split('!')[1];
-        // Extract the starting row number
-        const startRow = cellRange.split(':')[0].match(/\d+/)[0];
-        return await parseInt(startRow, 10);
-    }
-
-    const updatedRange = updates.updatedRange;
-    let startingRowIndex = await getStartingRow(updatedRange);
-        // Add borders to the appended cells
-        const batchUpdateRequest = {
-            requests: [
-                {
-                    updateBorders: {
-                        range: {
-                            sheetId: 98572450,
-                            startRowIndex: startingRowIndex-1, // Adjust based on your appended rows
-                            endRowIndex: startingRowIndex, // Adjust to the end of appended rows
-                            startColumnIndex: 0,
-                            endColumnIndex: 4, // Adjust based on the number of columns
-                        },
-                        top: { style: "SOLID", width: 1, color: { red: 0, green: 0, blue: 0 } },
-                        bottom: { style: "SOLID", width: 1, color: { red: 0, green: 0, blue: 0 } },
-                        left: { style: "SOLID", width: 1, color: { red: 0, green: 0, blue: 0 } },
-                        right: { style: "SOLID", width: 1, color: { red: 0, green: 0, blue: 0 } },
-                        innerHorizontal: { style: "SOLID", width: 1, color: { red: 0, green: 0, blue: 0 } },
-                        innerVertical: { style: "SOLID", width: 1, color: { red: 0, green: 0, blue: 0 } },
-                    },
-
-                },
-            ],
-        };
-
-        const batchUpdateResponse = await sheets.spreadsheets.batchUpdate({
-            spreadsheetId,
-            resource: batchUpdateRequest,
-        });
-console.log('batchUpdateResponse',batchUpdateResponse)
 }

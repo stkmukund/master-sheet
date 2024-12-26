@@ -21,14 +21,14 @@ const googleJSON = {
 async function writeToSheet(values, spreadsheetID, range, auth) {
     const sheets = google.sheets({ version: "v4", auth });
     const resource = { values };
-    
-    console.log("values", values)
+
+    console.log("spreadsheetID", spreadsheetID)
     console.log("range", range)
     console.log("resource", resource)
     try {
         const response = await sheets.spreadsheets.values.append({
             spreadsheetId: spreadsheetID,
-            range: range,
+            range: encodeURIComponent(range),
             valueInputOption: "USER_ENTERED",
             resource: resource,
         });
@@ -45,13 +45,8 @@ export async function POST(req: Request) {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type");
     const body = await req.json();
-
-    let spreadsheetID = "";
-    if (type !== "daily") {
-        spreadsheetID = ""; // Monthly
-    } else {
-        spreadsheetID = "1eTbuQ4MNIKg9lwIAbfzr-CuOAFuxMaYqy7K4vaweA_g"; // Daily
-    }
+    const spreadsheetID = body.sheetDetails.sheetId;
+    const sheetName = body.sheetDetails.sheetName;
 
     const auth = new google.auth.GoogleAuth({
         credentials: googleJSON,
@@ -59,7 +54,7 @@ export async function POST(req: Request) {
     });
 
     try {
-        const response = await writeToSheet(body, spreadsheetID, `${type !== "daily" ? type : 'Sheet1'}!A:A`, auth);
+        const response = await writeToSheet([body.values], spreadsheetID, `${sheetName}!A:A`, auth);
         return new Response(JSON.stringify({ success: true, data: response.data }), { status: 200 });
     } catch (error) {
         return new Response(JSON.stringify({ success: false, error: error.message }), { status: 500 });
