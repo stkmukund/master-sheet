@@ -1,3 +1,5 @@
+// import sheets from '../../utils/sheets';
+// const spreadsheetId = "1ydqgJCMkvp1ctuvk7pKS7-UFbIbrleUivnl4c5scWPQ";
 export const maxDuration = 60 // 60sec max duration
 export async function GET(request: Request) {
     // Access the query string parameters from the URL
@@ -26,6 +28,7 @@ export async function GET(request: Request) {
         const data = response.message;
         return apiResponse({
             result: "SUCCESS", message: {
+                date: startDate + " - " + endDate,
                 salesCount: data[0].newSaleCnt,
                 salesRev: +data[0].newSaleRev
             }
@@ -34,8 +37,34 @@ export async function GET(request: Request) {
 }
 
 const apiResponse = (message: object, status: number = 200) => {
+    //addDataToSheet(message);
     return new Response(JSON.stringify(message), {
         status: status,
         headers: { 'Content-Type': 'application/json' },
     });
+}
+
+const addDataToSheet = async (message: object) => {
+    let data = message.message;
+    console.log('addDataToSheet', data.salesCount);
+    let value = await prepreRowData(data);
+    const resource = {
+        value
+
+    };
+
+
+
+}
+
+const prepreRowData = async (message: object) => {
+    let total = 1000;
+    const values = [
+        [], ["Date", "", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"],
+        [message.date, "% of people taking the upsell",calPplPer(message.salesCount,total)]
+    ];
+    return values;
+}
+const calPplPer = (amount: number, total: number) => {
+    return ((amount / total) * 100).toFixed(2);
 }

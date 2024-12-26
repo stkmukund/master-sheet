@@ -180,6 +180,18 @@ export default function MasterSheet() {
         const totalSales = totalSalesCount(upsellTakeData);
         // Generate the report
         const upsellReport = generateUpsellReport(upsellTakeData, startDate, endDate, totalSales);
+        const convertedArray = Object.entries(upsellReport).map(([key, value]) => {
+            return { category: key, data: value };
+          });
+          console.log('dataArray',convertedArray);
+
+          const percentageArray = Object.values(convertedArray[0].data);
+          percentageArray.splice(1, 0, '% of people taking the upsell');
+          const earningArray = Object.values(convertedArray[1].data);
+          earningArray.splice(1, 0, 'Upsell earnings per customer');
+
+        setTableData((prev) => ({ ...prev, [brandName]:percentageArray }));
+
         console.log("upsellReport", JSON.stringify(upsellReport, null, 2));
     }
 

@@ -35,7 +35,7 @@ export async function GET(request: Request) {
         totalRevenue = +totalRevenue.toFixed(2);
     }
     const message = { date: startDate + " - " + endDate, totalRevenue, reportDate: "need to add", totalCount };
-    addDataToSheet(message);
+   // addDataToSheet(message);
     return apiResponse({ result: "SUCCESS", message });
 }
 
