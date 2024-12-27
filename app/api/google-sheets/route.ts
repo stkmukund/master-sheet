@@ -28,7 +28,7 @@ async function writeToSheet(values, spreadsheetID, range, auth) {
     try {
         const response = await sheets.spreadsheets.values.append({
             spreadsheetId: spreadsheetID,
-            range: encodeURIComponent(range),
+            range: range,
             valueInputOption: "USER_ENTERED",
             resource: resource,
         });

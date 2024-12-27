@@ -8,7 +8,6 @@ export async function GET(request: Request) {
     const startDate = url.searchParams.get('startDate');
     const brandName = url.searchParams.get('brandName');
     if (!brandName) return apiResponse({ result: "ERROR", message: "Please provide a brand name" });
-    console.log("process.env.BRAND_SHEETS",process.env.BRAND_SHEETS);
     const brandSheet = JSON.parse(process.env.BRAND_SHEETS! || '');
 
     // Get today's date
@@ -29,14 +28,21 @@ export async function GET(request: Request) {
     }
 
     // Projected Rebill Revenue
-    const projectedRebillRevenue = await fetch(`${url.origin}/api/master-sheet/projected-rebill-revenue/?startDate=${startDate ? startDate : mondayDate}&brandName=${brandName}`).then(result => result.json());
-    if (projectedRebillRevenue) await addToSheet(url.origin, projectedRebillRevenue.message, brandSheet.projectedRebillRevenue[brandName]);
-
+    const projectedRebillRevenue = await fetch(`${url.origin}/api/master-sheet/projected-rebill-revenue/?startDate=${startDate ? startDate : mondayDate}&brandName=${brandName}`).then(result => result.json()).then(async response => {
+        if (response.result === "SUCCESS") await addToSheet(url.origin, response.message, brandSheet.projectedRebillRevenue[brandName]);
+        else return response;
+    });
+    // Total VIP Tracking
+    const totalVipTracking = await fetch(`${url.origin}/api/master-sheet/total-vip-tracking/?startDate=${startDate ? startDate : mondayDate}&brandName=${brandName}`).then(result => result.json()).then(async response => {
+        if (response.result === "SUCCESS") await addToSheet(url.origin, totalVipTracking.message.values[0], brandSheet.totalVipTracking[brandName]);
+        else return response;
+    });
     // Return the response data
     return apiResponse({
         result: "SUCCESS",
         message: {
             projectedRebillRevenue,
+            totalVipTracking,
             mondayDate
         }
     })

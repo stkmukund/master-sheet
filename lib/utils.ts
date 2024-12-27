@@ -1,5 +1,6 @@
 import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { tableDetails } from "./campaign-details";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -30,4 +31,13 @@ export const addToSheet = async (baseUrl: string, data: object, sheetDetails: ob
         redirect: "follow"
     }).then(result => result.json());
     return response;
+}
+
+// Total VIP Tracking
+// Calculate campaignIDs
+export const calculateVIPid = (brandName: string) => {
+    const brandCampaignIds: object = tableDetails.totalVipTracking.campaignIds![brandName]!;
+    const brandCampaignHead = tableDetails.totalVipTracking.tableHeading[brandName];
+    const values = Object.values(brandCampaignIds);
+    return [brandCampaignHead, values];
 }
