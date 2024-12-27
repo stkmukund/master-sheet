@@ -39,7 +39,7 @@ export default function MasterSheet() {
                 "/" +
                 numericValue.slice(2, 4) +
                 "/" +
-                numericValue.slice(4, 6);
+                numericValue.slice(4, 8);
         }
 
         if (target.id === "startDate") setStartDate(formattedValue);
@@ -66,7 +66,7 @@ export default function MasterSheet() {
                     setLoading(false);
                 }
                 if (response.result === 'SUCCESS') {
-                    setTableData((prev) => ({ ...prev, [brandName]: response.message }));
+                    setTableData((prev) => ({ ...prev, [brandName]: response.message.values }));
                     setLoading(false);
                 }
             } catch (error) {
@@ -78,78 +78,21 @@ export default function MasterSheet() {
     };
 
     const handleTotalVipTracking = async () => {
-        const vipTableData: vipTableData = {
-            dataPulled: endDate,
+        const response = await fetch(
+            `/api/master-sheet/total-vip-tracking/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}`
+        ).then(result => result.json());
+
+        if (response.result === 'ERROR') {
+            setError(response.message);
+            setLoading(false);
+            return; // Exit the function if an error occurs
         }
-        const campaignIds = tableHead[sheetName].campaignIds![brandName];
 
-        for (const [key, ids] of Object.entries(campaignIds!)) {
-            try {
-                const response = await fetch(
-                    `/api/master-sheet/total-vip-tracking/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&campaignId=${ids}`
-                ).then(result => result.json());
-
-                if (response.result === 'ERROR') {
-                    setError(response.message);
-                    setLoading(false);
-                    return; // Exit the function if an error occurs
-                }
-
-                if (response.result === 'SUCCESS') {
-                    vipTableData[key as keyof vipTableData] = response.message.totalResults;
-                    setTableData((prev) => ({ ...prev, [brandName]: vipTableData }));
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                setLoading(false);
-                return;
-            }
+        if (response.result === 'SUCCESS') {
+            setTableData((prev) => ({ ...prev, [brandName]: response.message.values }));
         }
-        await calculateTotalVips(vipTableData);
-        await calculateTotalVipRecycle(vipTableData);
         setLoading(false);
     };
-
-    const calculateTotalVips = async (data: vipTableData) => {
-        const totalVips = Object.values(data);
-        let sum = 0;
-        for (let index = 1; index < totalVips.length; index++) {
-            const element = +totalVips[index]!;
-            sum += element;
-        };
-        data.totalVips = sum;
-        setTableData((prev) => ({ ...prev, [brandName]: data }));
-    }
-
-    const calculateTotalVipRecycle = async (data: vipTableData) => {
-        const campaignIds = tableHead[sheetName].campaignIds![brandName];
-
-        let totalRecycle = 0;
-        for (const [key, ids] of Object.entries(campaignIds!)) {
-            try {
-                const response = await fetch(
-                    `/api/master-sheet/total-vip-tracking/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&campaignId=${ids}&status=RECYCLE_BILLING`
-                ).then(result => result.json());
-
-                if (response.result === 'ERROR') {
-                    setError(response.message);
-                    setLoading(false);
-                    return; // Exit the function if an error occurs
-                }
-
-                if (response.result === 'SUCCESS') {
-                    totalRecycle += response.message.totalResults;
-                }
-            } catch (error) {
-                console.error(key, "Error fetching data:", error);
-                setLoading(false);
-                return;
-            }
-        }
-        data.totalRecycle = totalRecycle;
-        setTableData((prev) => ({ ...prev, [brandName]: data }));
-        return totalRecycle;
-    }
 
     // UpsellTakeRateReport Start
     const handleUpsellTakeRateReport = async () => {
@@ -265,7 +208,7 @@ const tableHead: tableHeading = {
     },
     totalVipTracking: {
         tableHeading: {
-            NYMBUS: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Invisilift", "Indestructible Tights", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"],
+            NYMBUS: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Secret Lane", "Invisilift", "Indestructible Tights", "Scarlett Envy", "Mangolift", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"],
             CREATUNITY: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Invisilift", "Indestructible Tights", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"],
             HELIKON: ["Date Pulled", "mLab™", "CheckoutChamp", "Flexi Health™", "Bank Sites", "Total Andor VIPs", "Total VIP Recycling", "Total Andor VIP's Paused Status"],
         },

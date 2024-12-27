@@ -5,7 +5,8 @@ export const maxDuration = 60 // 60sec max duration
 export async function GET(request: Request) {
     // Access the query string parameters from the URL
     const url = new URL(request.url); // `request.url` is the full URL
-    const endDate = url.searchParams.get('startDate');
+    let endDate = url.searchParams.get('endDate');
+    if (!endDate) endDate = url.searchParams.get('startDate');
     const startDate = '01/01/2010';
     if (!startDate || !endDate) return apiResponse({ result: "ERROR", message: "Missing startDate or endDate" });
     const brandName = url.searchParams.get('brandName');
