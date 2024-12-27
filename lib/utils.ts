@@ -14,13 +14,13 @@ export const apiResponse = (message: object, status: number = 200) => {
     });
 }
 
-export const addToSheet = async (baseUrl: string, data: object, sheetDetails: object) => {
-    const finalValues = Object.values(data);
+export const addToSheet = async (baseUrl: string, data: (string | number)[], sheetDetails: object) => {
+    // const finalValues = Object.values(data);
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     const sheetData = {
         sheetDetails,
-        values: finalValues
+        values: data
     }
     const raw = JSON.stringify(sheetData);
 
@@ -40,4 +40,9 @@ export const calculateVIPid = (brandName: string) => {
     const brandCampaignHead = tableDetails.totalVipTracking.tableHeading[brandName];
     const values = Object.values(brandCampaignIds);
     return [brandCampaignHead, values];
+}
+
+// Calculate projected billed revenue - Table Details
+export const projectedTableHead = (brandName: string) => {
+    return tableDetails.projectedRebillRevenue.tableHeading[brandName];
 }

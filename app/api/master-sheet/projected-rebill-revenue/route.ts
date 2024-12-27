@@ -1,5 +1,6 @@
 import { addOneDay, calculateEndDate } from '@/lib/date-utils';
-import { apiResponse } from '@/lib/utils';
+import { apiResponse, projectedTableHead } from '@/lib/utils';
+import { ReportData } from '../interface';
 const spreadsheetId = "1ViQHXWJaaHzn_9XYrgzwy1eOzQVGFdEapYeuEpBBjNY";
 
 export async function GET(request: Request) {
@@ -13,6 +14,12 @@ export async function GET(request: Request) {
     const brand = JSON.parse(process.env[brandName!] || '');
 
     if (!startDate || !endDate) return apiResponse({ result: "Error", message: "Missing startDate or endDate" });
+
+    const tableHead = projectedTableHead(brandName!);
+    const reportData: ReportData = {
+        heading: tableHead,
+        values: [[`${startDate} - ${endDate}`]]
+    }
     let totalCount = 0;
     let totalRevenue: number = 0;
 
@@ -36,7 +43,9 @@ export async function GET(request: Request) {
         });
         // console.log(JSON.stringify(campaignData, null, 2));
         totalRevenue = +totalRevenue.toFixed(2);
+        reportData.values[0].push(totalRevenue); // added totalRevenue
+        reportData.values[0].push(reportDate!); // added reportDate
+        reportData.values[0].push(totalCount); // added totalCount
     }
-    const message = { date: startDate + " - " + endDate, totalRevenue, reportDate, totalCount };
-    return apiResponse({ result: "SUCCESS", message });
+    return apiResponse({ result: "SUCCESS", message: reportData });
 }

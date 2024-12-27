@@ -1,4 +1,5 @@
-import { calculateVIPid } from "@/lib/utils";
+import { apiResponse, calculateVIPid } from "@/lib/utils";
+import { ReportData } from "../interface";
 
 export const maxDuration = 60 // 60sec max duration
 export async function GET(request: Request) {
@@ -55,16 +56,4 @@ export async function GET(request: Request) {
     reportData.values[0].push(totalRecycleVIP);
 
     return apiResponse({ result: "SUCCESS", message: reportData });
-}
-
-const apiResponse = (message: object, status: number = 200) => {
-    return new Response(JSON.stringify(message), {
-        status: status,
-        headers: { 'Content-Type': 'application/json' },
-    });
-}
-
-type ReportData = {
-    heading: string[];
-    values: [(string | number)[]];
 }

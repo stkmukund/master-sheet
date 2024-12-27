@@ -1,6 +1,5 @@
 import { formatDateMMDDYYYY, isMonday } from "@/lib/date-utils";
 import { addToSheet, apiResponse } from "@/lib/utils";
-import { json } from "stream/consumers";
 
 export async function GET(request: Request) {
     // Access the query string parameters from the URL
@@ -29,12 +28,12 @@ export async function GET(request: Request) {
 
     // Projected Rebill Revenue
     const projectedRebillRevenue = await fetch(`${url.origin}/api/master-sheet/projected-rebill-revenue/?startDate=${startDate ? startDate : mondayDate}&brandName=${brandName}`).then(result => result.json()).then(async response => {
-        if (response.result === "SUCCESS") await addToSheet(url.origin, response.message, brandSheet.projectedRebillRevenue[brandName]);
+        if (response.result === "SUCCESS") await addToSheet(url.origin, response.message.values[0], brandSheet.projectedRebillRevenue[brandName]);
         else return response;
     });
     // Total VIP Tracking
     const totalVipTracking = await fetch(`${url.origin}/api/master-sheet/total-vip-tracking/?startDate=${startDate ? startDate : mondayDate}&brandName=${brandName}`).then(result => result.json()).then(async response => {
-        if (response.result === "SUCCESS") await addToSheet(url.origin, totalVipTracking.message.values[0], brandSheet.totalVipTracking[brandName]);
+        if (response.result === "SUCCESS") await addToSheet(url.origin, response.message.values[0], brandSheet.totalVipTracking[brandName]);
         else return response;
     });
     // Return the response data
