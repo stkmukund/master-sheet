@@ -6,7 +6,14 @@ export async function GET(request: Request) {
     const url = new URL(request.url); // `request.url` is the full URL
     const startDate = url.searchParams.get('startDate');
     const endDate = url.searchParams.get('endDate');
-    const campaignProductId = url.searchParams.get('campaignProductId');
+    let campaignProductId = url.searchParams.get('campaignProductId');
+    let paramIds='campaignProductId';
+    let reportType='product';
+    if(url.searchParams.get('campaignId'))
+    {   paramIds='campaignId';
+        campaignProductId = url.searchParams.get('campaignId');
+        reportType='campaign';
+    }
     // const status = url.searchParams.get('status');
     // let fetchStatus = "ACTIVE";
     // if (status) fetchStatus = status;
@@ -17,7 +24,7 @@ export async function GET(request: Request) {
         method: "POST"
     };
 
-    const response = await fetch(`https://api.checkoutchamp.com/transactions/summary/?loginId=revbdevdsg.helikon&password=yk5Z549ZN2KFz&startDate=${startDate}&endDate=${endDate}&campaignProductId=${campaignProductId}&reportType=product`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
+    const response = await fetch(`https://api.checkoutchamp.com/transactions/summary/?loginId=revbdevdsg.helikon&password=yk5Z549ZN2KFz&startDate=${startDate}&endDate=${endDate}&${paramIds}=${campaignProductId}&reportType=${reportType}`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
     if (response.result === "ERROR") return apiResponse({
         result: "SUCCESS", message: {
             salesCount: 0,
@@ -42,29 +49,4 @@ const apiResponse = (message: object, status: number = 200) => {
         status: status,
         headers: { 'Content-Type': 'application/json' },
     });
-}
-
-const addDataToSheet = async (message: object) => {
-    let data = message.message;
-    console.log('addDataToSheet', data.salesCount);
-    let value = await prepreRowData(data);
-    const resource = {
-        value
-
-    };
-
-
-
-}
-
-const prepreRowData = async (message: object) => {
-    let total = 1000;
-    const values = [
-        [], ["Date", "", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"],
-        [message.date, "% of people taking the upsell",calPplPer(message.salesCount,total)]
-    ];
-    return values;
-}
-const calPplPer = (amount: number, total: number) => {
-    return ((amount / total) * 100).toFixed(2);
 }
