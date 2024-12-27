@@ -1,7 +1,22 @@
 // app/api/google-sheets/route.ts
-import { google } from "googleapis";
+import { google, sheets_v4 } from "googleapis";
 
-const googleJSON = {
+// Define the type for the Google JSON credentials object
+interface GoogleCredentials {
+    type: string;
+    project_id: string;
+    private_key_id: string;
+    private_key: string;
+    client_email: string;
+    client_id: string;
+    auth_uri: string;
+    token_uri: string;
+    auth_provider_x509_cert_url: string;
+    client_x509_cert_url: string;
+    universe_domain: string;
+}
+
+const googleJSON: GoogleCredentials = {
     type: "service_account",
     project_id: "nymbus-vips",
     private_key_id: "00657fe7bb1750259710a821ebe319f7659f72c8",
@@ -17,34 +32,44 @@ const googleJSON = {
     universe_domain: "googleapis.com",
 };
 
-// Function to write data to Google Sheets
-async function writeToSheet(values, spreadsheetID, range, auth) {
-    const sheets = google.sheets({ version: "v4", auth });
-    const resource = { values };
+// Type for the request body structure
+interface RequestBody {
+    sheetDetails: {
+        sheetId: string;
+        sheetName: string;
+    };
+    values: any[]; // Can be more specific based on the data you expect
+}
 
-    console.log("spreadsheetID", spreadsheetID)
-    console.log("range", range)
-    console.log("resource", resource)
+// Function to write data to Google Sheets
+async function writeToSheet(
+    values: any[],
+    spreadsheetID: string,
+    range: string,
+    auth: any
+): Promise<sheets_v4.Schema$AppendValuesResponse | void> {
+    const sheets = google.sheets({ version: "v4", auth });
+    
     try {
         const response = await sheets.spreadsheets.values.append({
             spreadsheetId: spreadsheetID,
             range: range,
-            valueInputOption: "USER_ENTERED",
-            resource: resource,
+            valueInputOption: "USER_ENTERED", // or "RAW" depending on how you want to format the data
+            requestBody: { values }, // Pass values directly in the requestBody
         });
-        return response;
+
+        return response.data; // The response data is what you want to return
     } catch (error) {
-        console.log("error", error)
-        // console.error("Error writing to sheet:", error);
-        // throw new Error("Error writing to Google Sheets");
+        console.error("Error appending data to Google Sheets:", error);
+        throw new Error("Error appending data to Google Sheets");
     }
 }
 
 // Export POST handler
-export async function POST(req: Request) {
+export async function POST(req: Request): Promise<Response> {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type");
-    const body = await req.json();
+    const body: RequestBody = await req.json();
     const spreadsheetID = body.sheetDetails.sheetId;
     const sheetName = body.sheetDetails.sheetName;
 
@@ -54,9 +79,22 @@ export async function POST(req: Request) {
     });
 
     try {
-        const response = await writeToSheet([body.values], spreadsheetID, `${sheetName}!A:A`, auth);
-        return new Response(JSON.stringify({ success: true, data: response.data }), { status: 200 });
+        const response = await writeToSheet(
+            [body.values], // Pass the actual values here (not wrapped in an array)
+            spreadsheetID,
+            `${sheetName}!A:A`, // Specify the range correctly
+            auth
+        );
+
+        return new Response(
+            JSON.stringify({ success: true, data: response }),
+            { status: 200 }
+        );
     } catch (error) {
-        return new Response(JSON.stringify({ success: false, error: error.message }), { status: 500 });
+        console.error("Error in POST handler:", error);
+        return new Response(
+            JSON.stringify({ success: false, error: error }),
+            { status: 500 }
+        );
     }
 }
