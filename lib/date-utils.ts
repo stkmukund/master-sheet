@@ -27,21 +27,6 @@ function isLeapYear(year: number): boolean {
     return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
 }
 
-// Helper function to get the number of days in a month
-function getDaysInMonth(month: number, year: number): number {
-    // Handle February
-    if (month === 2) {
-        return isLeapYear(year) ? 29 : 28;
-    }
-
-    // Handle months with 30 days
-    if ([4, 6, 9, 11].includes(month)) {
-        return 30;
-    }
-
-    // Handle months with 31 days
-    return 31;
-}
 
 // Function to calculate the end date based on the start date
 export function calculateEndDate(startDate: string): string {
