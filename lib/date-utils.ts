@@ -22,11 +22,6 @@ export function formatDateMMDDYYYY(date: Date): string {
 }
 
 //  Get endDate for Projected Rebill Revenue
-// Helper function to check if a year is a leap year
-function isLeapYear(year: number): boolean {
-    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
-}
-
 
 // Function to calculate the end date based on the start date
 export function calculateEndDate(startDate: string): string {
