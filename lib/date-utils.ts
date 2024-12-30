@@ -49,12 +49,7 @@ export function calculateEndDate(startDate: string): string {
     const [month, day, year] = startDate.split('/').map(num => parseInt(num, 10));
     const start = new Date(year, month - 1, day);  // Start date, year is already in YYYY format
 
-    // Get the number of days in the start month
-    const daysInMonth = getDaysInMonth(month, year);
-
-    // If the month has 31 days, add 30 days to the start date
-    // If the month has 30 days, add 29 days to the start date
-    // If February, handle leap year and add either 28 or 29 days
+    // length of report
     const daysToAdd: number = 29;
 
     // Add the appropriate number of days to the start date

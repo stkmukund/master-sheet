@@ -1,4 +1,5 @@
 // app/api/google-sheets/route.ts
+import { JWT } from "google-auth-library";
 import { google, sheets_v4 } from "googleapis";
 
 // Define the type for the Google JSON credentials object
@@ -38,18 +39,18 @@ interface RequestBody {
         sheetId: string;
         sheetName: string;
     };
-    values: any[]; // Can be more specific based on the data you expect
+    values: (string | number)[]; // Can be more specific based on the data you expect
 }
 
 // Function to write data to Google Sheets
 async function writeToSheet(
-    values: any[],
+    values: (string | number)[][],
     spreadsheetID: string,
     range: string,
-    auth: any
+    auth: JWT
 ): Promise<sheets_v4.Schema$AppendValuesResponse | void> {
     const sheets = google.sheets({ version: "v4", auth });
-    
+
     try {
         const response = await sheets.spreadsheets.values.append({
             spreadsheetId: spreadsheetID,
@@ -67,8 +68,6 @@ async function writeToSheet(
 
 // Export POST handler
 export async function POST(req: Request): Promise<Response> {
-    const { searchParams } = new URL(req.url);
-    const type = searchParams.get("type");
     const body: RequestBody = await req.json();
     const spreadsheetID = body.sheetDetails.sheetId;
     const sheetName = body.sheetDetails.sheetName;

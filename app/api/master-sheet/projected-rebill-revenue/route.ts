@@ -1,7 +1,6 @@
 import { addOneDay, calculateEndDate } from '@/lib/date-utils';
 import { apiResponse, projectedTableHead } from '@/lib/utils';
 import { ReportData } from '../interface';
-const spreadsheetId = "1ViQHXWJaaHzn_9XYrgzwy1eOzQVGFdEapYeuEpBBjNY";
 
 export async function GET(request: Request) {
     // Access the query string parameters from the URL
