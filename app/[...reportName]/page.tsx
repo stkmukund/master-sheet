@@ -247,15 +247,6 @@ type tableSheet = {
     };
 }
 
-type upsellProductIdsInterface = {
-    offer1_upProdId: string;
-    offer1_downProductId: string;
-    offer2_upProdId: string;
-    offer2_downProductId: string;
-    offer3_upProdId: string;
-    offer3_downProductId: string;
-}
-
 type upsellTakeData = {
     offer1_upProdId?: upsellTakeProduct;
     offer1_downProductId?: upsellTakeProduct;
