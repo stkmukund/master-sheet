@@ -183,7 +183,7 @@ export default function MasterSheet() {
             }
         }
         const totalResponse = await fetch(
-            `/api/master-sheet/upsell-take-rate-report/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&campaignId=${campaignids}`
+            `/api/master-sheet/upsell-take-rate-report/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&campaignId=${campaignids}&total=1`
         ).then(result => result.json());
         const totalSales = totalSalesCount(totalResponse);
         console.log('totalSalesout',totalSales)
@@ -224,9 +224,7 @@ export default function MasterSheet() {
     ): UpsellReport => {
         const percentage: Record<string, number | string> = { dateRange: `${startDate}-${endDate}` };
         const earnings: Record<string, number | string> = { dateRange: `${startDate}-${endDate}` };
-
         let earningsTotal = 0;
-
         for (const key in upsellTakeData) {
             const salesRev = upsellTakeData[key].salesRev;
             const salesTotal = upsellTakeData[key].salesCount;
@@ -234,7 +232,7 @@ export default function MasterSheet() {
             // Calculate percentage and earnings
             percentage[key] = percentageData(salesTotal, total);
             const earning = earningsData(salesRev, total);
-            earnings[key] = earning;
+            earnings[key] = `$${earning}`;
 
             // Add to earningsTotal
             earningsTotal += parseFloat(earning);
@@ -242,7 +240,7 @@ export default function MasterSheet() {
 
         // Add totals to both objects
         percentage.total = total;
-        earnings.total = earningsTotal;
+        earnings.total = `$${(earningsTotal).toFixed(2)}`;
 
         return {
             percentageData: percentage,
@@ -407,7 +405,8 @@ type upsellProductIdsInterface = {
     offer2_upProdId: string;
     offer2_downProductId: string;
     offer3_upProdId: string;
-    offer3_downProductId: string;}
+    offer3_downProductId: string;
+}
    HELIKON: {
     offer1_upProdId: string;
     offer1_downProductId: string;
