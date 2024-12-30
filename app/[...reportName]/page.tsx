@@ -97,28 +97,24 @@ export default function MasterSheet() {
     // UpsellTakeRateReport Start
     const handleUpsellTakeRateReport = async () => {
         const upsellTakeData: upsellTakeData = {};
-        const upsellProductIds: upsellProductIdsInterface = tableHead.upsellTakeRateReport.productIds!;
-        for (const [key, ids] of Object.entries(upsellProductIds)) {
-            try {
-                const response = await fetch(
-                    `/api/master-sheet/upsell-take-rate-report/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&campaignProductId=${ids}`
-                ).then(result => result.json());
+        try {
+            const response = await fetch(
+                `/api/master-sheet/upsell-take-rate-report/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}`
+            ).then(result => result.json());
 
-                if (response.result === 'ERROR') {
-                    setError(response.message);
-                    setLoading(false);
-                    return; // Exit the function if an error occurs
-                }
-
-                if (response.result === 'SUCCESS') {
-                    upsellTakeData[key as keyof upsellTakeData] = response.message
-                    setLoading(false);
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
+            if (response.result === 'ERROR') {
+                setError(response.message);
                 setLoading(false);
-                return;
+                return; // Exit the function if an error occurs
             }
+
+            if (response.result === 'SUCCESS') {
+                setLoading(false);
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            setLoading(false);
+            return;
         }
         const totalSales = totalSalesCount(upsellTakeData);
         // Generate the report

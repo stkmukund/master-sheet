@@ -1,5 +1,6 @@
 // app/api/google-sheets/route.ts
-import { JWT } from "google-auth-library";
+import { GoogleAuth, JWT } from "google-auth-library";
+import { JSONClient } from "google-auth-library/build/src/auth/googleauth";
 import { google, sheets_v4 } from "googleapis";
 
 // Define the type for the Google JSON credentials object
@@ -47,7 +48,7 @@ async function writeToSheet(
     values: (string | number)[][],
     spreadsheetID: string,
     range: string,
-    auth: JWT
+    auth: GoogleAuth<JSONClient> | JWT
 ): Promise<sheets_v4.Schema$AppendValuesResponse | void> {
     const sheets = google.sheets({ version: "v4", auth });
 
