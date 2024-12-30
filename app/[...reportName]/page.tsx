@@ -193,8 +193,8 @@ export default function MasterSheet() {
                         <option className="text-center" value="CREATUNITY">Creatunity</option>
                         <option className="text-center" value="HELIKON">Helikon</option>
                     </select>
-                    <input type="text" id="startDate" value={startDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="Start Date: MMDDYY" required />
-                    <input type="text" id="endDate" value={endDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="End Date: MMDDYY" required />
+                    <input type="text" id="startDate" value={startDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="Start Date: MMDDYYYY" required />
+                    <input type="text" id="endDate" value={endDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="End Date: MMDDYYYY" required />
                     {!loading && <Button name="Calculate" type="submit" disabled={loading} />}
                     {loading && <BeanEater width={60} height={60} />}
                 </form>
