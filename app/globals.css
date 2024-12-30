@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --background: #C6DBF0;
+  --background: #a7c7d2;
   /* --background: #8FC93A; */
   --foreground: #FDFFFC;
 }
@@ -12,6 +12,11 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  background-image: url("/master-bg.jpg"); /* Correct path to image in public folder */
+  background-position: right bottom;        /* Correct: Align image to bottom-right */
+  background-repeat: no-repeat;             /* Prevent the image from repeating */
+  background-size: auto;                 /* Ensure the image fits within the body */
+  min-height: 100vh;     
 }
 
 

@@ -1,5 +1,6 @@
 
 export default function Table({ tableHead, tableBody }: { tableHead: string[]; tableBody: object }) {
+
     return (
 
         <div className="scroll-container relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -14,7 +15,7 @@ export default function Table({ tableHead, tableBody }: { tableHead: string[]; t
                     </tr>
                 </thead>
                 <tbody>
-                    {Array.isArray(tableBody) ? (
+                    {/* {Array.isArray(tableBody) ? (
                         // If tableBody is an array
                         tableBody.map((item, index) => (
                             <tr key={index} className="odd:bg-white even:bg-gray-50 border-b">
@@ -41,7 +42,16 @@ export default function Table({ tableHead, tableBody }: { tableHead: string[]; t
                                 No data available
                             </td>
                         </tr>
-                    )}
+                    )} */}
+                    {Object.entries(tableBody).map(([key, value]) => (
+                        <tr key={key} className="odd:bg-white even:bg-gray-50 border-b">
+                            {value.map((data: string, index: string) => (
+                                <td key={index} className="px-6 py-4">
+                                    {data}
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
                 </tbody>
             </table>
         </div>

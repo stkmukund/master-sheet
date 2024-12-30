@@ -1,12 +1,24 @@
+import { addOneDay, calculateEndDate } from '@/lib/date-utils';
+import { apiResponse, projectedTableHead } from '@/lib/utils';
+import { ReportData } from '../interface';
+
 export async function GET(request: Request) {
     // Access the query string parameters from the URL
     const url = new URL(request.url); // `request.url` is the full URL
-    const startDate = url.searchParams.get('startDate');
-    const endDate = url.searchParams.get('endDate');
+    const reportDate = url.searchParams.get('startDate');
+    const startDate = addOneDay(reportDate!);
+    let endDate = url.searchParams.get('endDate');
+    if (!endDate) endDate = calculateEndDate(startDate!);
     const brandName = url.searchParams.get('brandName');
     const brand = JSON.parse(process.env[brandName!] || '');
 
     if (!startDate || !endDate) return apiResponse({ result: "Error", message: "Missing startDate or endDate" });
+
+    const tableHead = projectedTableHead(brandName!);
+    const reportData: ReportData = {
+        heading: tableHead,
+        values: [[`${startDate} - ${endDate}`]]
+    }
     let totalCount = 0;
     let totalRevenue: number = 0;
 
@@ -30,14 +42,9 @@ export async function GET(request: Request) {
         });
         // console.log(JSON.stringify(campaignData, null, 2));
         totalRevenue = +totalRevenue.toFixed(2);
+        reportData.values[0].push(totalRevenue); // added totalRevenue
+        reportData.values[0].push(reportDate!); // added reportDate
+        reportData.values[0].push(totalCount); // added totalCount
     }
-    const message = { date: startDate + " - " + endDate, totalRevenue, reportDate: "need to add", totalCount };
-    return apiResponse({ result: "SUCCESS", message });
-}
-
-const apiResponse = (message: object, status: number = 200) => {
-    return new Response(JSON.stringify(message), {
-        status: status,
-        headers: { 'Content-Type': 'application/json' },
-    });
+    return apiResponse({ result: "SUCCESS", message: reportData });
 }
