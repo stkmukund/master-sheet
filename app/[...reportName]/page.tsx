@@ -96,7 +96,7 @@ export default function MasterSheet() {
 
     // UpsellTakeRateReport Start
     const handleUpsellTakeRateReport = async () => {
-        const upsellTakeData: upsellTakeData = {};
+        let respones;
         try {
             const response = await fetch(
                 `/api/master-sheet/upsell-take-rate-report/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}`
@@ -111,27 +111,30 @@ export default function MasterSheet() {
             if (response.result === 'SUCCESS') {
                 setLoading(false);
             }
+            respones=response
         } catch (error) {
             console.error("Error fetching data:", error);
             setLoading(false);
             return;
         }
+
         const totalResponse = await fetch(
-            `/api/master-sheet/upsell-take-rate-report/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&campaignId=${campaignids}&total=1`
+            `/api/master-sheet/upsell-take-rate-report/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&total=1`
         ).then(result => result.json());
         const totalSales = totalSalesCount(totalResponse);
-        console.log('totalSalesout',totalSales)
         // Generate the report
-        const upsellReport = generateUpsellReport(upsellTakeData, startDate, endDate, totalSales);
+
+        const upsellReport = generateUpsellReport(respones.message, startDate, endDate, totalSales);
         const convertedArray = Object.entries(upsellReport).map(([key, value]) => {
             return { category: key, data: value };
           });
-          console.log('dataArray',convertedArray);
 
           const percentageArray = Object.values(convertedArray[0].data);
-          percentageArray.splice(1, 0, '% of people taking the upsell');
+          percentageArray.unshift(`${startDate}-${endDate}`,'% of people taking the upsell');
           const earningArray = Object.values(convertedArray[1].data);
-          earningArray.splice(1, 0, 'Upsell earnings per customer');
+          earningArray.unshift(" ",'Upsell earnings per customer');
+
+        //   earningArray.splice(1, 0, 'Upsell earnings per customer');
 
         setTableData((prev) => ({ ...prev, [brandName]:[percentageArray,earningArray] }));
 
@@ -151,14 +154,22 @@ export default function MasterSheet() {
     }
     // Generate the report
     const generateUpsellReport = (
-        upsellTakeData: Record<string, { salesRev: number, salesCount:number }>,
+        upsellTakeData: Record<string, { salesRev: number, salesCount: number }>,
         startDate: string,
         endDate: string,
         total: number
     ): UpsellReport => {
-        const percentage: Record<string, number | string> = { dateRange: `${startDate}-${endDate}` };
-        const earnings: Record<string, number | string> = { dateRange: `${startDate}-${endDate}` };
+        // Initialize the objects with dateRange at the first index
+        const percentage: Record<string, number | string> = {};
+        const earnings: Record<string, number | string> = {};
+
+        // Add dateRange before the loop
+        // percentage.dateRange = `${startDate}-${endDate}`;
+        // earnings.dateRange = `${startDate}-${endDate}`;
+
         let earningsTotal = 0;
+
+        // Iterate over upsellTakeData
         for (const key in upsellTakeData) {
             const salesRev = upsellTakeData[key].salesRev;
             const salesTotal = upsellTakeData[key].salesCount;
@@ -174,13 +185,14 @@ export default function MasterSheet() {
 
         // Add totals to both objects
         percentage.total = total;
-        earnings.total = `$${(earningsTotal).toFixed(2)}`;
+        earnings.total = `$${earningsTotal.toFixed(2)}`;
 
         return {
             percentageData: percentage,
-            earningsData: earnings
+            earningsData: earnings,
         };
     };
+
     // UpsellTakeRateReport End
 
     return (

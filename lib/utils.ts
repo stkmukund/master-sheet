@@ -1,6 +1,7 @@
 import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { tableDetails } from "./campaign-details";
+import { object } from "framer-motion/client";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -45,4 +46,10 @@ export const calculateVIPid = (brandName: string) => {
 // Calculate projected billed revenue - Table Details
 export const projectedTableHead = (brandName: string) => {
     return tableDetails.projectedRebillRevenue.tableHeading[brandName];
+}
+export const getupsellProductIds = (brandName: string)=>{
+    const brandCampaignIds: object = tableDetails.upsellTakeRateReport.productIds![brandName]!;
+    const values = Object.values(brandCampaignIds);
+    return [values];
+
 }
