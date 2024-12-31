@@ -9,9 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@internationalized/date": "^3.6.0",
     "@lordicon/react": "^1.10.1",
+    "@nextui-org/date-picker": "^2.3.8",
+    "@nextui-org/react": "^2.6.10",
     "clsx": "^2.1.1",
-    "framer-motion": "^11.14.4",
+    "date-fns": "^4.1.0",
+    "framer-motion": "^11.15.0",
     "googleapis": "^144.0.0",
     "lottie-web": "^5.12.2",
     "next": "15.1.0",

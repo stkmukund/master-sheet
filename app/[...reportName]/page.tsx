@@ -5,6 +5,7 @@ import Table from "@/app/components/Table";
 import TableWithLoading from "@/app/components/TableWithLoading";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import DatePicker from "../components/DatePicker";
 
 export default function MasterSheet() {
     const params: { reportName: string[] } = useParams();
@@ -197,6 +198,7 @@ export default function MasterSheet() {
                     <input type="text" id="endDate" value={endDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="End Date: MMDDYYYY" required />
                     {!loading && <Button name="Calculate" type="submit" disabled={loading} />}
                     {loading && <BeanEater width={60} height={60} />}
+                    <DatePicker />
                 </form>
                 {error && (<div className="mt-1 text-red-600 font-semibold text-sm">{error}</div>)}
             </section>
