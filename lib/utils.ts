@@ -47,9 +47,21 @@ export const calculateVIPid = (brandName: string) => {
 export const projectedTableHead = (brandName: string) => {
     return tableDetails.projectedRebillRevenue.tableHeading[brandName];
 }
-export const getupsellProductIds = (brandName: string)=>{
-    const brandCampaignIds: object = tableDetails.upsellTakeRateReport.productIds![brandName]!;
+export const getupsellProductIds = (brandName: string,campignName:string)=>{
+    const brandCampaignIds: object = tableDetails.upsellTakeRateReport.productIds![brandName]![campignName];
     const values = Object.values(brandCampaignIds);
     return [values];
-
+}
+export const getupsellCampaignIds = (brandName: string)=>{
+    const brandCampaignIds: object = tableDetails.totalVipTracking.campaignIds![brandName]!;
+    return [brandCampaignIds];
+}
+export const getupsellCampaignIdsbkend = (brandName: string,campignName:string)=>{
+    const brandCampaignIds: object = tableDetails.totalVipTracking.campaignIds![brandName]![campignName];
+    return [brandCampaignIds];
+}
+export const getupsellTableHeading = (brandName: string,campignName:string)=>{
+    const brandCampaignIds: object = tableDetails.upsellTakeRateReport.tableHeading![brandName]![campignName];
+    const values = Object.values(brandCampaignIds);
+    return [values];
 }
