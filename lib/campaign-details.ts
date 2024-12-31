@@ -14,7 +14,7 @@ export const tableDetails: tableHeading = {
         },
         campaignIds: {
             NYMBUS: {
-                lashCosmetics: "61, 47, 1, 68, 9, 6, 67, 69, 70",
+                lashCosmetics: "61,47, 1, 68, 9, 6, 67, 69, 70",
                 browCharm: "88, 48, 24, 8, 20, 10, 28, 34, 35, 45, 83, 82",
                 floralSecrets: "38, 46, 85, 12, 71, 55, 21, 15",
                 secretLane: "39, 42, 41",
@@ -35,17 +35,111 @@ export const tableDetails: tableHeading = {
     },
     upsellTakeRateReport: {
         tableHeading: {
-            NYMBUS: ["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"],
+            NYMBUS: {
+                lashCosmetics:["Date", " ", "Lash Cosmetics Vibely Mascara Offered", "Lash Cosmetics Vibely Mascara - Discounted", "Lash Cosmetics Vibely EyeLiner Offered", "Lash Cosmetics Vibely EyeLiner Discounted", "Expedited Shipping", "Discounted Expedited Shipping", "Total"],
+
+                browCharm:["Date", " ", "Brow Charm Stencil Kit Offered", "Brow Charm Stencil Kit Discounted", "Brow Charm Vibely Mascara Offered", "Brow Charm Vibely Mascara Discounted", "Brow Charm Vibely EyeLiner Offered", "Brow Charm Vibely EyeLiner Discounted","Expedited Shipping","Discounted Expedited Shipping", "Total"],
+
+                floralSecrets:["Date", " ", "Floral Secrets Comfort Rose Bra Offered", "Floral Secrets Comfort Rose Bra Discounted", "Floral Secrets Butterfly Back Bra Offered", "Floral Secrets Butterfly Back Bra Discounted", "Expedited Shipping", "Discounted Expedited Shipping", "Total"],
+
+                Invisilift:["Date", " ", "InvisiLift Bra Offered", "InvisiLift Bra Discounted", "InvisiLift Breast Lift Strapless Bra", "InvisiLift Breast Lift Strapless Bra-Discounted", "Expedited Shipping", "Discounted Expedited Shipping", "Total"],
+
+                indestructibleTights:["Date", " ", "Indestructible Tights Sheer SlimTights Offered", "Indestructible Tights Sheer SlimTights Discounted", "Indestructible Thigh Highs Offered", "Indestructible Thigh Highs Discounted", "Expedited Shipping", "Discounted Expedited Shipping", "Total"],
+
+                fitcharm:["Date", " ", "SecretPlunge Bra-Offered", "SecretPlunge Bra-Discounted", "FitCharm Breast Lift Strapless Bra", "FitCharm Breast Lift Strapless Bra-Discounted", "Seamless Bralette-Offered", "Seamless Bralette-Discounted","Expedited Shipping","Discounted - Expedited Shipping", "Total"],
+
+                browPro:["Date", " ", "BrowPro™ Simone Stamp Offered", "BrowPro™ Simone Stamp Discounted", "BrowPro™ Stencil Kit Offered", "BrowPro™ Stencil Kit Discounted", "Expedited Shipping", "Discounted Expedited Shipping", "Total"],
+
+            },
             CREATUNITY: ["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"],
-            HELIKON: ["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"],
+            HELIKON: {
+                mLab:["Date", " ", "lashCosmetics", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"],
+
+                flexiHealth:["Date", " ", "Deep Sleep™ - Orthopedic Memory Foam Pillow", " ", "DreamPatch™️ - Natural Sleep Patches - Offer2", "DreamPatch™️ - Natural Sleep Patches - Offer2_1", "Expedited Shipping", "Discounted Expedited Shipping", "Total"],
+            },
         },
         productIds: {
-            offer1_upProdId: '1047,103,542,174,698,362,986,919,802,1179,8,51,791,249,220,452,1200,1100',
-            offer1_downProductId: '699,221,496,9,1201,543,52,250,920,363,987,1101,104,1048,175,308,1251,803,453,406',
-            offer2_upProdId: '498,316,1258,399,656,408',
-            offer2_downProductId: '499,1259,657,409',
-            offer3_upProdId: '317,1240,294,398,488,662',
-            offer3_downProductId: '318,394,1229,146,110'
+            NYMBUS: {
+                lashCosmetics: {
+                    offer1_upProdId: '8',
+                    offer1_downProductId: '9',
+                    offer2_upProdId: '72',
+                    offer2_downProductId: '73',
+                    offer3_upProdId: '10',
+                    offer3_downProductId: '11'
+                },
+                browCharm: {
+                    offer1_upProdId: '451',
+                    offer1_downProductId: '450',
+                    offer2_upProdId: '453',
+                    offer2_downProductId: '454',
+                    offer3_upProdId: '2821',
+                    offer3_downProductId: '2822',
+                    offer4_upProdId: '104',
+                    offer4_downProductId: '105'
+                },
+                floralSecrets: {
+                    offer1_upProdId: '181',
+                    offer1_downProductId: '182',
+                    offer2_upProdId: '3155',
+                    offer2_downProductId: '2826',
+                    offer3_upProdId: '183',
+                    offer3_downProductId: '184'
+                },
+                Invisilift: {
+                    offer1_upProdId: '258',
+                    offer1_downProductId: '259',
+                    offer2_upProdId: '3156',
+                    offer2_downProductId: '3157',
+                    offer3_upProdId: '255',
+                    offer3_downProductId: '256'
+                },
+                indestructibleTights: {
+                    offer1_upProdId: '749',
+                    offer1_downProductId: '750',
+                    offer2_upProdId: '751',
+                    offer2_downProductId: '2864',
+                    offer3_upProdId: '747',
+                    offer3_downProductId: '748'
+                },
+                fitcharm: {
+                    offer1_upProdId: '1444',
+                    offer1_downProductId: '1445',
+                    offer2_upProdId: '3978',
+                    offer2_downProductId: '3979',
+                    offer3_upProdId: '2866',
+                    offer3_downProductId: '2867',
+                    offer4_upProdId: '1440',
+                    offer4_downProductId: '1441'
+                },
+                browPro: {
+                    offer1_upProdId: '3043',
+                    offer1_downProductId: '3042',
+                    offer2_upProdId: '3072',
+                    offer2_downProductId: '3070',
+                    offer3_upProdId: '3032',
+                    offer3_downProductId: '3033'
+                }
+            },
+            HELIKON: {
+                mLab: {
+                    offer1_upProdId: '8',
+                    offer1_downProductId: '9',
+                    offer2_upProdId: '408',
+                    offer2_downProductId: '409',
+                    offer3_upProdId: '294',
+                    offer3_downProductId: '146'
+                },
+                flexiHealth: {
+                    offer1_upProdId: '625',
+                    offer1_downProductId: '625',
+                    offer2_upProdId: '793',
+                    offer2_downProductId: '795',
+                    offer3_upProdId: '542',
+                    offer3_downProductId: '543'
+                },
+
+            }
         }
     }
 };
@@ -59,10 +153,10 @@ type tableHeading = {
 
 type tableSheet = {
     tableHeading: {
-        NYMBUS: string[];
+        NYMBUS: string[] | object;
         CREATUNITY: string[];
-        HELIKON: string[];
-        [key: string]: string[]; // Index signature
+        HELIKON: string[] |object;
+        [key: string]: string[] | object; // Index signature
     };
     campaignIds?: {
         NYMBUS?: {
@@ -87,10 +181,86 @@ type tableSheet = {
 }
 
 type upsellProductIdsInterface = {
-    offer1_upProdId: string;
-    offer1_downProductId: string;
-    offer2_upProdId: string;
-    offer2_downProductId: string;
-    offer3_upProdId: string;
-    offer3_downProductId: string;
+    NYMBUS: {
+        lashCosmetics: {
+            offer1_upProdId: string;
+            offer1_downProductId: string;
+            offer2_upProdId: string;
+            offer2_downProductId: string;
+            offer3_upProdId: string;
+            offer3_downProductId: string;
+        },
+        browCharm: {
+            offer1_upProdId: string;
+            offer1_downProductId: string;
+            offer2_upProdId: string;
+            offer2_downProductId: string;
+            offer3_upProdId: string;
+            offer3_downProductId: string;
+            offer4_upProdId: string,
+            offer4_downProductId: string
+        },
+        floralSecrets: {
+            offer1_upProdId: string;
+            offer1_downProductId: string;
+            offer2_upProdId: string;
+            offer2_downProductId: string;
+            offer3_upProdId: string;
+            offer3_downProductId: string;
+        },
+        Invisilift: {
+            offer1_upProdId: string;
+            offer1_downProductId: string;
+            offer2_upProdId: string;
+            offer2_downProductId: string;
+            offer3_upProdId: string;
+            offer3_downProductId: string;
+        },
+        indestructibleTights: {
+            offer1_upProdId: string;
+            offer1_downProductId: string;
+            offer2_upProdId: string;
+            offer2_downProductId: string;
+            offer3_upProdId: string;
+            offer3_downProductId: string;
+        },
+        fitcharm: {
+            offer1_upProdId: string;
+            offer1_downProductId: string;
+            offer2_upProdId: string;
+            offer2_downProductId: string;
+            offer3_upProdId: string;
+            offer3_downProductId: string;
+            offer4_upProdId: string,
+            offer4_downProductId: string
+        },
+        browPro: {
+            offer1_upProdId: string;
+            offer1_downProductId: string;
+            offer2_upProdId: string;
+            offer2_downProductId: string;
+            offer3_upProdId: string;
+            offer3_downProductId: string;
+        }
+    }
+    HELIKON: {
+        mLab: {
+            offer1_upProdId: string;
+            offer1_downProductId: string;
+            offer2_upProdId: string;
+            offer2_downProductId: string;
+            offer3_upProdId: string;
+            offer3_downProductId: string;
+        },
+        flexiHealth: {
+            offer1_upProdId: string;
+            offer1_downProductId: string;
+            offer2_upProdId: string;
+            offer2_downProductId: string;
+            offer3_upProdId: string;
+            offer3_downProductId: string;
+        },
+
+    }
+    [key: string]: object | undefined;
 }

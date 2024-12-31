@@ -15,34 +15,6 @@ export default function Table({ tableHead, tableBody }: { tableHead: string[]; t
                     </tr>
                 </thead>
                 <tbody>
-                    {/* {Array.isArray(tableBody) ? (
-                        // If tableBody is an array
-                        tableBody.map((item, index) => (
-                            <tr key={index} className="odd:bg-white even:bg-gray-50 border-b">
-                                {Object.entries(item).map(([key, value]) => (
-                                    <td key={key} className="px-6 py-4">
-                                        {value}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))
-                    ) : typeof tableBody === 'object' && tableBody !== null ? (
-                        // If tableBody is an object
-                        <tr className="odd:bg-white even:bg-gray-50 border-b">
-                            {Object.entries(tableBody).map(([key, value]) => (
-                                <td key={key} className="px-6 py-4">
-                                    {value}
-                                </td>
-                            ))}
-                        </tr>
-                    ) : (
-                        // Handle if it's neither an array nor an object
-                        <tr className="odd:bg-white even:bg-gray-50 border-b">
-                            <td colSpan="100%" className="px-6 py-4 text-center">
-                                No data available
-                            </td>
-                        </tr>
-                    )} */}
                     {Object.entries(tableBody).map(([key, value]) => (
                         <tr key={key} className="odd:bg-white even:bg-gray-50 border-b">
                             {value.map((data: string, index: string) => (
