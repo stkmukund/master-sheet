@@ -1,6 +1,7 @@
 import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { tableDetails } from "./campaign-details";
+import { CampaignName } from "./interface";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -45,7 +46,7 @@ export const calculateVIPid = (brandName: string): [string[] | object, string[]]
 export const projectedTableHead = (brandName: string) => {
     return tableDetails.projectedRebillRevenue.tableHeading[brandName];
 }
-export const getUpsellProductIds = (brandName: string, campaignName: string) => {
+export const getUpsellProductIds = (brandName: string, campaignName: string): string[] => {
     // Ensure productIds is properly typed and accessed
     const productIds = tableDetails.upsellTakeRateReport.productIds;
 
@@ -62,8 +63,8 @@ export const getUpsellProductIds = (brandName: string, campaignName: string) => 
     return values;
 };
 
-export const getupsellCampaignIds = (brandName: string) => {
-    const brandCampaignIds: object = tableDetails.totalVipTracking.campaignIds![brandName]!;
+export const getupsellCampaignIds = (brandName: string): [CampaignName] => {
+    const brandCampaignIds: CampaignName = tableDetails.totalVipTracking.campaignIds![brandName]!;
     return [brandCampaignIds];
 }
 export const getupsellCampaignIdsbkend = (brandName: string, campaignName: string) => {
@@ -103,24 +104,37 @@ export const getupsellTableHeading = (brandName: string, campaignName: string) =
     }
 };
 
-export const prepareupsellData = async (data: any, total: number) => {
+export const prepareupsellData = async (
+    data: PrepareUpsellData,
+    total: number
+): Promise<string[][]> => {
     // Calculate sales percentages and revenue earnings
-    const salesCountper = data.message.map((item: any) =>
+    const salesCountper = data.message.map((item) =>
         percentageData(item.salesCount, total)
     );
 
-    const salesRev = data.message.map((item: any) =>
-        parseFloat(earningsData(item.salesRev, total))
+    const salesRev = data.message.map((item) =>
+        parseFloat(earningsData(+item.salesRev, total))
     );
 
     // Calculate total sales revenue
-    const totalSalesRev = salesRev.reduce((sum: number, item: number) => sum + item, 0);
+    const totalSalesRev = salesRev.reduce((sum, item) => sum + item, 0);
 
     // Prepare the result
-    const result = [
+    const result: string[][] = [
         data.heading,
-        [`${data.message[0].date}`, '% of people taking the upsell', ...salesCountper, `${total}`],
-        ['', 'Upsell earnings per customer', ...salesRev.map((rev: number) => rev.toFixed(2)), totalSalesRev.toFixed(2)],
+        [
+            `${data.message[0].date}`,
+            '% of people taking the upsell',
+            ...salesCountper,
+            `${total}`,
+        ],
+        [
+            '',
+            'Upsell earnings per customer',
+            ...salesRev.map((rev) => rev.toFixed(2)),
+            totalSalesRev.toFixed(2),
+        ],
     ];
 
     return result;
@@ -134,3 +148,14 @@ const earningsData = (amount: number, total: number) => {
     if (amount === 0) return '0.00';
     return (amount / total).toFixed(2);
 };
+
+interface DataItem {
+    salesCount: number;
+    salesRev: string; // Assuming salesRev is a string that can be parsed into a float
+    date: string;
+}
+
+interface PrepareUpsellData {
+    heading: string[];
+    message: DataItem[];
+}

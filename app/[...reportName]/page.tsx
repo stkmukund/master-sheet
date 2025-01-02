@@ -113,7 +113,7 @@ export default function MasterSheet() {
         console.log("upsellReport", JSON.stringify(upsellReport, null, 2));
     }
 
-    const totalSalesCount = (data: any) => {
+    const totalSalesCount = (data: { message: { salesCount: number } }) => {
         let total = 0;
         total = data.message.salesCount;
         return total;
@@ -196,7 +196,7 @@ export default function MasterSheet() {
 
                             {/* Map over the object entries to generate options */}
                             {Object.entries(campaignNames[0] || {}).map(([key, value]) => (
-                                <option key={key} value={key}>
+                                <option key={key} value={key} id={value}>
                                     {key}
                                 </option>
                             ))}

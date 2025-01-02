@@ -2,7 +2,7 @@ export interface ApiHandlerParams {
     endpoint: string; // API endpoint path after `/api/`
     queryParams?: Record<string, string | number | boolean>; // Optional query parameters
     method?: "GET" | "POST" | "PUT" | "DELETE"; // HTTP methods
-    body?: Record<string, any> | null; // Optional body for POST/PUT requests
+    body?: Record<string, object> | null; // Optional body for POST/PUT requests
 }
 
 export async function apiHandler<T>({
@@ -43,8 +43,12 @@ export async function apiHandler<T>({
 
         const data: T = await response.json();
         return data;
-    } catch (error: any) {
-        console.error("API Handler Error:", error.message);
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error("API Handler Error:", error.message);
+        } else {
+            console.error("Unknown error occurred in apiHandler.");
+        }
         throw error; // Re-throw the error so it can be handled by the caller
     }
 }

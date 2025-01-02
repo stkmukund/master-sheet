@@ -3,7 +3,7 @@ import { DatePicker } from "@nextui-org/date-picker";
 import { NextUIProvider } from "@nextui-org/react";
 import { useEffect } from "react";
 
-export default function DateTimePicker({ dateString, setDate, setTime }: { dateString: string; setDate: Function; setTime: Function }) {
+export default function DateTimePicker({ dateString, setDate, setTime }: { dateString: string; setDate: React.Dispatch<React.SetStateAction<string>>; setTime: React.Dispatch<React.SetStateAction<string>> }) {
     const timeZone = getLocalTimeZone(); // Get the current local timezone
     // Get today's date in the local timezone
     const todayDate = today(timeZone);
@@ -23,7 +23,7 @@ export default function DateTimePicker({ dateString, setDate, setTime }: { dateS
             setDate(formattedDate);
             setTime(formattedTime);
         }
-    }, [])
+    }, [todayDate])
 
     // handle change
     const handleChange = (date: CalendarDateTime | null) => {

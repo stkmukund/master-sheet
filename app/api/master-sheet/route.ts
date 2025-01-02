@@ -1,5 +1,4 @@
 import { formatDateMMDDYYYY, isMonday } from "@/lib/date-utils";
-import { CampaignName } from "@/lib/interface";
 import { addToSheet, apiResponse, getupsellCampaignIds, prepareupsellData } from "@/lib/utils";
 
 export async function GET(request: Request) {
@@ -9,13 +8,13 @@ export async function GET(request: Request) {
     const brandName: string = url.searchParams.get('brandName')!;
     if (!brandName) return apiResponse({ result: "ERROR", message: "Please provide a brand name" });
     const brandSheet = JSON.parse(process.env.BRAND_SHEETS! || '');
-    const campaignNames: CampaignName[] = getupsellCampaignIds(brandName);
-    if (campaignNames[0]) {
-        delete campaignNames[0].secretLane;
-        delete campaignNames[0].scarlettEnvy;
-        delete campaignNames[0].Mangolift;
-        delete campaignNames[0].checkoutChamp;
-        delete campaignNames[0].bankSites;
+    const [campaignNames] = getupsellCampaignIds(brandName);
+    if (campaignNames) {
+        delete campaignNames.secretLane;
+        delete campaignNames.scarlettEnvy;
+        delete campaignNames.Mangolift;
+        delete campaignNames.checkoutChamp;
+        delete campaignNames.bankSites;
     }
 
 
@@ -50,12 +49,12 @@ export async function GET(request: Request) {
     // Upsell take report
 
     async function processKeys() {
-        for (const key of Object.keys(campaignNames[0])) {
+        for (const key of Object.keys(campaignNames)) {
             console.log('Processing key:', key);
 
             const upsellTakeReport = await fetch(`${url.origin}/api/master-sheet/upsell-take-rate-report/?startDate=${startDate ? startDate : mondayDate}&brandName=${brandName}&CampaignName=${key}`).then(result => result.json());
 
-            const upsellTakeReportTotal = await fetch(`${url.origin}/api/master-sheet/upsell-take-rate-report/?startDate=${startDate ? startDate : mondayDate}&brandName=${brandName}&CampaignName=${key}&total=1`)
+            await fetch(`${url.origin}/api/master-sheet/upsell-take-rate-report/?startDate=${startDate ? startDate : mondayDate}&brandName=${brandName}&CampaignName=${key}&total=1`)
                 .then(result => result.json())
                 .then(async response => {
                     if (response.result === 'SUCCESS') {
