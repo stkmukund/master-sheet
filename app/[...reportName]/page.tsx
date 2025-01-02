@@ -3,10 +3,11 @@ import BeanEater from "@/app/components/BeanEater";
 import Button from "@/app/components/Button";
 import Table from "@/app/components/Table";
 import TableWithLoading from "@/app/components/TableWithLoading";
+import { getupsellCampaignIds } from "@/lib/utils";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import DatePicker from "../components/DatePicker";
-
+// import { getupsellProductIds } from "@/lib/utils";
 export default function MasterSheet() {
     const params: { reportName: string[] } = useParams();
     const sheetName = params.reportName[1] as keyof tableHeading;
@@ -15,14 +16,16 @@ export default function MasterSheet() {
     const [tableData, setTableData] = useState<tableData>({ NYMBUS: {}, HELIKON: {} });
     const [loading, setLoading] = useState(false);
     const [brandName, setBrandName] = useState<string>("NYMBUS");
-    const [error, setError] = useState("");
+    const [CampaignName, setBrandCampaignName] = useState<string>("");
+    const [tableHeading, setTableHeading] = useState<string>("");
 
+    const [error, setError] = useState("");
+    const campaignNames = getupsellCampaignIds(brandName);
     useEffect(() => {
         // For VIP
         if (sheetName === "totalVipTracking") setStartDate("01/01/2010");
         // VIP End
     }, [sheetName])
-
     const handleInputChange = (e: React.KeyboardEvent<HTMLInputElement>) => {
         const target = e.target as HTMLInputElement;
         const date = target.value;
@@ -67,6 +70,7 @@ export default function MasterSheet() {
                     setLoading(false);
                 }
                 if (response.result === 'SUCCESS') {
+                    setTableHeading(response.message.heading);
                     setTableData((prev) => ({ ...prev, [brandName]: response.message.values }));
                     setLoading(false);
                 }
@@ -90,6 +94,7 @@ export default function MasterSheet() {
         }
 
         if (response.result === 'SUCCESS') {
+            setTableHeading(response.message.heading);
             setTableData((prev) => ({ ...prev, [brandName]: response.message.values }));
         }
         setLoading(false);
@@ -97,10 +102,10 @@ export default function MasterSheet() {
 
     // UpsellTakeRateReport Start
     const handleUpsellTakeRateReport = async () => {
-        const upsellTakeData: upsellTakeData = {};
+        let respones;
         try {
             const response = await fetch(
-                `/api/master-sheet/upsell-take-rate-report/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}`
+                `/api/master-sheet/upsell-take-rate-report/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&CampaignName=${CampaignName}`
             ).then(result => result.json());
 
             if (response.result === 'ERROR') {
@@ -112,29 +117,33 @@ export default function MasterSheet() {
             if (response.result === 'SUCCESS') {
                 setLoading(false);
             }
+            respones = response
+            setTableHeading(response.heading);
         } catch (error) {
             console.error("Error fetching data:", error);
             setLoading(false);
             return;
         }
+
         const totalResponse = await fetch(
-            `/api/master-sheet/upsell-take-rate-report/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&campaignId=${campaignids}&total=1`
+            `/api/master-sheet/upsell-take-rate-report/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&total=1&CampaignName=${CampaignName}`
         ).then(result => result.json());
         const totalSales = totalSalesCount(totalResponse);
-        console.log('totalSalesout',totalSales)
         // Generate the report
-        const upsellReport = generateUpsellReport(upsellTakeData, startDate, endDate, totalSales);
+
+        const upsellReport = generateUpsellReport(respones.message, startDate, endDate, totalSales);
         const convertedArray = Object.entries(upsellReport).map(([key, value]) => {
             return { category: key, data: value };
-          });
-          console.log('dataArray',convertedArray);
+        });
 
-          const percentageArray = Object.values(convertedArray[0].data);
-          percentageArray.splice(1, 0, '% of people taking the upsell');
-          const earningArray = Object.values(convertedArray[1].data);
-          earningArray.splice(1, 0, 'Upsell earnings per customer');
+        const percentageArray = Object.values(convertedArray[0].data);
+        percentageArray.unshift(`${startDate}-${endDate}`, '% of people taking the upsell');
+        const earningArray = Object.values(convertedArray[1].data);
+        earningArray.unshift(" ", 'Upsell earnings per customer');
 
-        setTableData((prev) => ({ ...prev, [brandName]:[percentageArray,earningArray] }));
+        //   earningArray.splice(1, 0, 'Upsell earnings per customer');
+
+        setTableData((prev) => ({ ...prev, [brandName]: [percentageArray, earningArray] }));
 
         console.log("upsellReport", JSON.stringify(upsellReport, null, 2));
     }
@@ -145,21 +154,37 @@ export default function MasterSheet() {
         return total;
     }
     const percentageData = (amount: number, total: number) => {
+        if(amount===0)
+        {
+            return '0.00%';
+        }
         return `${((amount / total) * 100).toFixed(2)}%`;
     }
     const earningsData = (amount: number, total: number) => {
+        if(amount===0)
+            {
+                return '0.00';
+            }
         return (((amount / total) * 100) / 100).toFixed(2);
     }
     // Generate the report
     const generateUpsellReport = (
-        upsellTakeData: Record<string, { salesRev: number, salesCount:number }>,
+        upsellTakeData: Record<string, { salesRev: number, salesCount: number }>,
         startDate: string,
         endDate: string,
         total: number
     ): UpsellReport => {
-        const percentage: Record<string, number | string> = { dateRange: `${startDate}-${endDate}` };
-        const earnings: Record<string, number | string> = { dateRange: `${startDate}-${endDate}` };
+        // Initialize the objects with dateRange at the first index
+        const percentage: Record<string, number | string> = {};
+        const earnings: Record<string, number | string> = {};
+
+        // Add dateRange before the loop
+        // percentage.dateRange = `${startDate}-${endDate}`;
+        // earnings.dateRange = `${startDate}-${endDate}`;
+
         let earningsTotal = 0;
+
+        // Iterate over upsellTakeData
         for (const key in upsellTakeData) {
             const salesRev = upsellTakeData[key].salesRev;
             const salesTotal = upsellTakeData[key].salesCount;
@@ -175,27 +200,47 @@ export default function MasterSheet() {
 
         // Add totals to both objects
         percentage.total = total;
-        earnings.total = `$${(earningsTotal).toFixed(2)}`;
+        earnings.total = `$${earningsTotal.toFixed(2)}`;
 
         return {
             percentageData: percentage,
-            earningsData: earnings
+            earningsData: earnings,
         };
     };
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setBrandName(e.target.value);
+        setBrandCampaignName("");
+      };
+
     // UpsellTakeRateReport End
 
     return (
         <div className="max-w-screen-lg mx-auto">
             <section id="form">
                 <form onSubmit={handleSubmit} className="flex items-center gap-4 text-black h-16">
-                    <select onChange={(e) => setBrandName(e.target.value)} value={brandName} className="cursor-pointer h-[40px] rounded-md" name="brandList" id="brand-list">
+                    <select onChange={handleChange} value={brandName} className="cursor-pointer h-[40px] rounded-md" name="brandList" id="brand-list">
                         <option disabled>Select Brand</option>
                         <option className="text-center" value="NYMBUS">Nymbus</option>
                         <option className="text-center" value="CREATUNITY">Creatunity</option>
                         <option className="text-center" value="HELIKON">Helikon</option>
                     </select>
-                    <input type="text" id="startDate" value={startDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="Start Date: MMDDYYYY" required />
-                    <input type="text" id="endDate" value={endDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="End Date: MMDDYYYY" required />
+                    {sheetName === "upsellTakeRateReport" && (
+                        <select required onChange={(e) => setBrandCampaignName(e.target.value)} value={CampaignName} className="cursor-pointer h-[40px] rounded-md">
+                            {/* Default option */}
+                            <option value="" disabled>
+                                Select Campaign
+                            </option>
+
+                            {/* Map over the object entries to generate options */}
+                            {Object.entries(campaignNames[0] || {}).map(([key, value]) => (
+                                <option key={key} value={key}>
+                                    {key}
+                                </option>
+                            ))}
+                        </select>
+                    )}
+                    <input type="text" id="startDate" value={startDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="Start Date: MMDDYY" required />
+                    <input type="text" id="endDate" value={endDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="End Date: MMDDYY" required />
                     {!loading && <Button name="Calculate" type="submit" disabled={loading} />}
                     {loading && <BeanEater width={60} height={60} />}
                     <DatePicker />
@@ -203,7 +248,7 @@ export default function MasterSheet() {
                 {error && (<div className="mt-1 text-red-600 font-semibold text-sm">{error}</div>)}
             </section>
             <section id="table" className="mt-2">
-                {Object.keys(tableData[brandName]!).length > 0 ? <Table tableHead={tableHead[sheetName].tableHeading[brandName]} tableBody={tableData[brandName]!} /> : <TableWithLoading tableHead={tableHead[sheetName].tableHeading[brandName]} />}
+                {Object.keys(tableData[brandName]!).length > 0 ? <Table tableHead={tableHeading} tableBody={tableData[brandName]!} /> : <TableWithLoading tableHead={tableHead[sheetName].tableHeading[brandName]} />}
             </section>
         </div>
     )
