@@ -35,10 +35,10 @@ export const addToSheet = async (baseUrl: string, data: (string | number)[], she
 
 // Total VIP Tracking
 // Calculate campaignIDs
-export const calculateVIPid = (brandName: string) => {
+export const calculateVIPid = (brandName: string): [string[] | object, string[]] => {
     const brandCampaignIds: object = tableDetails.totalVipTracking.campaignIds![brandName]!;
     const brandCampaignHead = tableDetails.totalVipTracking.tableHeading[brandName];
-    const values = Object.values(brandCampaignIds);
+    const values: string[] = Object.values(brandCampaignIds);
     return [brandCampaignHead, values];
 }
 // Calculate projected billed revenue - Table Details
