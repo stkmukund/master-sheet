@@ -140,6 +140,11 @@ export const tableDetails: tableHeading = {
                 },
 
             }
+        },
+        upsellSheetnames:{
+            NYMBUS:['Lash Cosmetics'],
+            HELIKON:[]
+
         }
     }
 };
@@ -177,7 +182,8 @@ type tableSheet = {
         };
         [key: string]: object | undefined; // This allows other dynamic keys with object values
     };
-    productIds?: upsellProductIdsInterface
+    productIds?: upsellProductIdsInterface,
+    upsellSheetnames?:object
 }
 
 type upsellProductIdsInterface = {

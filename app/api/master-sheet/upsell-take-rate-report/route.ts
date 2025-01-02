@@ -1,10 +1,13 @@
-import { calculateVIPid,getupsellProductIds,getupsellCampaignIdsbkend ,getupsellTableHeading} from "@/lib/utils";
+import { getupsellProductIds,getupsellCampaignIdsbkend ,getupsellTableHeading} from "@/lib/utils";
+import { calculateEndDateUpsell } from '@/lib/date-utils';
 export const maxDuration = 60 // 60sec max duration
 export async function GET(request: Request) {
     // Access the query string parameters from the URL
     const url = new URL(request.url); // `request.url` is the full URL
     const startDate = url.searchParams.get('startDate');
-    const endDate = url.searchParams.get('endDate');
+    let endDate = url.searchParams.get('endDate');
+      if (!endDate) endDate = calculateEndDateUpsell(startDate!);
+      console.log('ffhhk',endDate)
     const brandName = url.searchParams.get('brandName');
     const campaignName = url.searchParams.get('CampaignName');
     const brand = JSON.parse(process.env[brandName!] || '');

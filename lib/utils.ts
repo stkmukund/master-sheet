@@ -31,6 +31,7 @@ export const addToSheet = async (baseUrl: string, data: (string | number)[], she
         body: raw,
         redirect: "follow"
     }).then(result => result.json());
+    console.log('sadasdsds',response)
     return response;
 }
 
@@ -65,3 +66,34 @@ export const getupsellTableHeading = (brandName: string,campignName:string)=>{
     const values = Object.values(brandCampaignIds);
     return [values];
 }
+export const prepareupsellData = async(data: any, total: number) => {
+    // Calculate sales percentages and revenue earnings
+    const salesCountper = data.message.map((item: any) =>
+      percentageData(item.salesCount, total)
+    );
+
+    const salesRev = data.message.map((item: any) =>
+      parseFloat(earningsData(item.salesRev, total))
+    );
+
+    // Calculate total sales revenue
+    const totalSalesRev = salesRev.reduce((sum: number, item: number) => sum + item, 0);
+
+    // Prepare the result
+    const result = [
+      data.heading,
+      [`${data.message[0].date}`, '% of people taking the upsell', ...salesCountper, `${total}`],
+      ['', 'Upsell earnings per customer', ...salesRev.map((rev) => rev.toFixed(2)), totalSalesRev.toFixed(2)],
+    ];
+
+    return result;
+  };
+
+const percentageData = (amount: number, total: number) => {
+    if (amount === 0) return '0.00%';
+    return `${((amount / total) * 100).toFixed(2)}%`;
+  };
+  const earningsData = (amount: number, total: number) => {
+    if (amount === 0) return '0.00';
+    return (amount / total).toFixed(2);
+  };
