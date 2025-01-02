@@ -20,7 +20,7 @@ export default function MasterSheet() {
     const [brandName, setBrandName] = useState<string>("NYMBUS");
     const [CampaignName, setBrandCampaignName] = useState<string>("");
     const [tableHeading, setTableHeading] = useState<string[]>([]);
-    const [error, setError] = useState<ApiResponse["message"]>("");
+    const [error, setError] = useState<ApiResponse["message"] | SalesMessage[]>("");
 
     const campaignNames = getupsellCampaignIds(brandName);
 
@@ -71,7 +71,7 @@ export default function MasterSheet() {
     const handleUpsellTakeRateReport = async () => {
         let respones;
         try {
-            const response: ApiResponse = await apiHandler({ endpoint: 'master-sheet/upsell-take-rate-report/', queryParams: { brandName, startDate, endDate, startTime, endTime, CampaignName } })
+            const response: SalesResponse = await apiHandler({ endpoint: 'master-sheet/upsell-take-rate-report/', queryParams: { brandName, startDate, endDate, startTime, endTime, CampaignName } })
 
             if (response.result === 'ERROR') {
                 setError(response.message);
@@ -83,7 +83,7 @@ export default function MasterSheet() {
                 setLoading(false);
             }
             respones = response
-            setTableHeading(response.heading);
+            setTableHeading(response.heading!);
         } catch (error) {
             console.error("Error fetching data:", error);
             setLoading(false);
@@ -132,7 +132,7 @@ export default function MasterSheet() {
     }
     // Generate the report
     const generateUpsellReport = (
-        upsellTakeData: Record<string, { salesRev: number, salesCount: number }>,
+        upsellTakeData: SalesMessage[],
         startDate: string,
         endDate: string,
         total: number
@@ -207,7 +207,9 @@ export default function MasterSheet() {
                     {!loading && <Button name="Calculate" type="submit" disabled={loading} />}
                     {loading && <BeanEater width={60} height={60} />}
                 </form>
-                {error && (<div className="mt-1 text-red-600 font-semibold text-sm">{error}</div>)}
+                {typeof error === "string" && (
+                    <div className="mt-1 text-red-600 font-semibold text-sm">{error}</div>
+                )}
             </section>
             <section id="table" className="mt-2">
                 {Object.keys(tableData[brandName]!).length > 0 ? <Table tableHead={tableHeading} tableBody={tableData[brandName]!} /> : <TableWithLoading tableHead={tableHead[sheetName].tableHeading[brandName]} />}
@@ -301,4 +303,17 @@ interface ApiResponse {
         heading: string[]; // Array of headings
         values: (string | number)[][]; // Array of rows, each row can contain strings or numbers
     } | string;
+    heading?: string[];
+}
+
+interface SalesMessage {
+    date: string; // Represents a date range
+    salesCount: number; // Total sales count for this entry
+    salesRev: number; // Total sales revenue for this entry
+}
+
+interface SalesResponse {
+    result: string; // e.g., "SUCCESS" or other result strings
+    message: SalesMessage[]; // Array of sales data
+    heading: string[]; // Array of heading strings
 }
