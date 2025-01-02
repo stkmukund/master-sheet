@@ -42,7 +42,7 @@ export const tableDetails: tableHeading = {
 
                 floralSecrets:["Date", " ", "Floral Secrets Comfort Rose Bra Offered", "Floral Secrets Comfort Rose Bra Discounted", "Floral Secrets Butterfly Back Bra Offered", "Floral Secrets Butterfly Back Bra Discounted", "Expedited Shipping", "Discounted Expedited Shipping", "Total"],
 
-                Invisilift:["Date", " ", "InvisiLift Bra Offered", "InvisiLift Bra Discounted", "InvisiLift Breast Lift Strapless Bra", "InvisiLift Breast Lift Strapless Bra-Discounted", "Expedited Shipping", "Discounted Expedited Shipping", "Total"],
+                invisilift:["Date", " ", "InvisiLift Bra Offered", "InvisiLift Bra Discounted", "InvisiLift Breast Lift Strapless Bra", "InvisiLift Breast Lift Strapless Bra-Discounted", "Expedited Shipping", "Discounted Expedited Shipping", "Total"],
 
                 indestructibleTights:["Date", " ", "Indestructible Tights Sheer SlimTights Offered", "Indestructible Tights Sheer SlimTights Discounted", "Indestructible Thigh Highs Offered", "Indestructible Thigh Highs Discounted", "Expedited Shipping", "Discounted Expedited Shipping", "Total"],
 
@@ -86,7 +86,7 @@ export const tableDetails: tableHeading = {
                     offer3_upProdId: '183',
                     offer3_downProductId: '184'
                 },
-                Invisilift: {
+                invisilift: {
                     offer1_upProdId: '258',
                     offer1_downProductId: '259',
                     offer2_upProdId: '3156',
@@ -140,11 +140,6 @@ export const tableDetails: tableHeading = {
                 },
 
             }
-        },
-        upsellSheetnames:{
-            NYMBUS:['Lash Cosmetics'],
-            HELIKON:[]
-
         }
     }
 };
@@ -182,8 +177,7 @@ type tableSheet = {
         };
         [key: string]: object | undefined; // This allows other dynamic keys with object values
     };
-    productIds?: upsellProductIdsInterface,
-    upsellSheetnames?:object
+    productIds?: upsellProductIdsInterface
 }
 
 type upsellProductIdsInterface = {
@@ -214,7 +208,7 @@ type upsellProductIdsInterface = {
             offer3_upProdId: string;
             offer3_downProductId: string;
         },
-        Invisilift: {
+        invisilift: {
             offer1_upProdId: string;
             offer1_downProductId: string;
             offer2_upProdId: string;

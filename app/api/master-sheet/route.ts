@@ -47,18 +47,26 @@ export async function GET(request: Request) {
     const totalVipTracking='test';
     // Upsell take report
 
-    Object.keys(campaignNames[0]).forEach(async(key) => {
+    async function processKeys() {
+        for (const key of Object.keys(campaignNames[0])) {
+          console.log('Processing key:', key);
 
-        const upsellTakeReport=await fetch(`${url.origin}/api/master-sheet/upsell-take-rate-report/?startDate=${startDate ? startDate : mondayDate}&brandName=${brandName}&CampaignName=${key}`).then(result=>result.json());
-        const upsellTakeReportTotal=await fetch(`${url.origin}/api/master-sheet/upsell-take-rate-report/?startDate=${startDate ? startDate : mondayDate}&brandName=${brandName}&CampaignName=${key}&total=1`).then(result=>result.json().then(async response =>{
-            if(response.result==='SUCCESS'){
-                const upsellData=await prepareupsellData(upsellTakeReport,response.message.salesCount);
+          const upsellTakeReport = await fetch(`${url.origin}/api/master-sheet/upsell-take-rate-report/?startDate=${startDate ? startDate : mondayDate}&brandName=${brandName}&CampaignName=${key}`).then(result => result.json());
+
+          const upsellTakeReportTotal = await fetch(`${url.origin}/api/master-sheet/upsell-take-rate-report/?startDate=${startDate ? startDate : mondayDate}&brandName=${brandName}&CampaignName=${key}&total=1`)
+            .then(result => result.json())
+            .then(async response => {
+              if (response.result === 'SUCCESS') {
+                const upsellData = await prepareupsellData(upsellTakeReport, response.message.salesCount);
                 await addToSheet(url.origin, upsellData[0], brandSheet.upsellTakeRateReport[brandName][key]);
                 await addToSheet(url.origin, upsellData[1], brandSheet.upsellTakeRateReport[brandName][key]);
                 await addToSheet(url.origin, upsellData[2], brandSheet.upsellTakeRateReport[brandName][key]);
-            }
-        }));
-      });
+              }
+            });
+        }
+      }
+
+      processKeys();
 
     // Return the response data
     return apiResponse({

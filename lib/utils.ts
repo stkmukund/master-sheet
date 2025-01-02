@@ -2,6 +2,7 @@ import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { tableDetails } from "./campaign-details";
 import { object } from "framer-motion/client";
+import { console } from "inspector";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -31,7 +32,6 @@ export const addToSheet = async (baseUrl: string, data: (string | number)[], she
         body: raw,
         redirect: "follow"
     }).then(result => result.json());
-    console.log('sadasdsds',response)
     return response;
 }
 
@@ -48,6 +48,7 @@ export const projectedTableHead = (brandName: string) => {
     return tableDetails.projectedRebillRevenue.tableHeading[brandName];
 }
 export const getupsellProductIds = (brandName: string,campignName:string)=>{
+console.log('ssaddasdasd',brandName)
     const brandCampaignIds: object = tableDetails.upsellTakeRateReport.productIds![brandName]![campignName];
     const values = Object.values(brandCampaignIds);
     return [values];

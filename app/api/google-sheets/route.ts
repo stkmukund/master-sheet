@@ -51,7 +51,6 @@ async function writeToSheet(
     auth: GoogleAuth<JSONClient> | JWT
 ): Promise<sheets_v4.Schema$AppendValuesResponse | void> {
     const sheets = google.sheets({ version: "v4", auth });
-
     try {
         const response = await sheets.spreadsheets.values.append({
             spreadsheetId: spreadsheetID,
