@@ -3,12 +3,11 @@ import BeanEater from "@/app/components/BeanEater";
 import Button from "@/app/components/Button";
 import Table from "@/app/components/Table";
 import TableWithLoading from "@/app/components/TableWithLoading";
+import { apiHandler } from "@/lib/apiHandler";
 import { getupsellCampaignIds } from "@/lib/utils";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import DatePicker from "../components/DateTimePicker";
+import { useState } from "react";
 import DateTimePicker from "../components/DateTimePicker";
-// import { getupsellProductIds } from "@/lib/utils";
 export default function MasterSheet() {
     const params: { reportName: string[] } = useParams();
     const sheetName = params.reportName[1] as keyof tableHeading;
@@ -21,14 +20,9 @@ export default function MasterSheet() {
     const [brandName, setBrandName] = useState<string>("NYMBUS");
     const [CampaignName, setBrandCampaignName] = useState<string>("");
     const [tableHeading, setTableHeading] = useState<string[]>([]);
+    const [error, setError] = useState<ApiResponse["message"]>("");
 
-    const [error, setError] = useState("");
     const campaignNames = getupsellCampaignIds(brandName);
-    useEffect(() => {
-        // For VIP
-        // if (sheetName === "totalVipTracking") setStartDate("01/01/2010");
-        // VIP End
-    }, [sheetName])
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -37,15 +31,16 @@ export default function MasterSheet() {
         else if (sheetName === "upsellTakeRateReport") await handleUpsellTakeRateReport();
         else {
             try {
-                const response = await fetch(`/api/master-sheet/projected-rebill-revenue/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&startTime=${startTime}&endTime=${endTime}`).then(result => result.json());
+                // const response = await fetch(`/api/master-sheet/projected-rebill-revenue/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&startTime=${startTime}&endTime=${endTime}`).then(result => result.json());
+                const response: ApiResponse = await apiHandler({ endpoint: 'master-sheet/projected-rebill-revenue/', queryParams: { brandName, startDate, endDate, startTime, endTime } })
                 if (response.result === 'ERROR') {
                     setError(response.message);
                     setLoading(false);
                 }
-                if (response.result === 'SUCCESS') {
-                    setTableHeading(response.message.heading);
-                    setTableData((prev) => ({ ...prev, [brandName]: response.message.values }));
-                    setLoading(false);
+                if (response.result === 'SUCCESS' && typeof response.message !== "string") {
+                    const { heading, values } = response.message; // Narrow the type here
+                    setTableHeading(heading);
+                    setTableData((prev) => ({ ...prev, [brandName]: values }));
                 }
             } catch (error) {
                 console.error(error);
@@ -56,9 +51,7 @@ export default function MasterSheet() {
     };
 
     const handleTotalVipTracking = async () => {
-        const response = await fetch(
-            `/api/master-sheet/total-vip-tracking/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&startTime=${startTime}&endTime=${endTime}`
-        ).then(result => result.json());
+        const response: ApiResponse = await apiHandler({ endpoint: 'master-sheet/total-vip-tracking/', queryParams: { brandName, startDate, endDate, startTime, endTime } });
 
         if (response.result === 'ERROR') {
             setError(response.message);
@@ -66,9 +59,10 @@ export default function MasterSheet() {
             return; // Exit the function if an error occurs
         }
 
-        if (response.result === 'SUCCESS') {
-            setTableHeading(response.message.heading);
-            setTableData((prev) => ({ ...prev, [brandName]: response.message.values }));
+        if (response.result === 'SUCCESS' && typeof response.message !== "string") {
+            const { heading, values } = response.message; // Narrow the type here
+            setTableHeading(heading);
+            setTableData((prev) => ({ ...prev, [brandName]: values }));
         }
         setLoading(false);
     };
@@ -77,9 +71,7 @@ export default function MasterSheet() {
     const handleUpsellTakeRateReport = async () => {
         let respones;
         try {
-            const response = await fetch(
-                `/api/master-sheet/upsell-take-rate-report/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&CampaignName=${CampaignName}`
-            ).then(result => result.json());
+            const response: ApiResponse = await apiHandler({ endpoint: 'master-sheet/upsell-take-rate-report/', queryParams: { brandName, startDate, endDate, startTime, endTime, CampaignName } })
 
             if (response.result === 'ERROR') {
                 setError(response.message);
@@ -302,3 +294,11 @@ type UpsellReport = {
         [key: string]: number | string | undefined;
     };
 };
+
+interface ApiResponse {
+    result: "SUCCESS" | "ERROR"; // Enum-like type for result
+    message: {
+        heading: string[]; // Array of headings
+        values: (string | number)[][]; // Array of rows, each row can contain strings or numbers
+    } | string;
+}
