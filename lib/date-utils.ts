@@ -45,6 +45,26 @@ export function calculateEndDate(startDate: string): string {
     return `${endMonth}/${endDay}/${endYear}`;
 }
 
+export function calculateEndDateUpsell(startDate: string): string {
+    // Parse the startDate string into a Date object
+    const [month, day, year] = startDate.split('/').map(num => parseInt(num, 10));
+    const start = new Date(year, month - 1, day);  // Start date, year is already in YYYY format
+
+    // length of report
+    const daysToAdd: number = 6;
+
+    // Add the appropriate number of days to the start date
+    const endDate = new Date(start);
+    endDate.setDate(start.getDate() + daysToAdd);
+
+    // Format the end date as MM/DD/YYYY
+    const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
+    const endDay = endDate.getDate().toString().padStart(2, '0');
+    const endYear = endDate.getFullYear();  // Full year (YYYY)
+
+    // Return the end date in MM/DD/YYYY format
+    return `${endMonth}/${endDay}/${endYear}`;
+}
 // Function to add one day to the given date
 export function addOneDay(startDate: string): string {
     // Parse the startDate string into a Date object
