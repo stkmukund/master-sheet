@@ -9,6 +9,8 @@ export async function GET(request: Request) {
     const startDate = addOneDay(reportDate!);
     let endDate = url.searchParams.get('endDate');
     if (!endDate) endDate = calculateEndDate(startDate!);
+    const startTime = url.searchParams.get('startTime');
+    const endTime = url.searchParams.get('endTime');
     const brandName = url.searchParams.get('brandName');
     const brand = JSON.parse(process.env[brandName!] || '');
 
@@ -26,7 +28,7 @@ export async function GET(request: Request) {
         method: "POST"
     };
 
-    const response = await fetch(`https://api.checkoutchamp.com/reports/projected-billing/?loginId=${brand.loginId}&password=${brand.password}&startDate=${startDate}&endDate=${endDate}&reportType=campaign&cycle1Attrition=80&cycle2Attrition=80&cycle3Attrition=80&cycle4PlusAttrition=80`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
+    const response = await fetch(`https://api.checkoutchamp.com/reports/projected-billing/?loginId=${brand.loginId}&password=${brand.password}&startDate=${startDate}&endDate=${endDate}&reportType=campaign&cycle1Attrition=80&cycle2Attrition=80&cycle3Attrition=80&cycle4PlusAttrition=80&startTime=${startTime}&endTime=${endTime}`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
     if (response.result === "ERROR") return apiResponse({ result: "ERROR", message: response.message });
     if (response.result === "SUCCESS") {
         const data = response.message;

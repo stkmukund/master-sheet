@@ -9,6 +9,8 @@ export async function GET(request: Request) {
     if (!endDate) endDate = url.searchParams.get('startDate');
     const startDate = '01/01/2010';
     if (!startDate || !endDate) return apiResponse({ result: "ERROR", message: "Missing startDate or endDate" });
+    const startTime = url.searchParams.get('startTime');
+    const endTime = url.searchParams.get('endTime');
     const brandName = url.searchParams.get('brandName');
     const [campaignHead, campaignId] = calculateVIPid(brandName!); // campaignIds and tableHeading
     const brand = JSON.parse(process.env[brandName!] || '');
@@ -26,7 +28,7 @@ export async function GET(request: Request) {
 
     // Loop to retrieve ACTIVE VIP for all campaigns
     for (const id of campaignId) {
-        const response = await fetch(`https://api.checkoutchamp.com/purchase/query/?loginId=${brand.loginId}&password=${brand.password}&startDate=${startDate}&endDate=${endDate}&status=ACTIVE&campaignId=${id}&resultsPerPage=1`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
+        const response = await fetch(`https://api.checkoutchamp.com/purchase/query/?loginId=${brand.loginId}&password=${brand.password}&startDate=${startDate}&endDate=${endDate}&status=ACTIVE&campaignId=${id}&resultsPerPage=1&startTime=${startTime}&endTime=${endTime}`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
         if (response.result === "ERROR") {
             if (response.message === "No purchases matching those parameters could be found") {
                 reportData.values[0].push(0);

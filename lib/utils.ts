@@ -42,7 +42,6 @@ export const calculateVIPid = (brandName: string) => {
     const values = Object.values(brandCampaignIds);
     return [brandCampaignHead, values];
 }
-
 // Calculate projected billed revenue - Table Details
 export const projectedTableHead = (brandName: string) => {
     return tableDetails.projectedRebillRevenue.tableHeading[brandName];

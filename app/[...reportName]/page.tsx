@@ -20,7 +20,7 @@ export default function MasterSheet() {
     const [loading, setLoading] = useState(false);
     const [brandName, setBrandName] = useState<string>("NYMBUS");
     const [CampaignName, setBrandCampaignName] = useState<string>("");
-    const [tableHeading, setTableHeading] = useState<string>("");
+    const [tableHeading, setTableHeading] = useState<string[]>([]);
 
     const [error, setError] = useState("");
     const campaignNames = getupsellCampaignIds(brandName);
@@ -29,36 +29,6 @@ export default function MasterSheet() {
         if (sheetName === "totalVipTracking") setStartDate("01/01/2010");
         // VIP End
     }, [sheetName])
-    const handleInputChange = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        const target = e.target as HTMLInputElement;
-        const date = target.value;
-        // Remove non-numeric characters
-        const numericValue = date.replace(/\D/g, "");
-
-        // Format as MM/DD/YY
-        let formattedValue = numericValue;
-
-        if (numericValue.length > 2 && numericValue.length <= 4) {
-            formattedValue = numericValue.slice(0, 2) + "/" + numericValue.slice(2);
-        } else if (numericValue.length > 4) {
-            formattedValue =
-                numericValue.slice(0, 2) +
-                "/" +
-                numericValue.slice(2, 4) +
-                "/" +
-                numericValue.slice(4, 8);
-        }
-
-        if (target.id === "startDate") setStartDate(formattedValue);
-        else if (target.id === "endDate") setEndDate(formattedValue);
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        // Prevent invalid key inputs
-        if (!/^[0-9]$/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "Tab") {
-            e.preventDefault();
-        }
-    };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -67,7 +37,7 @@ export default function MasterSheet() {
         else if (sheetName === "upsellTakeRateReport") await handleUpsellTakeRateReport();
         else {
             try {
-                const response = await fetch(`/api/master-sheet/projected-rebill-revenue/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}`).then(result => result.json());
+                const response = await fetch(`/api/master-sheet/projected-rebill-revenue/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&startTime=${startTime}&endTime=${endTime}`).then(result => result.json());
                 if (response.result === 'ERROR') {
                     setError(response.message);
                     setLoading(false);
@@ -87,7 +57,7 @@ export default function MasterSheet() {
 
     const handleTotalVipTracking = async () => {
         const response = await fetch(
-            `/api/master-sheet/total-vip-tracking/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}`
+            `/api/master-sheet/total-vip-tracking/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&startTime=${startTime}&endTime=${endTime}`
         ).then(result => result.json());
 
         if (response.result === 'ERROR') {
@@ -240,9 +210,7 @@ export default function MasterSheet() {
                             ))}
                         </select>
                     )}
-                    {/* <input type="text" id="startDate" value={startDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="Start Date: MMDDYY" required /> */}
                     <DateTimePicker dateString="Start Date" setDate={setStartDate} setTime={setStartTime} />
-                    {/* <input type="text" id="endDate" value={endDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="End Date: MMDDYY" required /> */}
                     <DateTimePicker dateString="End Date" setDate={setEndDate} setTime={setEndTime} />
                     {!loading && <Button name="Calculate" type="submit" disabled={loading} />}
                     {loading && <BeanEater width={60} height={60} />}

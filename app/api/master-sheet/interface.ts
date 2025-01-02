@@ -1,4 +1,4 @@
 export type ReportData = {
-    heading: string[];
+    heading: string[] | object;
     values: [(string | number)[]];
 }
