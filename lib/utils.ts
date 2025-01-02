@@ -45,25 +45,64 @@ export const calculateVIPid = (brandName: string): [string[] | object, string[]]
 export const projectedTableHead = (brandName: string) => {
     return tableDetails.projectedRebillRevenue.tableHeading[brandName];
 }
-export const getupsellProductIds = (brandName: string, campignName: string) => {
-    console.log('ssaddasdasd', brandName)
-    const brandCampaignIds: object = tableDetails.upsellTakeRateReport.productIds![brandName]![campignName];
+export const getUpsellProductIds = (brandName: string, campaignName: string) => {
+    // Ensure productIds is properly typed and accessed
+    const productIds = tableDetails.upsellTakeRateReport.productIds;
+
+    // Safely access the brand's campaign product IDs
+    const brandCampaignIds = productIds?.[brandName]?.[campaignName];
+
+    if (!brandCampaignIds) {
+        throw new Error(`No product IDs found for brand: ${brandName}, campaign: ${campaignName}`);
+    }
+
+    // Extract the values of the product IDs object
     const values = Object.values(brandCampaignIds);
-    return [values];
-}
+
+    return values;
+};
+
 export const getupsellCampaignIds = (brandName: string) => {
     const brandCampaignIds: object = tableDetails.totalVipTracking.campaignIds![brandName]!;
     return [brandCampaignIds];
 }
-export const getupsellCampaignIdsbkend = (brandName: string, campignName: string) => {
-    const brandCampaignIds: object = tableDetails.totalVipTracking.campaignIds![brandName]![campignName];
-    return [brandCampaignIds];
-}
-export const getupsellTableHeading = (brandName: string, campignName: string) => {
-    const brandCampaignIds: object = tableDetails.upsellTakeRateReport.tableHeading![brandName]![campignName];
-    const values = Object.values(brandCampaignIds);
-    return [values];
-}
+export const getupsellCampaignIdsbkend = (brandName: string, campaignName: string) => {
+    // Make sure `campaignIds` is defined and of the correct shape
+    const campaignIds = tableDetails.totalVipTracking.campaignIds;
+
+    // Ensure `campaignIds` is defined and access the right campaign IDs
+    if (campaignIds && campaignIds[brandName] && campaignIds[brandName][campaignName]) {
+        const brandCampaignIds = campaignIds[brandName][campaignName];
+        return [brandCampaignIds]; // Return an array with the campaign IDs
+    } else {
+        throw new Error(`Campaign ID not found for brand: ${brandName}, campaign: ${campaignName}`);
+    }
+};
+
+export const getupsellTableHeading = (brandName: string, campaignName: string) => {
+    // Access the table heading data
+    const tableHeading = tableDetails.upsellTakeRateReport.tableHeading;
+
+    // Ensure that the brand name exists in the tableHeading
+    if (tableHeading && tableHeading[brandName]) {
+        const brandData = tableHeading[brandName];
+
+        // If brandData is an array, return it directly
+        if (Array.isArray(brandData)) {
+            return [brandData]; // Return the values as an array of arrays
+        }
+
+        // If brandData is an object (campaign name to array mapping)
+        if (brandData[campaignName]) {
+            return [brandData[campaignName]]; // Return the campaign-specific array as an array of arrays
+        } else {
+            throw new Error(`Campaign name not found for brand: ${brandName}, campaign: ${campaignName}`);
+        }
+    } else {
+        throw new Error(`Brand name not found: ${brandName}`);
+    }
+};
+
 export const prepareupsellData = async (data: any, total: number) => {
     // Calculate sales percentages and revenue earnings
     const salesCountper = data.message.map((item: any) =>
@@ -81,7 +120,7 @@ export const prepareupsellData = async (data: any, total: number) => {
     const result = [
         data.heading,
         [`${data.message[0].date}`, '% of people taking the upsell', ...salesCountper, `${total}`],
-        ['', 'Upsell earnings per customer', ...salesRev.map((rev) => rev.toFixed(2)), totalSalesRev.toFixed(2)],
+        ['', 'Upsell earnings per customer', ...salesRev.map((rev: number) => rev.toFixed(2)), totalSalesRev.toFixed(2)],
     ];
 
     return result;
