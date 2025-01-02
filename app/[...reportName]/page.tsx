@@ -271,20 +271,6 @@ type tableSheet = {
     };
 }
 
-type upsellTakeData = {
-    offer1_upProdId?: upsellTakeProduct;
-    offer1_downProductId?: upsellTakeProduct;
-    offer2_upProdId?: upsellTakeProduct;
-    offer2_downProductId?: upsellTakeProduct;
-    offer3_upProdId?: upsellTakeProduct;
-    offer3_downProductId?: upsellTakeProduct;
-}
-
-type upsellTakeProduct = {
-    salesCount: number;
-    salesRev: number;
-}
-
 // Building the upsell report dynamically
 type UpsellReport = {
     percentageData: {
