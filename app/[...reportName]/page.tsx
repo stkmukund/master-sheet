@@ -26,7 +26,7 @@ export default function MasterSheet() {
     const campaignNames = getupsellCampaignIds(brandName);
     useEffect(() => {
         // For VIP
-        if (sheetName === "totalVipTracking") setStartDate("01/01/2010");
+        // if (sheetName === "totalVipTracking") setStartDate("01/01/2010");
         // VIP End
     }, [sheetName])
 
