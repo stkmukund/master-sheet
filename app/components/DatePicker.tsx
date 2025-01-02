@@ -21,13 +21,14 @@ export default function DateTimePicker() {
         <NextUIProvider>
             <div className="w-full max-w-xl flex flex-row gap-4 text-white">
                 <DatePicker
-                    hideTimeZone
-                    showMonthAndYearPickers
+                    hideTimeZone={false}
+                    showMonthAndYearPickers={true}
                     defaultValue={startOfDay}
                     label="Start Date"
                     variant="bordered"
                     color="secondary"
                     size="lg"
+                    inert={false}
                 />
             </div>
         </NextUIProvider>
