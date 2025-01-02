@@ -6,13 +6,16 @@ import TableWithLoading from "@/app/components/TableWithLoading";
 import { getupsellCampaignIds } from "@/lib/utils";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import DatePicker from "../components/DatePicker";
+import DatePicker from "../components/DateTimePicker";
+import DateTimePicker from "../components/DateTimePicker";
 // import { getupsellProductIds } from "@/lib/utils";
 export default function MasterSheet() {
     const params: { reportName: string[] } = useParams();
     const sheetName = params.reportName[1] as keyof tableHeading;
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [startTime, setStartTime] = useState("");
+    const [endTime, setEndTime] = useState("");
     const [tableData, setTableData] = useState<tableData>({ NYMBUS: {}, HELIKON: {} });
     const [loading, setLoading] = useState(false);
     const [brandName, setBrandName] = useState<string>("NYMBUS");
@@ -154,17 +157,15 @@ export default function MasterSheet() {
         return total;
     }
     const percentageData = (amount: number, total: number) => {
-        if(amount===0)
-        {
+        if (amount === 0) {
             return '0.00%';
         }
         return `${((amount / total) * 100).toFixed(2)}%`;
     }
     const earningsData = (amount: number, total: number) => {
-        if(amount===0)
-            {
-                return '0.00';
-            }
+        if (amount === 0) {
+            return '0.00';
+        }
         return (((amount / total) * 100) / 100).toFixed(2);
     }
     // Generate the report
@@ -210,14 +211,14 @@ export default function MasterSheet() {
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setBrandName(e.target.value);
         setBrandCampaignName("");
-      };
+    };
 
     // UpsellTakeRateReport End
 
     return (
         <div className="max-w-screen-lg mx-auto">
             <section id="form">
-                <form onSubmit={handleSubmit} className="flex items-center gap-4 text-black h-16">
+                <form onSubmit={handleSubmit} className="flex items-end gap-4 text-black h-16">
                     <select onChange={handleChange} value={brandName} className="cursor-pointer h-[40px] rounded-md" name="brandList" id="brand-list">
                         <option disabled>Select Brand</option>
                         <option className="text-center" value="NYMBUS">Nymbus</option>
@@ -239,11 +240,12 @@ export default function MasterSheet() {
                             ))}
                         </select>
                     )}
-                    <input type="text" id="startDate" value={startDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="Start Date: MMDDYY" required />
-                    <input type="text" id="endDate" value={endDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="End Date: MMDDYY" required />
+                    {/* <input type="text" id="startDate" value={startDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="Start Date: MMDDYY" required /> */}
+                    <DateTimePicker dateString="Start Date" setDate={setStartDate} setTime={setStartTime} />
+                    {/* <input type="text" id="endDate" value={endDate} onInput={handleInputChange} onKeyDown={handleKeyDown} className="rounded-md w-fit h-[40px] p-2.5" placeholder="End Date: MMDDYY" required /> */}
+                    <DateTimePicker dateString="End Date" setDate={setEndDate} setTime={setEndTime} />
                     {!loading && <Button name="Calculate" type="submit" disabled={loading} />}
                     {loading && <BeanEater width={60} height={60} />}
-                    <DatePicker />
                 </form>
                 {error && (<div className="mt-1 text-red-600 font-semibold text-sm">{error}</div>)}
             </section>
