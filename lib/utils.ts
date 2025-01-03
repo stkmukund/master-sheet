@@ -84,7 +84,7 @@ export const getupsellTableHeading = (brandName: string, campaignName: string) =
     return [];
 };
 
-export const prepareupsellData = async (data: { message: { date: string; salesCount: number; salesRev: number;}[]; heading: string[] }, total: number) => {
+export const prepareupsellData = async (data: { message: { date: string; salesCount: number; salesRev: number; }[]; heading: string[] }, total: number) => {
     // Calculate sales percentages and revenue earnings
     const salesCountper = data.message.map((item) =>
         percentageData(item.salesCount, total)
@@ -115,14 +115,3 @@ const earningsData = (amount: number, total: number) => {
     if (amount === 0) return '0.00';
     return (amount / total).toFixed(2);
 };
-
-interface DataItem {
-    salesCount: number;
-    salesRev: string; // Assuming salesRev is a string that can be parsed into a float
-    date: string;
-}
-
-interface PrepareUpsellData {
-    heading: string[];
-    message: DataItem[];
-}
