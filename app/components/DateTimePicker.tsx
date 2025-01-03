@@ -23,7 +23,7 @@ export default function DateTimePicker({ dateString, setDate, setTime }: { dateS
             setDate(formattedDate);
             setTime(formattedTime);
         }
-    }, [todayDate])
+    }, [])
 
     // handle change
     const handleChange = (date: CalendarDateTime | null) => {
@@ -32,6 +32,8 @@ export default function DateTimePicker({ dateString, setDate, setTime }: { dateS
             const formattedTime = `${String(date.hour).padStart(2, "0")}:${String(date.minute).padStart(2, "0")}:${String(date.second).padStart(2, "0")}`;
             setDate(formattedDate);
             setTime(formattedTime);
+            console.log("formattedDate",formattedDate)
+            console.log("formattedTime",formattedTime)
         } else {
             console.log("No date selected");
         }

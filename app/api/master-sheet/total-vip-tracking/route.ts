@@ -6,7 +6,7 @@ export async function GET(request: Request) {
     // Access the query string parameters from the URL
     const url = new URL(request.url); // `request.url` is the full URL
     let endDate = url.searchParams.get('endDate');
-    if (!endDate) endDate = url.searchParams.get('startDate');
+    // if (!endDate) endDate = url.searchParams.get('startDate');
     let startDate = url.searchParams.get('startDate');
     if (!startDate) startDate = '01/01/2010';
     if (!startDate || !endDate) return apiResponse({ result: "ERROR", message: "Missing startDate or endDate" });

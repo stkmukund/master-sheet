@@ -46,33 +46,52 @@ export const calculateVIPid = (brandName: string): [string[] | object, string[]]
 export const projectedTableHead = (brandName: string) => {
     return tableDetails.projectedRebillRevenue.tableHeading[brandName];
 }
-export const getupsellProductIds = (brandName: string,campignName:string)=>{
-console.log('ssaddasdasd',brandName)
+export const getupsellProductIds = (brandName: string, campignName: string): [string[]] => {
     const brandCampaignIds: object = tableDetails.upsellTakeRateReport.productIds![brandName]![campignName];
-    const values = Object.values(brandCampaignIds);
+    const values: string[] = Object.values(brandCampaignIds);
     return [values];
 }
-export const getupsellCampaignIds = (brandName: string)=>{
-    const brandCampaignIds: object = tableDetails.totalVipTracking.campaignIds![brandName]!;
+export const getupsellCampaignIds = (brandName: string): [CampaignName] => {
+    const brandCampaignIds: CampaignName = tableDetails.totalVipTracking.campaignIds![brandName]!;
     return [brandCampaignIds];
 }
-export const getupsellCampaignIdsbkend = (brandName: string,campignName:string)=>{
-    const brandCampaignIds: object = tableDetails.totalVipTracking.campaignIds![brandName]![campignName];
+export const getupsellCampaignIdsbkend = (brandName: string, campignName: string) => {
+    const brandCampaignIds = tableDetails.totalVipTracking.campaignIds![brandName]![campignName];
     return [brandCampaignIds];
 }
-export const getupsellTableHeading = (brandName: string,campignName:string)=>{
-    const brandCampaignIds: object = tableDetails.upsellTakeRateReport.tableHeading![brandName]![campignName];
-    const values = Object.values(brandCampaignIds);
-    return [values];
-}
-export const prepareupsellData = async(data: any, total: number) => {
+export const getupsellTableHeading = (brandName: string, campaignName: string) => {
+    const brand = tableDetails.upsellTakeRateReport.tableHeading?.[brandName];
+
+    if (Array.isArray(brand)) {
+        // If `brand` is an array, return it as is (or handle it as needed).
+        return [brand];
+    }
+
+    if (typeof brand === 'object' && brand !== null) {
+        const brandCampaignIds = brand[campaignName];
+
+        if (Array.isArray(brandCampaignIds)) {
+            return [brandCampaignIds];
+        }
+
+        if (typeof brandCampaignIds === 'object' && brandCampaignIds !== null) {
+            const values = Object.values(brandCampaignIds);
+            return [values];
+        }
+    }
+
+    // Default return value in case no matching structure is found
+    return [];
+};
+
+export const prepareupsellData = async (data: { message: { date: string }[]; heading: string[] }, total: number) => {
     // Calculate sales percentages and revenue earnings
     const salesCountper = data.message.map((item: any) =>
-      percentageData(item.salesCount, total)
+        percentageData(item.salesCount, total)
     );
 
     const salesRev = data.message.map((item: any) =>
-      parseFloat(earningsData(item.salesRev, total))
+        parseFloat(earningsData(item.salesRev, total))
     );
 
     // Calculate total sales revenue
@@ -80,9 +99,9 @@ export const prepareupsellData = async(data: any, total: number) => {
 
     // Prepare the result
     const result = [
-      data.heading,
-      [`${data.message[0].date}`, '% of people taking the upsell', ...salesCountper, `${total}`],
-      ['', 'Upsell earnings per customer', ...salesRev.map((rev) => rev.toFixed(2)), totalSalesRev.toFixed(2)],
+        data.heading,
+        [`${data.message[0].date}`, '% of people taking the upsell', ...salesCountper, `${total}`],
+        ['', 'Upsell earnings per customer', ...salesRev.map((rev) => rev.toFixed(2)), totalSalesRev.toFixed(2)],
     ];
 
     return result;

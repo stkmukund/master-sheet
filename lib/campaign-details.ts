@@ -53,7 +53,7 @@ export const tableDetails: tableHeading = {
             },
             CREATUNITY: ["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"],
             HELIKON: {
-                mLab:["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"],
+                mLab: ["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"],
 
                 flexiHealth: ["Date", " ", "Deep Sleep™ - Orthopedic Memory Foam Pillow", " ", "DreamPatch™️ - Natural Sleep Patches - Offer2", "DreamPatch™️ - Natural Sleep Patches - Offer2_1", "Expedited Shipping", "Discounted Expedited Shipping", "Total"],
             },
@@ -153,9 +153,9 @@ type tableHeading = {
 
 type tableSheet = {
     tableHeading: {
-        [key: string]: string[] | {
-            [key: string]: string[]; // Each campaign for a brand will have an array of strings
-        };
+        [brand: string]: {
+            [campaign: string]: string[] | { [key: string]: string[] };
+        } | string[];
     };
     campaignIds?: {
         [key: string]: {

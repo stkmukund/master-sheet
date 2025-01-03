@@ -1,18 +1,17 @@
 import { calculateEndDateUpsell } from '@/lib/date-utils';
-import { getupsellCampaignIdsbkend, getUpsellProductIds, getupsellTableHeading } from "@/lib/utils";
-export const maxDuration = 60 // 60sec max duration
+import { getupsellCampaignIdsbkend, getupsellProductIds, getupsellTableHeading } from "@/lib/utils";
+// export const maxDuration = 60 // 60sec max duration
 export async function GET(request: Request) {
     // Access the query string parameters from the URL
     const url = new URL(request.url); // `request.url` is the full URL
     const startDate = url.searchParams.get('startDate');
     let endDate = url.searchParams.get('endDate');
     if (!endDate) endDate = calculateEndDateUpsell(startDate!);
-    console.log('ffhhk', endDate)
     const brandName = url.searchParams.get('brandName');
     const campaignName = url.searchParams.get('CampaignName');
     const brand = JSON.parse(process.env[brandName!] || '');
     const [campaignIds] = getupsellCampaignIdsbkend(brandName!, campaignName!);
-    const productIds = getUpsellProductIds(brandName!, campaignName!);
+    const [productIds] = getupsellProductIds(brandName!, campaignName!);
     const [tableHeading] = getupsellTableHeading(brandName!, campaignName!);
     const total = url.searchParams.get('total');
     if (!startDate || !endDate) return apiResponse({ result: "Error", message: "Missing startDate or endDate" });
