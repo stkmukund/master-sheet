@@ -84,13 +84,13 @@ export const getupsellTableHeading = (brandName: string, campaignName: string) =
     return [];
 };
 
-export const prepareupsellData = async (data: { message: { date: string }[]; heading: string[] }, total: number) => {
+export const prepareupsellData = async (data: { message: { date: string; salesCount: number; salesRev: number;}[]; heading: string[] }, total: number) => {
     // Calculate sales percentages and revenue earnings
-    const salesCountper = data.message.map((item: any) =>
+    const salesCountper = data.message.map((item) =>
         percentageData(item.salesCount, total)
     );
 
-    const salesRev = data.message.map((item: any) =>
+    const salesRev = data.message.map((item) =>
         parseFloat(earningsData(item.salesRev, total))
     );
 
