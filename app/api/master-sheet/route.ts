@@ -49,7 +49,6 @@ export async function GET(request: Request) {
 
     async function processKeys() {
         for (const key of Object.keys(campaignNames[0])) {
-          console.log('Processing key:', key);
 
           const upsellTakeReport = await fetch(`${url.origin}/api/master-sheet/upsell-take-rate-report/?startDate=${startDate ? startDate : mondayDate}&brandName=${brandName}&CampaignName=${key}`).then(result => result.json());
 

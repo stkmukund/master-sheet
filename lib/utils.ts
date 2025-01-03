@@ -2,7 +2,6 @@ import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { tableDetails } from "./campaign-details";
 import { object } from "framer-motion/client";
-import { console } from "inspector";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
