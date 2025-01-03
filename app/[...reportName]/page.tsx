@@ -31,7 +31,6 @@ export default function MasterSheet() {
         else if (sheetName === "upsellTakeRateReport") await handleUpsellTakeRateReport();
         else {
             try {
-                console.log("startDate", startDate)
                 // const response = await fetch(`/api/master-sheet/projected-rebill-revenue/?brandName=${brandName}&startDate=${startDate}&endDate=${endDate}&startTime=${startTime}&endTime=${endTime}`).then(result => result.json());
                 const response: ApiResponse = await apiHandler({ endpoint: 'master-sheet/projected-rebill-revenue/', queryParams: { brandName, startDate, endDate, startTime, endTime } })
                 if (response.result === 'ERROR') {
@@ -111,8 +110,6 @@ export default function MasterSheet() {
         //   earningArray.splice(1, 0, 'Upsell earnings per customer');
 
         setTableData((prev) => ({ ...prev, [brandName]: [percentageArray, earningArray] }));
-
-        console.log("upsellReport", JSON.stringify(upsellReport, null, 2));
     }
 
     const totalSalesCount = (data: { message: { salesCount: number } }) => {

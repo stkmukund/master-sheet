@@ -42,7 +42,6 @@ export async function GET(request: Request) {
                 }
             }
         });
-        // console.log(JSON.stringify(campaignData, null, 2));
         totalRevenue = +totalRevenue.toFixed(2);
         reportData.values[0].push(totalRevenue); // added totalRevenue
         reportData.values[0].push(reportDate!); // added reportDate
