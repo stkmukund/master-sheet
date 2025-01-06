@@ -1,10 +1,12 @@
-import { formatDateMMDDYYYY, isMonday } from "@/lib/date-utils";
+import { formatDateMMDDYYYY, isMonday,calculateEndDateUpsell } from "@/lib/date-utils";
 import { addToSheet, apiResponse, getupsellCampaignIds, prepareupsellData } from "@/lib/utils";
 
 export async function GET(request: Request) {
     // Access the query string parameters from the URL
     const url = new URL(request.url); // `request.url` is the full URL
     const startDate = url.searchParams.get('startDate');
+      let endDate = url.searchParams.get('endDate');
+
     const brandName: string = url.searchParams.get('brandName')!;
     if (!brandName) return apiResponse({ result: "ERROR", message: "Please provide a brand name" });
     const brandSheet = JSON.parse(process.env.BRAND_SHEETS! || '');
@@ -51,9 +53,9 @@ export async function GET(request: Request) {
     async function processKeys() {
         for (const key of Object.keys(campaignNames)) {
 
-            const upsellTakeReport = await fetch(`${url.origin}/api/master-sheet/upsell-take-rate-report/?startDate=${startDate ? startDate : mondayDate}&brandName=${brandName}&CampaignName=${key}`).then(result => result.json());
+            const upsellTakeReport = await fetch(`${url.origin}/api/master-sheet/upsell-take-rate-report/?endDate=${startDate ? startDate : mondayDate}&brandName=${brandName}&CampaignName=${key}`).then(result => result.json());
 
-            await fetch(`${url.origin}/api/master-sheet/upsell-take-rate-report/?startDate=${startDate ? startDate : mondayDate}&brandName=${brandName}&CampaignName=${key}&total=1`)
+            await fetch(`${url.origin}/api/master-sheet/upsell-take-rate-report/?endDate=${startDate ? startDate : mondayDate}&brandName=${brandName}&CampaignName=${key}&total=1`)
                 .then(result => result.json())
                 .then(async response => {
                     if (response.result === 'SUCCESS') {

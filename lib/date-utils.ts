@@ -51,7 +51,7 @@ export function calculateEndDateUpsell(startDate: string): string {
     const start = new Date(year, month - 1, day);  // Start date, year is already in YYYY format
 
     // length of report
-    const daysToAdd: number = 6;
+    const daysToAdd: number = -6;
 
     // Add the appropriate number of days to the start date
     const endDate = new Date(start);
@@ -65,6 +65,7 @@ export function calculateEndDateUpsell(startDate: string): string {
     // Return the end date in MM/DD/YYYY format
     return `${endMonth}/${endDay}/${endYear}`;
 }
+
 // Function to add one day to the given date
 export function addOneDay(startDate: string): string {
     // Parse the startDate string into a Date object
