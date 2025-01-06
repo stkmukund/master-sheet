@@ -1,6 +1,5 @@
 import { calculateEndDateUpsell } from '@/lib/date-utils';
 import { getupsellCampaignIdsbkend, getupsellProductIds, getupsellTableHeading } from "@/lib/utils";
-import { console } from 'inspector';
 // export const maxDuration = 60 // 60sec max duration
 export async function GET(request: Request) {
     // Access the query string parameters from the URL
