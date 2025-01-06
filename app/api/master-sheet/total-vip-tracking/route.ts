@@ -32,7 +32,7 @@ export async function GET(request: Request) {
         const response = await fetch(`https://api.checkoutchamp.com/purchase/query/?loginId=${brand.loginId}&password=${brand.password}&startDate=${startDate}&endDate=${endDate}&status=ACTIVE&campaignId=${id}&resultsPerPage=1&startTime=${startTime}&endTime=${endTime}`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
         if (response.result === "ERROR") {
             if (response.message === "No purchases matching those parameters could be found") {
-                reportData.values[0].push(0);
+                reportData.values[0].push('null');
                 totalActiveVIP += 0;
             }
             else throw new Error(response.message);
