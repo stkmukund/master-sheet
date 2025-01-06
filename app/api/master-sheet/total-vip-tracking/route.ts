@@ -20,7 +20,7 @@ export async function GET(request: Request) {
         values: [[endDate]]
     }; // all data will be stored here
     let totalActiveVIP = 0; // total number of active_VIP
-    let totalRecycleVIP = 0; // total number of RECYCLE_BILLING
+    let totalRecycleVIP: number | string = 0; // total number of RECYCLE_BILLING
 
 
     const requestOptions = {
@@ -56,6 +56,7 @@ export async function GET(request: Request) {
         if (response.result === "SUCCESS") totalRecycleVIP += +response.message.totalResults
     }
 
+    if (totalRecycleVIP === 0) totalRecycleVIP = 'null';
     // Add total RECYCLE_BILLING to report data
     reportData.values[0].push(totalRecycleVIP);
 
