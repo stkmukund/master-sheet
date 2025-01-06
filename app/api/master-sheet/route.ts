@@ -28,7 +28,7 @@ export async function GET(request: Request) {
 
     // If it's Monday, format the date in MM/DD/YYYY format
     let mondayDate: string | null = null;
-    if (!isTodayMonday) {
+    if (isTodayMonday) {
         mondayDate = formatDateMMDDYYYY(today); // Format the date
     } else {
         return apiResponse({
