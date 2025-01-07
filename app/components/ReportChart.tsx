@@ -1,20 +1,20 @@
 'use client'
 import {
-    Chart as ChartJS,
     CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Tooltip,
-    Legend,
+    Chart as ChartJS,
     ChartOptions,
+    Legend,
+    LinearScale,
+    LineElement,
+    PointElement,
+    Tooltip,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 
 // Register required components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
-const DataChart: React.FC<{ dates: string[]; revenues: number[]; rebillCounts: number[] }> = ({
+const ReportChart: React.FC<{ dates: string[]; revenues: number[]; rebillCounts: number[] }> = ({
     dates,
     revenues,
     rebillCounts,
@@ -106,4 +106,4 @@ const DataChart: React.FC<{ dates: string[]; revenues: number[]; rebillCounts: n
     return <Line data={data} options={options} />;
 };
 
-export default DataChart;
+export default ReportChart;
