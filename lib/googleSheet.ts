@@ -6,18 +6,15 @@ export default async function SheetDataPage(brandName: string, report: string) {
     const brand = brandSheet[report][brandName];
     const sheetId = brand.sheetId; // Replace with your Google Sheet ID
     const range = brand.sheetName + '!A:Z';  // Adjust column range as needed
+    // console.log(brandName, brand, sheetId, range);
 
 
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
 
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-
-        const last10Rows = data.values ? data.values.slice(-10) : [];
-        return last10Rows;
-    } catch (error) {
-        console.error('Error fetching data from Google Sheets:', error);
-        return error;
-    }
+    return fetch(url).then((response) => response.json())
+        .then(data => data.values ? data.values.slice(-10) : [])
+        .catch(error => {
+            console.error('Error fetching data from Google Sheets:', error);
+            return error;
+        })
 }
