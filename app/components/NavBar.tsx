@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu } from "./ui/navbar-menu";
+import Image from "next/image";
 
 export function NavBar() {
     return (
@@ -18,7 +19,7 @@ function Navbar({ className }: { className?: string }) {
     const pathname = usePathname(); // Get the current path
 
     const links = [
-        { href: '/', label: <img src="/assets/home.svg" alt="home" width={30} height={30} /> },
+        { href: '/', label: <Image src="/assets/home.svg" alt="home" width={30} height={30} /> },
         { href: '/reports/projectedRebillRevenue', label: 'Projected Rebill Revenue' },
         { href: '/reports/totalVipTracking', label: 'Total VIP Tracking' },
         { href: '/reports/upsellTakeRateReport', label: 'Upsell Take Rate Report', active },
