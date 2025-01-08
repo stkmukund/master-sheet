@@ -1,4 +1,3 @@
-import BrandSelector from "./components/BrandSelector";
 import { PRRreport } from "./components/chart";
 
 export default function Home() {
