@@ -1,0 +1,170 @@
+{
+    "projectedRebillRevenue": {
+        "method": "GET",
+        "name": "Projected Rebill Revenue",
+        "url": "http://3.27.39.92:3001/api/master-sheet/projected-rebill-revenue",
+        "description": "The Projected Rebill Revenue Report API returns summary report of Projected Billing information through a simple HTTP GET request.",
+        "table": {
+            "title": [
+                "Field",
+                "Description",
+                "Value"
+            ],
+            "values": [
+                [
+                    "loginId",
+                    "API Login Id provided by Checkout Champ",
+                    ""
+                ],
+                [
+                    "password",
+                    "API password provided by Checkout Champ",
+                    ""
+                ],
+                [
+                    "startDate",
+                    "only orders to be billed on or after this date",
+                    "Date of Monday"
+                ],
+                [
+                    "endDate",
+                    "only orders to be billed on or before this date",
+                    "startDate"
+                ],
+                [
+                    "reportType",
+                    "Group report by report type: enum (campaign, source, gateway)",
+                    "startDate"
+                ],
+                [
+                    "cycle1Attrition",
+                    "Percentage of successful rebills for rebill #1",
+                    "startDate"
+                ],
+                [
+                    "cycle2Attrition",
+                    "Percentage of successful rebills for rebill #2",
+                    "startDate"
+                ],
+                [
+                    "cycle3Attrition",
+                    "Percentage of successful rebills for rebill #3",
+                    "startDate"
+                ],
+                [
+                    "cycle4PlusAttrition",
+                    "Percentage of successful rebills for rebill #4+",
+                    "startDate"
+                ],
+                [
+                    "startTime",
+                    "only records falling on or after this time. Must include startDate if passing this value.",
+                    "startDate"
+                ],
+                [
+                    "endTime",
+                    "only records falling on or before this time. Must include endDate if passing this value.",
+                    "startDate"
+                ]
+            ]
+        },
+        "response": {
+            "result": "SUCCESS",
+            "message": {
+                "heading": [
+                    "Date (Next 30)",
+                    "Total Revenue",
+                    "Report Date",
+                    "Projected Approved Rebill Count"
+                ],
+                "values": [
+                    [
+                        "01/15/2025 - 02/12/2025",
+                        1285287.64,
+                        "01/14/2025",
+                        39030
+                    ]
+                ]
+            }
+        }
+    },
+    "totalVipTracking": {
+        "method": "GET",
+        "name": "Total VIP Tracking",
+        "url": "http://3.27.39.92:3001/api/master-sheet/total-vip-tracking",
+        "description": "The Total VIP Tracking API returns information about existing recurring purchases through a simple HTTPS GET request.",
+        "table": {
+            "title": [
+                "Field",
+                "Description",
+                "Value"
+            ],
+            "values": [
+                [
+                    "loginId",
+                    "API Login Id provided by Checkout Champ",
+                    ""
+                ],
+                [
+                    "password",
+                    "API password provided by Checkout Champ",
+                    ""
+                ],
+                [
+                    "startDate",
+                    "only orders to be billed on or after this date",
+                    "startDate"
+                ],
+                [
+                    "endDate",
+                    "only orders to be billed on or before this date",
+                    "startDate"
+                ],
+                [
+                    "status",
+                    "Group report by report type: enum (campaign, source, gateway)",
+                    "startDate"
+                ],
+                [
+                    "campaignId",
+                    "Campaign Id for which the ACTIVE and RECYCLE_BILLING VIP is calculating.",
+                    "startDate"
+                ],
+                [
+                    "resultsPerPage",
+                    "Number of results to return (defaults to 25)",
+                    "startDate"
+                ],
+                [
+                    "startTime",
+                    "only records falling on or after this time. Must include startDate if passing this value.",
+                    "startDate"
+                ],
+                [
+                    "endTime",
+                    "only records falling on or before this time. Must include endDate if passing this value.",
+                    "startDate"
+                ]
+            ]
+        },
+        "response": {
+            "result": "SUCCESS",
+            "message": {
+                "heading": [
+                    "Date (Next 30)",
+                    "Total Revenue",
+                    "Report Date",
+                    "Projected Approved Rebill Count"
+                ],
+                "values": [
+                    [
+                        "01/15/2025 - 02/12/2025",
+                        1285287.64,
+                        "01/14/2025",
+                        39030
+                    ]
+                ]
+            }
+        }
+    }
+}

@@ -1,16 +1,11 @@
-import { PRRreport } from "./components/chart";
+import ApiDescriptionPage from "./components/apiDescription/ApiDescriptionPage";
 
 export default function Home() {
 
   return (
     <>
       <main className="px-5">
-        {/* <BrandSelector /> */}
-        <div className="mb-16"></div>
-        <PRRreport brandName="NYMBUS" />
-        <div className="pb-24"></div>
-        <PRRreport brandName="HELIKON" />
-        <div className="pb-24"></div>
+        <ApiDescriptionPage />
       </main>
     </>
   );
