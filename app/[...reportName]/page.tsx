@@ -195,7 +195,7 @@ export default function MasterSheet() {
 
                             {/* Map over the object entries to generate options */}
                             {Object.entries(campaignNames[0] || {}).map(([key, value]) => (
-                                <option key={key} value={key} id={value}>
+                                <option key={key} value={key} id={value} disabled={['secretLane', 'scarlettEnvy', 'Mangolift','checkoutChamp','bankSites'].includes(key)}>
                                     {key}
                                 </option>
                             ))}
