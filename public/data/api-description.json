@@ -151,17 +151,35 @@
             "result": "SUCCESS",
             "message": {
                 "heading": [
-                    "Date (Next 30)",
-                    "Total Revenue",
-                    "Report Date",
-                    "Projected Approved Rebill Count"
+                    "Date Pulled",
+                    "Lash Cosmetics",
+                    "Brow Charm",
+                    "Floral Secrets",
+                    "Secret Lane",
+                    "Invisilift",
+                    "Indestructible Tights",
+                    "Scarlett Envy",
+                    "Mangolift",
+                    "Fitcharm",
+                    "Brow Pro",
+                    "Total Nymbus VIPs",
+                    "Total VIP Recycling"
                 ],
                 "values": [
                     [
-                        "01/15/2025 - 02/12/2025",
-                        1285287.64,
-                        "01/14/2025",
-                        39030
+                        "01/10/2025",
+                        14165,
+                        2154,
+                        8106,
+                        491,
+                        5799,
+                        8826,
+                        "null",
+                        13,
+                        3533,
+                        6952,
+                        50039,
+                        4252
                     ]
                 ]
             }

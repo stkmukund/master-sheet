@@ -29,7 +29,7 @@ export default function ApiDescriptionPage() {
                 <>
                     <p className="font-bold text-xl">Master Sheet APIs</p>
                     {Object.values(data).map((brand, index) => (
-                        < Description key={index} method={brand.method} name={brand.name} url={brand.url} description={brand.description} tableHeading={brand.table.title} tableBody={brand.table.values} />
+                        < Description key={index} method={brand.method} name={brand.name} url={brand.url} description={brand.description} tableHeading={brand.table.title} tableBody={brand.table.values} sampleResponse={brand.response} />
                     ))}
                 </>
             ) : <p>Loading..............</p>}
