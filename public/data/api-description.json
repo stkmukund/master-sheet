@@ -1,9 +1,14 @@
 {
     "projectedRebillRevenue": {
-        "method": "GET",
         "name": "Projected Rebill Revenue",
-        "url": "http://3.27.39.92:3001/api/master-sheet/projected-rebill-revenue",
-        "description": "The Projected Rebill Revenue Report API returns summary report of Projected Billing information through a simple HTTP GET request.",
+        "endpoints": [
+            {
+                "name": "Query Projected Billing Report",
+                "method": "POST",
+                "url": "https://api.checkoutchamp.com/reports/projected-billing/",
+                "description": "The Query Projected Billing Report API returns summary report of Projected Billing information through a simple HTTP GET or POST request."
+            }
+        ],
         "table": {
             "title": [
                 "Field",
@@ -14,57 +19,57 @@
                 [
                     "loginId",
                     "API Login Id provided by Checkout Champ",
-                    ""
+                    "*******"
                 ],
                 [
                     "password",
                     "API password provided by Checkout Champ",
-                    ""
+                    "*******"
                 ],
                 [
                     "startDate",
-                    "only orders to be billed on or after this date",
-                    "Date of Monday"
+                    "One day after the Monday of the current week",
+                    "MM-DD-YYYY (e.g., 01-14-2025 for a Tuesday)"
                 ],
                 [
                     "endDate",
-                    "only orders to be billed on or before this date",
-                    "startDate"
+                    "29 days after the startDate",
+                    "MM-DD-YYYY (e.g., 02-12-2025 for 29 days after 01-14-2024)"
                 ],
                 [
                     "reportType",
                     "Group report by report type: enum (campaign, source, gateway)",
-                    "startDate"
+                    "campaign"
                 ],
                 [
                     "cycle1Attrition",
                     "Percentage of successful rebills for rebill #1",
-                    "startDate"
+                    "80"
                 ],
                 [
                     "cycle2Attrition",
                     "Percentage of successful rebills for rebill #2",
-                    "startDate"
+                    "80"
                 ],
                 [
                     "cycle3Attrition",
                     "Percentage of successful rebills for rebill #3",
-                    "startDate"
+                    "80"
                 ],
                 [
                     "cycle4PlusAttrition",
                     "Percentage of successful rebills for rebill #4+",
-                    "startDate"
+                    "80"
                 ],
                 [
                     "startTime",
                     "only records falling on or after this time. Must include startDate if passing this value.",
-                    "startDate"
+                    "HH:MM:SS (00:00:00)"
                 ],
                 [
                     "endTime",
                     "only records falling on or before this time. Must include endDate if passing this value.",
-                    "startDate"
+                    "HH:MM:SS (23:59:59)"
                 ]
             ]
         },
@@ -79,20 +84,25 @@
                 ],
                 "values": [
                     [
-                        "01/15/2025 - 02/12/2025",
-                        1285287.64,
-                        "01/14/2025",
-                        39030
+                        "01/14/2025 - 02/12/2025",
+                        1291320.9,
+                        "01/13/2025",
+                        39208
                     ]
                 ]
             }
         }
     },
     "totalVipTracking": {
-        "method": "GET",
         "name": "Total VIP Tracking",
-        "url": "http://3.27.39.92:3001/api/master-sheet/total-vip-tracking",
-        "description": "The Total VIP Tracking API returns information about existing recurring purchases through a simple HTTPS GET request.",
+        "endpoints": [
+            {
+                "name": "Query Purchases",
+                "method": "POST",
+                "url": "https://api.checkoutchamp.com/purchase/query/",
+                "description": "The Query Purchase API returns information about existing recurring purchases through a simple HTTPS GET or POST request. No wildcard characters need to be used as the API will insert wildcards automatically when necessary."
+            }
+        ],
         "table": {
             "title": [
                 "Field",
@@ -103,47 +113,47 @@
                 [
                     "loginId",
                     "API Login Id provided by Checkout Champ",
-                    ""
+                    "*******"
                 ],
                 [
                     "password",
                     "API password provided by Checkout Champ",
-                    ""
+                    "*******"
                 ],
                 [
                     "startDate",
                     "only orders to be billed on or after this date",
-                    "startDate"
+                    "MM-DD-YYYY (01-01-2010 fixed for automation)"
                 ],
                 [
                     "endDate",
-                    "only orders to be billed on or before this date",
-                    "startDate"
+                    "only orders to be billed on or before Monday of the current week",
+                    "MM-DD-YYYY (01-13-2025 Monday of the current week)"
                 ],
                 [
                     "status",
-                    "Group report by report type: enum (campaign, source, gateway)",
-                    "startDate"
+                    "Enum ( 'ACTIVE','PAUSED','RECYCLE_BILLING','CANCELLED','RECYCLE_FAILED','TRIAL','COMPLETE')",
+                    "ACTIVE and RECYCLE_BILLING"
                 ],
                 [
                     "campaignId",
                     "Campaign Id for which the ACTIVE and RECYCLE_BILLING VIP is calculating.",
-                    "startDate"
+                    "All the campaign mentioned in the google sheet"
                 ],
                 [
                     "resultsPerPage",
                     "Number of results to return (defaults to 25)",
-                    "startDate"
+                    "1"
                 ],
                 [
                     "startTime",
                     "only records falling on or after this time. Must include startDate if passing this value.",
-                    "startDate"
+                    "HH:MM:SS (00:00:00)"
                 ],
                 [
                     "endTime",
                     "only records falling on or before this time. Must include endDate if passing this value.",
-                    "startDate"
+                    "HH:MM:SS (23:59:59)"
                 ]
             ]
         },
@@ -183,6 +193,123 @@
                     ]
                 ]
             }
+        }
+    },
+    "upsellTakeRateReport": {
+        "name": "Upsell Take Rate Report",
+        "endpoints": [
+            {
+                "name": "Query Transaction Summary Report",
+                "method": "POST",
+                "url": "https://api.checkoutchamp.com/transactions/summary/",
+                "description": "The Query Transaction Summary Report API returns the same data shown on the transaction summary report through a simple HTTPS GET or POST request."
+            },
+            {
+                "name": "Query Order",
+                "method": "POST",
+                "url": "https://api.checkoutchamp.com/order/query/",
+                "description": "The Query Order API returns information about existing orders through a simple HTTPS GET or POST request. No wildcard characters need to be used as the api will insert wildcards automatically when necessary."
+            }
+        ],
+        "table": {
+            "title": [
+                "Field",
+                "Description",
+                "Value"
+            ],
+            "values": [
+                [
+                    "loginId",
+                    "API Login Id provided by Checkout Champ",
+                    "*******"
+                ],
+                [
+                    "password",
+                    "API password provided by Checkout Champ",
+                    "*******"
+                ],
+                [
+                    "startDate",
+                    "6 Days before the Monday of the current Week",
+                    "MM-DD-YYYY (01-07-2025 6 Days before Monday of the current week 01-13-2025)"
+                ],
+                [
+                    "endDate",
+                    "Monday of the current week",
+                    "MM-DD-YYYY (01-13-2025 Monday of the current week)"
+                ],
+                [
+                    "campaignProductId",
+                    "Product Id for one specific product of specific campaign",
+                    "Products Mentioned in google sheet"
+                ],
+                [
+                    "campaignId",
+                    "Campaign Id for campaign",
+                    "All the campaign mentioned in the google sheet"
+                ],
+                [
+                    "reportType",
+                    "Group report by report type. enum (campaign, source, gateway, product, campaignProduct, currency, date, funnel)",
+                    "campaign"
+                ],
+                [
+                    "orderStatus",
+                    "ENUM- 'COMPLETE'/ 'PARTIAL'/ 'DECLINED'/ 'REFUNDED'/'PARTIAL_REFUNDED'/ 'CANCELLED'/'COD_PENDING'",
+                    "COMPLETE, REFUNDED and CANCELLED"
+                ],
+                [
+                    "orderType",
+                    "ENUM('NEW_SALE','RECURRING')",
+                    "NEW_SALE"
+                ]
+            ]
+        },
+        "response": {
+            "result": "SUCCESS",
+            "message": [
+                {
+                    "date": "01/03/2025 - 01/09/2025",
+                    "salesCount": 327,
+                    "salesRev": 13846.77
+                },
+                {
+                    "date": "01/03/2025 - 01/09/2025",
+                    "salesCount": 70,
+                    "salesRev": 2809.45
+                },
+                {
+                    "date": "01/03/2025 - 01/09/2025",
+                    "salesCount": 146,
+                    "salesRev": 8190.67
+                },
+                {
+                    "date": "01/03/2025 - 01/09/2025",
+                    "salesCount": 35,
+                    "salesRev": 1506.97
+                },
+                {
+                    "date": "01/03/2025 - 01/09/2025",
+                    "salesCount": 344,
+                    "salesRev": 4634.23
+                },
+                {
+                    "date": "01/03/2025 - 01/09/2025",
+                    "salesCount": 0,
+                    "salesRev": 0
+                }
+            ],
+            "heading": [
+                "Date",
+                " ",
+                "Lash Cosmetics Vibely Mascara Offered",
+                "Lash Cosmetics Vibely Mascara - Discounted",
+                "Lash Cosmetics Vibely EyeLiner Offered",
+                "Lash Cosmetics Vibely EyeLiner Discounted",
+                "Expedited Shipping",
+                "Discounted Expedited Shipping",
+                "Total"
+            ]
         }
     }
 }

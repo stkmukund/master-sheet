@@ -12,10 +12,13 @@ export interface apiDescription {
 }
 
 export interface brandDescription {
-    method: string;
     name: string;
-    url: string;
-    description: string;
+    endpoints: {
+        name: string;
+        method: string;
+        url: string;
+        description: string;
+    }[];
     table: {
         title: string[];
         values: string[][];
