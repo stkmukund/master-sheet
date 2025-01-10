@@ -183,7 +183,7 @@ export default function MasterSheet() {
                     <select onChange={handleChange} value={brandName} className="cursor-pointer h-[40px] rounded-md" name="brandList" id="brand-list">
                         <option disabled>Select Brand</option>
                         <option className="text-center" value="NYMBUS">Nymbus</option>
-                        <option className="text-center" value="CREATUNITY">Creatunity</option>
+                        <option className="text-center" value="CREATUNITY" disabled>Creatunity</option>
                         <option className="text-center" value="HELIKON">Helikon</option>
                     </select>
                     {sheetName === "upsellTakeRateReport" && (
