@@ -16,8 +16,6 @@ export default function Description({ endpoints, tableHeading, tableBody, sample
         setTimeout(() => setCopied(false), 3000);
     }
 
-    console.log("endpoints", JSON.stringify(endpoints, null, 2));
-
     if (!endpoints) return null;
     return (
         <main className="mt-16 text-base border-2 border-[#6B8D99] p-4 rounded">
