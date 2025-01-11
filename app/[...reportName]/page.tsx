@@ -179,7 +179,7 @@ export default function MasterSheet() {
     return (
         <div className="max-w-screen-lg mx-auto">
             <section id="form">
-                <form onSubmit={handleSubmit} className="flex items-end gap-4 text-black h-16">
+                <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-4 text-black sm:h-16">
                     <select onChange={handleChange} value={brandName} className="cursor-pointer h-[40px] rounded-md" name="brandList" id="brand-list">
                         <option disabled>Select Brand</option>
                         <option className="text-center" value="NYMBUS">Nymbus</option>

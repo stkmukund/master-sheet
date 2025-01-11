@@ -19,6 +19,14 @@ body {
   min-height: 100vh;     
 }
 
+@media (max-width: 425px) {
+  body {
+    background-image: url("/bg-astronaut.png"); /* Correct path to image in public folder */
+    background-position: right top;
+    background-size: 70%;
+  }
+}
+
 
 /* Custom scrollbar for Webkit browsers */
 .scroll-container::-webkit-scrollbar {

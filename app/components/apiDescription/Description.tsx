@@ -57,7 +57,7 @@ export default function Description({ endpoints, tableHeading, tableBody, sample
             <section id="response" className="mt-4">
                 <h2 className="font-semibold">Sample Response</h2>
                 <h3 className="my-2 font-semibold">Success</h3>
-                <aside className="bg-black text-orange-300 p-4 rounded">
+                <aside className="bg-black text-orange-300 p-4 rounded overflow-x-auto">
                     <div className="head flex justify-between items-center">
                         <p className="text-white text-md bg-slate-400 py-0.5 px-2 rounded">Plain Text</p>
                         <button onClick={() => handleClipboard(JSON.stringify(sampleResponse, null, 2))} >

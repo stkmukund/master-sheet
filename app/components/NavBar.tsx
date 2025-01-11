@@ -26,11 +26,11 @@ function Navbar({ className }: { className?: string }) {
     ];
     return (
         <div
-            className={cn("fixed top-10 inset-x-0 max-w-2xl mx-auto z-50", className)}
+            className={cn("fixed top-10 inset-x-0 sm:max-w-2xl max-w-80 mx-auto z-50", className)}
         >
             <Menu setActive={setActive} >
                 <section id="navBar">
-                    <ul className="flex items-center gap-4 text-base font-semibold">
+                    <ul className="flex items-center gap-2 sm:gap-4 text-[10px] sm:text-base font-semibold">
                         {links.map(({ href, label }) => (
                             <li key={href} >
                                 <Link href={href} className={pathname === href ? styles.activeLink : styles.link} >{label}</Link>
