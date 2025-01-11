@@ -21,6 +21,7 @@ export async function GET(request: Request) {
     }; // all data will be stored here
     let totalActiveVIP = 0; // total number of active_VIP
     let totalRecycleVIP: number | string = 0; // total number of RECYCLE_BILLING
+    let totalPausedVIP: number | string = 0; // total number of PAUSED
 
 
     const requestOptions = {
@@ -57,8 +58,25 @@ export async function GET(request: Request) {
     }
 
     if (totalRecycleVIP === 0) totalRecycleVIP = 'null';
-    // Add total RECYCLE_BILLING to report data
+
+    // Add total PAUSED to report data
     reportData.values[0].push(totalRecycleVIP);
+
+    // Loop to retrieve total Pause for all campaigns
+    if (brandName === 'HELIKON') {
+        for (const id of campaignId) {
+            const response = await fetch(`https://api.checkoutchamp.com/purchase/query/?loginId=${brand.loginId}&password=${brand.password}&startDate=${startDate}&endDate=${endDate}&status=PAUSED&campaignId=${id}&resultsPerPage=1`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
+            if (response.result === "ERROR") {
+                if (response.message === "No purchases matching those parameters could be found") totalPausedVIP += 0;
+                else throw new Error(response.message);
+            };
+            if (response.result === "SUCCESS") totalPausedVIP += +response.message.totalResults
+        }
+
+        if (totalPausedVIP === 0) totalPausedVIP = 'null';
+        // Add total RECYCLE_BILLING to report data
+        reportData.values[0].push(totalPausedVIP);
+    }
 
     return apiResponse({ result: "SUCCESS", message: reportData });
 }
