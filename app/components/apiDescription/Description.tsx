@@ -10,16 +10,48 @@ export default function Description({ endpoints, tableHeading, tableBody, sample
     const [copied, setCopied] = useState(false);
 
     // handle clipboard
-    const handleClipboard = async (text: string) => {
+    const handleClipboardFallback = (text: string) => {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed"; // Avoid scrolling to the bottom
+        document.body.appendChild(textarea);
+        textarea.select();
+
         try {
-            await navigator.clipboard.writeText(text);
+            // @ts-ignore: Deprecated API usage
+            const successful = document.execCommand("copy");
+            if (successful) {
+                console.log("Fallback: Copied to clipboard");
+            } else {
+                console.error("Fallback: Copy failed");
+            }
+        } catch (error) {
+            console.error("Fallback error: ", error);
+        } finally {
+            document.body.removeChild(textarea);
+        }
+    };
+
+    const handleClipboard = async (text: string) => {
+        if (navigator.clipboard) {
+            try {
+                await navigator.clipboard.writeText(text);
+                console.log("Copied to clipboard using modern API!");
+                setCopied(true);
+                setTimeout(() => setCopied(false), 3000);
+            } catch (error) {
+                console.error("Modern API failed, using fallback", error);
+                handleClipboardFallback(text);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 3000);
+            }
+        } else {
+            console.warn("Clipboard API not supported, using fallback");
+            handleClipboardFallback(text);
             setCopied(true);
             setTimeout(() => setCopied(false), 3000);
-        } catch (error) {
-            console.error("Failed to copy text: ", error);
-            // Optionally, show an error message to the user
         }
-    }
+    };
 
     if (!endpoints) return null;
     return (
