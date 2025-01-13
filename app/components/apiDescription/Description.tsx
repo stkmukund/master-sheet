@@ -10,10 +10,15 @@ export default function Description({ endpoints, tableHeading, tableBody, sample
     const [copied, setCopied] = useState(false);
 
     // handle clipboard
-    const handleClipboard = (text: string) => {
-        navigator.clipboard.writeText(text);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 3000);
+    const handleClipboard = async (text: string) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 3000);
+        } catch (error) {
+            console.error("Failed to copy text: ", error);
+            // Optionally, show an error message to the user
+        }
     }
 
     if (!endpoints) return null;

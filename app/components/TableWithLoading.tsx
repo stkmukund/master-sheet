@@ -20,7 +20,6 @@ export default function TableWithLoading({ tableHead }: { tableHead: string[] })
                                 <p className='animate-pulse bg-blue-100 p-2 rounded'></p>
                             </td>
                         ))}
-
                     </tr>
                 </tbody>
             </table>
