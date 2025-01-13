@@ -18,8 +18,6 @@ export default function Description({ endpoints, tableHeading, tableBody, sample
         textarea.select();
 
         try {
-            // @ts-expect-error
-            await navigator.clipboard.writeText(text);
             const successful = document.execCommand("copy");
             if (successful) {
                 console.log("Fallback: Copied to clipboard");
