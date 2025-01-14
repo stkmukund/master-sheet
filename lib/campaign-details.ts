@@ -17,10 +17,10 @@ export const tableDetails: tableHeading = {
                 lashCosmetics: "61,47, 1, 68, 9, 6, 67, 69, 70",
                 browCharm: "88, 48, 24, 8, 20, 10, 28, 34, 35, 45, 83, 82",
                 floralSecrets: "38, 46, 85, 12, 71, 55, 21, 15",
-                secretLane: "39, 42, 41",
+                secretLane: "999",
                 invisilift: "16, 53, 31, 19",
                 indestructibleTights: "56, 58, 59",
-                scarlettEnvy: "999", // it not exists in campaign
+                scarlettEnvy: "999",
                 Mangolift: "72, 75, 73",
                 fitcharm: "76, 81, 79",
                 browPro: "97, 101, 99"

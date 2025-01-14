@@ -10,14 +10,15 @@ export async function GET(request: Request) {
     const brandName: string = url.searchParams.get('brandName')!;
     if (!brandName) return apiResponse({ result: "ERROR", message: "Please provide a brand name" });
     const brandSheet = JSON.parse(process.env.BRAND_SHEETS! || '');
-    const [campaignNames] = getupsellCampaignIds(brandName);
-    if (campaignNames) {
-        delete campaignNames.secretLane;
-        delete campaignNames.scarlettEnvy;
-        delete campaignNames.Mangolift;
-        delete campaignNames.checkoutChamp;
-        delete campaignNames.bankSites;
-    }
+    let [campaignNames]: [Campaigns] = getupsellCampaignIds(brandName);
+    const campaignsToFilter: string[] = ["secretLane", "scarlettEnvy", "Mangolift", "checkoutChamp", "bankSites"];
+    const filteredData: Campaigns = Object.keys(campaignNames).reduce((acc: Campaigns, key: string) => {
+        if (!campaignsToFilter.includes(key)) {
+            acc[key] = campaignNames[key];
+        }
+        return acc;
+    }, {});
+    campaignNames = filteredData;
 
 
     // Get today's date
@@ -28,7 +29,7 @@ export async function GET(request: Request) {
 
     // If it's Monday, format the date in MM/DD/YYYY format
     let mondayDate: string | null = null;
-    if (isTodayMonday) {
+    if (!isTodayMonday) {
         mondayDate = formatDateMMDDYYYY(today); // Format the date
     } else {
         return apiResponse({
@@ -80,3 +81,7 @@ export async function GET(request: Request) {
         }
     })
 }
+
+type Campaigns = {
+    [key: string]: string | undefined;
+};

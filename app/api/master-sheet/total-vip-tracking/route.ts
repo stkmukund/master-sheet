@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     const startTime = url.searchParams.get('startTime');
     const endTime = url.searchParams.get('endTime');
     const brandName = url.searchParams.get('brandName');
-    const [campaignHead, campaignId] = calculateVIPid(brandName!); // campaignIds and tableHeading
+    const [campaignHead, campaignId] = await calculateVIPid(brandName!); // campaignIds and tableHeading
     const brand = JSON.parse(process.env[brandName!] || '');
     const reportData: ReportData = {
         heading: campaignHead,
@@ -29,11 +29,12 @@ export async function GET(request: Request) {
     };
 
     // Loop to retrieve ACTIVE VIP for all campaigns
+    console.log("campaignId", campaignId)
     for (const id of campaignId) {
         const response = await fetch(`https://api.checkoutchamp.com/purchase/query/?loginId=${brand.loginId}&password=${brand.password}&startDate=${startDate}&endDate=${endDate}&status=ACTIVE&campaignId=${id}&resultsPerPage=1&startTime=${startTime}&endTime=${endTime}`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
         if (response.result === "ERROR") {
             if (response.message === "No purchases matching those parameters could be found") {
-                reportData.values[0].push('null');
+                reportData.values[0].push('x');
                 totalActiveVIP += 0;
             }
             else throw new Error(response.message);
@@ -49,6 +50,7 @@ export async function GET(request: Request) {
 
     // Loop to retrieve total VIP_RECYCLE for all campaigns
     for (const id of campaignId) {
+        console.log("id", id)
         const response = await fetch(`https://api.checkoutchamp.com/purchase/query/?loginId=${brand.loginId}&password=${brand.password}&startDate=${startDate}&endDate=${endDate}&status=RECYCLE_BILLING&campaignId=${id}&resultsPerPage=1`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
         if (response.result === "ERROR") {
             if (response.message === "No purchases matching those parameters could be found") totalRecycleVIP += 0;
@@ -57,7 +59,7 @@ export async function GET(request: Request) {
         if (response.result === "SUCCESS") totalRecycleVIP += +response.message.totalResults
     }
 
-    if (totalRecycleVIP === 0) totalRecycleVIP = 'null';
+    if (totalRecycleVIP === 0) totalRecycleVIP = 'x';
 
     // Add total PAUSED to report data
     reportData.values[0].push(totalRecycleVIP);
@@ -73,7 +75,7 @@ export async function GET(request: Request) {
             if (response.result === "SUCCESS") totalPausedVIP += +response.message.totalResults
         }
 
-        if (totalPausedVIP === 0) totalPausedVIP = 'null';
+        if (totalPausedVIP === 0) totalPausedVIP = 'x';
         // Add total RECYCLE_BILLING to report data
         reportData.values[0].push(totalPausedVIP);
     }

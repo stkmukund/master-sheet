@@ -23,7 +23,7 @@ export const addToSheet = async (baseUrl: string, data: (string | number)[], she
         sheetDetails,
         values: data
     }
-    const raw = JSON.stringify(sheetData);
+    const raw = await JSON.stringify(sheetData);
 
     const response = await fetch(baseUrl + '/api/google-sheets', {
         method: "POST",
@@ -36,7 +36,8 @@ export const addToSheet = async (baseUrl: string, data: (string | number)[], she
 
 // Total VIP Tracking
 // Calculate campaignIDs
-export const calculateVIPid = (brandName: string): [string[] | object, string[]] => {
+export const calculateVIPid = async (brandName: string): Promise<[string[] | object, string[]]> => {
+    console.log("tableDetails.totalVipTracking.campaignIds", tableDetails.totalVipTracking.campaignIds!.NYMBUS)
     const brandCampaignIds: object = tableDetails.totalVipTracking.campaignIds![brandName]!;
     const brandCampaignHead = tableDetails.totalVipTracking.tableHeading[brandName];
     const values: string[] = Object.values(brandCampaignIds);
