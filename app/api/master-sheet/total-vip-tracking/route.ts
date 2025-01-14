@@ -29,7 +29,6 @@ export async function GET(request: Request) {
     };
 
     // Loop to retrieve ACTIVE VIP for all campaigns
-    console.log("campaignId", campaignId)
     for (const id of campaignId) {
         const response = await fetch(`https://api.checkoutchamp.com/purchase/query/?loginId=${brand.loginId}&password=${brand.password}&startDate=${startDate}&endDate=${endDate}&status=ACTIVE&campaignId=${id}&resultsPerPage=1&startTime=${startTime}&endTime=${endTime}`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
         if (response.result === "ERROR") {
@@ -50,7 +49,6 @@ export async function GET(request: Request) {
 
     // Loop to retrieve total VIP_RECYCLE for all campaigns
     for (const id of campaignId) {
-        console.log("id", id)
         const response = await fetch(`https://api.checkoutchamp.com/purchase/query/?loginId=${brand.loginId}&password=${brand.password}&startDate=${startDate}&endDate=${endDate}&status=RECYCLE_BILLING&campaignId=${id}&resultsPerPage=1`, requestOptions).then(result => result.json()).catch(error => apiResponse(error));
         if (response.result === "ERROR") {
             if (response.message === "No purchases matching those parameters could be found") totalRecycleVIP += 0;

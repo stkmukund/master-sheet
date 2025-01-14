@@ -37,7 +37,6 @@ export const addToSheet = async (baseUrl: string, data: (string | number)[], she
 // Total VIP Tracking
 // Calculate campaignIDs
 export const calculateVIPid = async (brandName: string): Promise<[string[] | object, string[]]> => {
-    console.log("tableDetails.totalVipTracking.campaignIds", tableDetails.totalVipTracking.campaignIds!.NYMBUS)
     const brandCampaignIds: object = tableDetails.totalVipTracking.campaignIds![brandName]!;
     const brandCampaignHead = tableDetails.totalVipTracking.tableHeading[brandName];
     const values: string[] = Object.values(brandCampaignIds);
