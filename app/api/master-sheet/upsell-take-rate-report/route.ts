@@ -62,7 +62,6 @@ export async function GET(request: Request) {
                 date: startDate + " - " + endDate,
                 salesCount: data[0].newSaleCnt,
                 salesRev: +data[0].newSaleRev,
-
             };
         }
         if (response.result === "ERROR") {
@@ -70,7 +69,6 @@ export async function GET(request: Request) {
                 date: startDate + " - " + endDate,
                 salesCount: 0,
                 salesRev: 0,
-
             };
         }
     }
