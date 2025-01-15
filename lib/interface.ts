@@ -1,3 +1,5 @@
+import { CalendarDateTime } from "@internationalized/date";
+
 export interface CampaignName {
     secretLane?: string;
     scarlettEnvy?: string;
@@ -23,4 +25,9 @@ export interface brandDescription {
         title: string[];
         values: string[][];
     }
+}
+
+export interface DateRangeOptions {
+    option: string;
+    currentDate?: CalendarDateTime; // Optional custom date for reference
 }

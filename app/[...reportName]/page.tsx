@@ -4,10 +4,12 @@ import Button from "@/app/components/Button";
 import Table from "@/app/components/Table";
 import TableWithLoading from "@/app/components/TableWithLoading";
 import { apiHandler } from "@/lib/apiHandler";
-import { getupsellCampaignIds } from "@/lib/utils";
+import { calculateDateRange, getupsellCampaignIds } from "@/lib/utils";
+import { CalendarDateTime, getLocalTimeZone, today } from "@internationalized/date";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DateTimePicker from "../components/DateTimePicker";
+import { reportDateRange } from "@/lib/campaign-details";
 export default function MasterSheet() {
     const params: { reportName: string[] } = useParams();
     const sheetName = params.reportName[1] as keyof tableHeading;
@@ -21,6 +23,29 @@ export default function MasterSheet() {
     const [CampaignName, setBrandCampaignName] = useState<string>("");
     const [tableHeading, setTableHeading] = useState<string[]>([]);
     const [error, setError] = useState<ApiResponse["message"] | SalesMessage[]>("");
+    const [openDropdown, setOpenDropdown] = useState(false)
+    // dateRangePicker options
+    const dateRangeOption = reportDateRange[sheetName]
+    // Set Start and End of Day
+    const [startOfDay, setStartOfDay] = useState<CalendarDateTime>(() => {
+        const timeZone = getLocalTimeZone(); // Get the current local timezone
+        // Get today's date in the local timezone
+        const todayDate = today(timeZone);
+        // Construct the start and end of day with the required times
+        return new CalendarDateTime(timeZone, todayDate.year, todayDate.month, todayDate.day, 0, 0, 0);
+    });
+    const [endOfDay, setEndOfDay] = useState<CalendarDateTime>(() => {
+        const timeZone = getLocalTimeZone(); // Get the current local timezone
+        // Get today's date in the local timezone
+        const todayDate = today(timeZone);
+        // Construct the start and end of day with the required times
+        return new CalendarDateTime(timeZone, todayDate.year, todayDate.month, todayDate.day, 23, 59, 59);
+    });
+    // add deffault value to start and end date
+    useEffect(() => {
+        handleDefaultDate(startOfDay, setStartDate, setStartTime);
+        handleDefaultDate(endOfDay, setEndDate, setEndTime);
+    }, [])
 
     const campaignNames = getupsellCampaignIds(brandName);
 
@@ -174,12 +199,26 @@ export default function MasterSheet() {
         setBrandCampaignName("");
     };
 
-    // UpsellTakeRateReport End
+    // added default start and end date
+    const handleDefaultDate = (date: CalendarDateTime, setDate: React.Dispatch<React.SetStateAction<string>>, setTime: React.Dispatch<React.SetStateAction<string>>) => {
+        const formattedDate = `${String(date.month).padStart(2, "0")}/${String(date.day).padStart(2, "0")}/${date.year}`;
+        const formattedTime = `${String(date.hour).padStart(2, "0")}:${String(date.minute).padStart(2, "0")}:${String(date.second).padStart(2, "0")}`;
+        setDate(formattedDate);
+        setTime(formattedTime);
+    }
+
+    // Calculate the date range
+    const handleDateRange = (option: string) => {
+        const { startDate, endDate } = calculateDateRange(option);
+        setStartOfDay(startDate);
+        setEndOfDay(endDate);
+    }
+
 
     return (
         <div className="max-w-screen-lg mx-auto">
             <section id="form">
-                <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-4 text-black sm:h-16">
+                <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-4 text-black sm:h-18">
                     <select onChange={handleChange} value={brandName} className="cursor-pointer h-[40px] rounded-md" name="brandList" id="brand-list">
                         <option disabled>Select Brand</option>
                         <option className="text-center" value="NYMBUS">Nymbus</option>
@@ -195,14 +234,48 @@ export default function MasterSheet() {
 
                             {/* Map over the object entries to generate options */}
                             {Object.entries(campaignNames[0] || {}).map(([key, value]) => (
-                                <option key={key} value={key} id={value} disabled={['secretLane', 'scarlettEnvy', 'Mangolift','checkoutChamp','bankSites'].includes(key)}>
+                                <option key={key} value={key} id={value} disabled={['secretLane', 'scarlettEnvy', 'Mangolift', 'checkoutChamp', 'bankSites'].includes(key)}>
                                     {key}
                                 </option>
                             ))}
                         </select>
                     )}
-                    <DateTimePicker dateString="Start Date" setDate={setStartDate} setTime={setStartTime} />
-                    <DateTimePicker dateString="End Date" setDate={setEndDate} setTime={setEndTime} />
+                    {/* dateRangePicker */}
+                    <section id="dateRangePicker" className="relative">
+                        <div className="text-xs flex bg-[#2A4D69] text-[#F1F1F1] items-center rounded-sm mb-2 w-fit">
+                            <button onClick={() => handleDateRange(dateRangeOption[0])} type="button" className="hover:bg-[#1E3651] p-1">{dateRangeOption[0]}</button>
+                            <button onClick={() => handleDateRange(dateRangeOption[1])} type="button" className="hover:bg-[#1E3651] p-1">{dateRangeOption[1]}</button>
+                            <button onClick={() => handleDateRange(dateRangeOption[2])} type="button" className="hover:bg-[#1E3651] p-1">{dateRangeOption[2]}</button>
+                            {/* DropDown */}
+
+                            <button id="dropdownDefaultButton" onClick={() => setOpenDropdown(!openDropdown)} data-dropdown-toggle="dropdownD" className="flex items-center hover:bg-[#1E3651] p-1" type="button">More<svg className="w-2.5 h-2.5 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
+                            </svg>
+                            </button>
+                            {/* DropDown Menu */}
+                            {openDropdown &&
+                                (
+                                    <div id="dropdownD" className="absolute z-10 top-7 -right-32 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+                                        <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+                                            {dateRangeOption.map((option, index) => {
+                                                if (index > 2) return (
+                                                    <li key={index} onClick={() => handleDateRange(option)}>
+                                                        <p className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{option}</p>
+                                                    </li>
+                                                )
+                                            })}
+                                        </ul>
+                                        <div className="py-2" onClick={() => setOpenDropdown(false)}>
+                                            <p className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Close</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                        </div>
+
+                        <DateTimePicker dateValue={startOfDay!} dateString="Start Date" setDate={setStartDate} setTime={setStartTime} />
+                    </section>
+                    <DateTimePicker dateValue={endOfDay!} dateString="End Date" setDate={setEndDate} setTime={setEndTime} />
                     {!loading && <Button name="Calculate" type="submit" disabled={loading} />}
                     {loading && <BeanEater width={60} height={60} />}
                 </form>
