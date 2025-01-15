@@ -243,9 +243,9 @@ export default function MasterSheet() {
                     {/* dateRangePicker */}
                     <section id="dateRangePicker" className="relative">
                         <div className="text-xs flex bg-[#2A4D69] text-[#F1F1F1] items-center rounded-sm mb-2 w-fit">
-                            <button onClick={() => handleDateRange(dateRangeOption[0])} type="button" className="hover:bg-[#1E3651] p-1">{dateRangeOption[0]}</button>
-                            <button onClick={() => handleDateRange(dateRangeOption[1])} type="button" className="hover:bg-[#1E3651] p-1">{dateRangeOption[1]}</button>
-                            <button onClick={() => handleDateRange(dateRangeOption[2])} type="button" className="hover:bg-[#1E3651] p-1">{dateRangeOption[2]}</button>
+                            <button onClick={() => handleDateRange(dateRangeOption[0])} type="button" className="hover:bg-[#1E3651] p-1 cursor-pointer">{dateRangeOption[0]}</button>
+                            <button onClick={() => handleDateRange(dateRangeOption[1])} type="button" className="hover:bg-[#1E3651] p-1 cursor-pointer">{dateRangeOption[1]}</button>
+                            <button onClick={() => handleDateRange(dateRangeOption[2])} type="button" className="hover:bg-[#1E3651] p-1 cursor-pointer">{dateRangeOption[2]}</button>
                             {/* DropDown */}
 
                             <button id="dropdownDefaultButton" onClick={() => setOpenDropdown(!openDropdown)} data-dropdown-toggle="dropdownD" className="flex items-center hover:bg-[#1E3651] p-1" type="button">More<svg className="w-2.5 h-2.5 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
@@ -260,13 +260,13 @@ export default function MasterSheet() {
                                             {dateRangeOption.map((option, index) => {
                                                 if (index > 2) return (
                                                     <li key={index} onClick={() => handleDateRange(option)}>
-                                                        <p className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{option}</p>
+                                                        <p className="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{option}</p>
                                                     </li>
                                                 )
                                             })}
                                         </ul>
                                         <div className="py-2" onClick={() => setOpenDropdown(false)}>
-                                            <p className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Close</p>
+                                            <p className="cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Close</p>
                                         </div>
                                     </div>
                                 )}
