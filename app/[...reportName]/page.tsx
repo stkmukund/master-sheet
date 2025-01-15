@@ -45,7 +45,7 @@ export default function MasterSheet() {
     useEffect(() => {
         handleDefaultDate(startOfDay, setStartDate, setStartTime);
         handleDefaultDate(endOfDay, setEndDate, setEndTime);
-    }, [])
+    }, [startOfDay, endOfDay])
 
     const campaignNames = getupsellCampaignIds(brandName);
 

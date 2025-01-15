@@ -39,7 +39,7 @@ export async function GET(request: Request) {
     }
     // const projectedRebillRevenue = 'test';
     // Projected Rebill Revenue
-    const projectedRebillRevenue = await fetch(`${url.origin}/api/master-sheet/projected-rebill-revenue/?startDate=${startDate ? startDate : mondayDate}&brandName=${brandName}&startTime=00:00:00&endTime=23:59:59`).then(result => result.json()).then(async response => {
+    const projectedRebillRevenue = await fetch(`${url.origin}/api/master-sheet/projected-rebill-revenue/?startDate=${startDate ? startDate : mondayDate}&brandName=${brandName}&startTime=00:00:00&endTime=23:59:59&backend=${true}`).then(result => result.json()).then(async response => {
         if (response.result === "SUCCESS") await addToSheet(url.origin, response.message.values[0], brandSheet.projectedRebillRevenue[brandName]);
         else return response;
     });

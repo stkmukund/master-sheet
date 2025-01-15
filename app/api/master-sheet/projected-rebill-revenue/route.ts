@@ -6,7 +6,7 @@ export async function GET(request: Request) {
     // Access the query string parameters from the URL
     const url = new URL(request.url); // `request.url` is the full URL
     const reportDate = url.searchParams.get('startDate');
-    const startDate = addOneDay(reportDate!);
+    const startDate = url.searchParams.get('backend') ? addOneDay(reportDate!) : reportDate;
     let endDate = url.searchParams.get('endDate');
     if (!endDate) endDate = calculateEndDate(startDate!);
     const startTime = url.searchParams.get('startTime');
