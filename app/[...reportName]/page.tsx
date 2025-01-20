@@ -214,6 +214,19 @@ export default function MasterSheet() {
         setEndOfDay(endDate);
     }
 
+    // handle DateTime change
+    const handleDateChange = (date: CalendarDateTime | null, dateString: string) => {
+        if (date) {
+            if (dateString === "Start Date") {
+                setStartOfDay(date);
+            } else {
+                setEndOfDay(date);
+            }
+        } else {
+            console.log("No date selected");
+        }
+    };
+
 
     return (
         <div className="max-w-screen-lg mx-auto">
@@ -273,9 +286,9 @@ export default function MasterSheet() {
 
                         </div>
 
-                        <DateTimePicker dateValue={startOfDay!} dateString="Start Date" setDate={setStartDate} setTime={setStartTime} />
+                        <DateTimePicker dateValue={startOfDay!} dateString="Start Date" setDate={setStartDate} setTime={setStartTime} change={handleDateChange} />
                     </section>
-                    <DateTimePicker dateValue={endOfDay!} dateString="End Date" setDate={setEndDate} setTime={setEndTime} />
+                    <DateTimePicker dateValue={endOfDay!} dateString="End Date" setDate={setEndDate} setTime={setEndTime} change={handleDateChange} />
                     {!loading && <Button name="Calculate" type="submit" disabled={loading} />}
                     {loading && <BeanEater width={60} height={60} />}
                 </form>
