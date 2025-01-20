@@ -286,9 +286,9 @@ export default function MasterSheet() {
 
                         </div>
 
-                        <DateTimePicker dateValue={startOfDay!} dateString="Start Date" setDate={setStartDate} setTime={setStartTime} change={handleDateChange} />
+                        <DateTimePicker dateValue={startOfDay!} dateString="Start Date" change={handleDateChange} />
                     </section>
-                    <DateTimePicker dateValue={endOfDay!} dateString="End Date" setDate={setEndDate} setTime={setEndTime} change={handleDateChange} />
+                    <DateTimePicker dateValue={endOfDay!} dateString="End Date" change={handleDateChange} />
                     {!loading && <Button name="Calculate" type="submit" disabled={loading} />}
                     {loading && <BeanEater width={60} height={60} />}
                 </form>

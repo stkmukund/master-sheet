@@ -2,7 +2,7 @@ import { CalendarDateTime } from "@internationalized/date";
 import { DatePicker } from "@nextui-org/date-picker";
 import { NextUIProvider } from "@nextui-org/react";
 
-export default function DateTimePicker({ dateValue, dateString, setDate, setTime, change }: { dateValue: CalendarDateTime; dateString: string; setDate: React.Dispatch<React.SetStateAction<string>>; setTime: React.Dispatch<React.SetStateAction<string>>; change: Function; }) {
+export default function DateTimePicker({ dateValue, dateString, change }: { dateValue: CalendarDateTime; dateString: string; change: Function; }) {
 
     return (
         <NextUIProvider>
