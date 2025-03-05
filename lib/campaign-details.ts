@@ -9,7 +9,7 @@ export const tableDetails: tableHeading = {
     totalVipTracking: {
         tableHeading: {
             NYMBUS: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Secret Lane", "Invisilift", "Indestructible Tights", "Scarlett Envy", "Mangolift", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"],
-            CREATUNITY: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Invisilift", "Indestructible Tights", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"],
+            CREATUNITY: ["Date Pulled", "Airmoto", "Total Airmoto VIPs", "Total VIP Recycling"],
             HELIKON: ["Date Pulled", "mLab™", "CheckoutChamp", "Flexi Health™", "Bank Sites", "Total Andor VIPs", "Total VIP Recycling", "Total Andor VIP's Paused Status"],
         },
         campaignIds: {
@@ -25,6 +25,9 @@ export const tableDetails: tableHeading = {
                 Mangolift: "72, 75, 73",
                 fitcharm: "76, 81, 79",
                 browPro: "97, 101, 99"
+            },
+            CREATUNITY: {
+                airmoto: "24, 65"
             },
             HELIKON: {
                 mLab: "1,2,4,5,7,8,9,13,21",

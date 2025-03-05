@@ -17,7 +17,7 @@ export default function MasterSheet() {
     const [endDate, setEndDate] = useState("");
     const [startTime, setStartTime] = useState("");
     const [endTime, setEndTime] = useState("");
-    const [tableData, setTableData] = useState<tableData>({ NYMBUS: {}, HELIKON: {} });
+    const [tableData, setTableData] = useState<tableData>({ NYMBUS: {}, CREATUNITY: {}, HELIKON: {} });
     const [loading, setLoading] = useState(false);
     const [brandName, setBrandName] = useState<string>("NYMBUS");
     const [CampaignName, setBrandCampaignName] = useState<string>("");
@@ -236,7 +236,7 @@ export default function MasterSheet() {
                     <select onChange={handleChange} value={brandName} className="cursor-pointer h-[40px] rounded-md" name="brandList" id="brand-list">
                         <option disabled>Select Brand</option>
                         <option className="text-center" value="NYMBUS">Nymbus</option>
-                        <option className="text-center" value="CREATUNITY" disabled>Creatunity</option>
+                        <option className="text-center" value="CREATUNITY">Creatunity</option>
                         <option className="text-center" value="HELIKON">Helikon</option>
                     </select>
                     {sheetName === "upsellTakeRateReport" && (
@@ -315,7 +315,7 @@ const tableHead: tableHeading = {
     totalVipTracking: {
         tableHeading: {
             NYMBUS: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Secret Lane", "Invisilift", "Indestructible Tights", "Scarlett Envy", "Mangolift", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"],
-            CREATUNITY: ["Date Pulled", "Lash Cosmetics", "Brow Charm", "Floral Secrets", "Invisilift", "Indestructible Tights", "Fitcharm", "Brow Pro", "Total Nymbus VIPs", "Total VIP Recycling"],
+            CREATUNITY: ["Date Pulled", "Airmoto", "Total Airmoto VIPs", "Total VIP Recycling"],
             HELIKON: ["Date Pulled", "mLab™", "CheckoutChamp", "Flexi Health™", "Bank Sites", "Total Andor VIPs", "Total VIP Recycling", "Total Andor VIP's Paused Status"],
         }
     },
