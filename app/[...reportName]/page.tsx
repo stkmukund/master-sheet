@@ -212,6 +212,7 @@ export default function MasterSheet() {
         const { startDate, endDate } = calculateDateRange(option);
         setStartOfDay(startDate);
         setEndOfDay(endDate);
+        setOpenDropdown(false);
     }
 
     // handle DateTime change
