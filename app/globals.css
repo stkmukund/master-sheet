@@ -12,16 +12,37 @@ body {
   /* color: var(--foreground); */
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
-  background-image: url("/bg-astronaut.png"); /* Correct path to image in public folder */
-  background-position: right top;        /* Correct: Align image to bottom-right */
-  background-repeat: no-repeat;             /* Prevent the image from repeating */
-  background-size: auto;                 /* Ensure the image fits within the body */
-  min-height: 100vh;     
+  background-image: url("/bg-astronaut.png");
+  /* Correct path to image in public folder */
+  background-position: right top;
+  /* Correct: Align image to bottom-right */
+  background-repeat: no-repeat;
+  /* Prevent the image from repeating */
+  background-size: auto;
+  /* Ensure the image fits within the body */
+  min-height: 100vh;
+  position: relative;
+  cursor: none !important;
+}
+
+#cursor {
+  width: 40px;
+  height: 20px;
+  /* background-color: black; */
+  border-radius: 50%;
+  pointer-events: none;
+  /* Ensure it doesn't block clicks or other events */
+  position: absolute;
+  transition: transform 0.1s ease;
+  transform: translate(-50%, -50%);
+  z-index: 99999;
+  /* To center the cursor on the mouse */
 }
 
 @media (max-width: 425px) {
   body {
-    background-image: url("/bg-astronaut.png"); /* Correct path to image in public folder */
+    background-image: url("/bg-astronaut.png");
+    /* Correct path to image in public folder */
     background-position: right top;
     background-size: 70%;
   }
@@ -78,6 +99,7 @@ body {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -110,6 +132,7 @@ body {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
