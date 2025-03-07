@@ -125,6 +125,16 @@ export const tableDetails: tableHeading = {
                     offer3_downProductId: '3033'
                 }
             },
+            CREATUNITY: { // not the correct values
+                airmoto: {
+                    offer1_upProdId: '8',
+                    offer1_downProductId: '9',
+                    offer2_upProdId: '408',
+                    offer2_downProductId: '409',
+                    offer3_upProdId: '294',
+                    offer3_downProductId: '146'
+                }
+            },
             HELIKON: {
                 mLab: {
                     offer1_upProdId: '8',
