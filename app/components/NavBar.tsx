@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu } from "./ui/navbar-menu";
 import Image from "next/image";
 
@@ -22,21 +22,25 @@ function Navbar({ className }: { className?: string }) {
         { href: '/', label: <Image src="/assets/home.svg" alt="home" width={30} height={30} /> },
         { href: '/reports/projectedRebillRevenue', label: 'Projected Rebill Revenue' },
         { href: '/reports/totalVipTracking', label: 'Total VIP Tracking' },
-        { href: '/reports/upsellTakeRateReport', label: 'Upsell Take Rate Report', active },
+        { href: '/reports/upsellTakeRateReport', label: 'Upsell Take Rate Report', },
+        { href: '/reports/dashSheet', label: 'Dash Sheet' },
     ];
+
+    useEffect(() => {
+        console.log("active", active)
+    }, [active])
     return (
         <div
-            className={cn("fixed top-10 inset-x-0 sm:max-w-2xl max-w-80 mx-auto z-50", className)}
+            className={cn("fixed top-10 inset-x-0 sm:max-w-[800px] max-w-80 mx-auto z-50", className)}
         >
             <Menu setActive={setActive} >
                 <section id="navBar">
                     <ul className="flex items-center gap-2 sm:gap-4 text-[10px] sm:text-base font-semibold">
                         {links.map(({ href, label }) => (
-                            <li key={href} >
+                            <li key={href} className="text-nowrap" >
                                 <Link href={href} className={pathname === href ? styles.activeLink : styles.link} >{label}</Link>
                             </li>
                         ))}
-
                         <li></li>
                     </ul>
                 </section>
