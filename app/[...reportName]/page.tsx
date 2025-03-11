@@ -17,7 +17,7 @@ export default function MasterSheet() {
     const [endDate, setEndDate] = useState("");
     const [startTime, setStartTime] = useState("");
     const [endTime, setEndTime] = useState("");
-    const [tableData, setTableData] = useState<tableData>({ NYMBUS: {}, CREATUNITY: {}, HELIKON: {} });
+    const [tableData, setTableData] = useState<tableData>({ NYMBUS: {}, CREATUNITY: {}, HELIKON: {}, DASHSHEET: {} });
     const [loading, setLoading] = useState(false);
     const [brandName, setBrandName] = useState<string>("NYMBUS");
     const [CampaignName, setBrandCampaignName] = useState<string>("");
@@ -52,7 +52,8 @@ export default function MasterSheet() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
-        if (sheetName === "totalVipTracking") await handleTotalVipTracking();
+        if (sheetName === "dashSheet") await dashSheet();
+        else if (sheetName === "totalVipTracking") await handleTotalVipTracking();
         else if (sheetName === "upsellTakeRateReport") await handleUpsellTakeRateReport();
         else {
             try {
@@ -75,6 +76,28 @@ export default function MasterSheet() {
         }
 
     };
+
+    // Dash Sheet Calculation
+    const dashSheet = async () => {
+        try {
+            const response: ApiResponse = await apiHandler({ endpoint: 'dash-sheet/' + brandName, queryParams: { startDate, endDate, startTime, endTime } })
+            if (response.result === 'ERROR') {
+                setError(response.message);
+                setLoading(false);
+            }
+            if (response.result === 'SUCCESS' && typeof response.message !== "string") {
+                console.log(JSON.stringify(response, null, 2))
+                return;
+                const { heading, values } = response.message; // Narrow the type here
+                setTableHeading(heading);
+                setTableData((prev) => ({ ...prev, [brandName]: values }));
+            }
+            setLoading(false);
+        } catch (error) {
+            console.error(error);
+            setLoading(false);
+        }
+    }
 
     const handleTotalVipTracking = async () => {
         const response: ApiResponse = await apiHandler({ endpoint: 'master-sheet/total-vip-tracking/', queryParams: { brandName, startDate, endDate, startTime, endTime } });
@@ -325,6 +348,13 @@ const tableHead: tableHeading = {
             CREATUNITY: ["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"],
             HELIKON: ["Date", " ", "Expedited Shipping", "Discounted Expedited Shipping", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2", "FlexiKnee™️ - Natural Knee Pain Patches - Offer 2_1", "Knee Relieve Pro™️ - Nano-Fiber Compression Sleeve - Offer 3", "mLab™️ - Side Sleeper Knee Pillow - Offer", "Total"],
         }
+    },
+    dashSheet: {
+        tableHeading: {
+            NYMBUS: ["Campaign Category", "Sales Total", "Initial Sales", "Declines", "Partials", "Rebill Revenue", "Rebill Approval %", "Rebill Refunds", "Front-end Refund Amt", "Front-end Refund %", "Rebill refund %", "Chargebacks", "New VIPs", "VIP Cancellation", "CC New VIPs", "CC Initial Sales", "PP Initial Sales", "PP New VIPs", "Total VIPs"],
+            CREATUNITY: ["Campaign Category", "Sales Total", "Initial Sales", "Declines", "Partials", "Rebill Revenue", "Rebill Approval %", "Rebill Refunds", "Front-end Refund Amt", "Front-end Refund %", "Rebill refund %", "Chargebacks", "New VIPs", "VIP Cancellation", "CC New VIPs", "CC Initial Sales", "PP Initial Sales", "PP New VIPs", "Total VIPs"],
+            HELIKON: ["Campaign Category", "Sales Total", "Initial Sales", "Declines", "Partials", "Rebill Revenue", "Rebill Approval %", "Rebill Refunds", "Front-end Refund Amt", "Front-end Refund %", "Rebill refund %", "Chargebacks", "New VIPs", "VIP Cancellation", "CC New VIPs", "CC Initial Sales", "PP Initial Sales", "PP New VIPs", "Total VIPs"],
+        }
     }
 };
 
@@ -346,6 +376,7 @@ type tableHeading = {
     projectedRebillRevenue: tableSheet;
     totalVipTracking: tableSheet;
     upsellTakeRateReport: tableSheet;
+    dashSheet: tableSheet;
 }
 
 type tableSheet = {
