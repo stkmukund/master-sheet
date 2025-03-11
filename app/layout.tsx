@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { NavBar } from "./components/NavBar";
 import "./globals.css";
-import CustomCursor from "./components/CustomCursor ";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,8 +33,6 @@ export default function RootLayout({
         <div className="mt-32">
           {children}
         </div>
-        {/* Cursor */}
-        <CustomCursor />
         <Script src="https://cdn.lordicon.com/lordicon.js" strategy="afterInteractive" />
       </body>
     </html>
