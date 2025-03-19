@@ -38,7 +38,7 @@ export async function GET(request: Request) {
                 if (date != 'id') {
                     const { count, revenue } = finalData[date];
                     totalCount += count;
-                    totalRevenue += parseFloat(revenue.replace('$', '').replace(',', ''));;
+                    totalRevenue += parseFloat(revenue.replace('$', '').replace(',', ''));
                 }
             }
         });
