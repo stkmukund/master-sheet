@@ -7,10 +7,14 @@ interface TransactionSummary {
     rebillApprovedPerc: string;
     refundRev: string;
     chargebackCnt: string;
+    rebillCnt: string;
+    rebillDeclinesCnt: string;
 }
 
 interface ResponseData {
     rebillRevenue: number;
+    rebillApproval: number;
+    rebillDeclines: number;
     rebillApprovedPerc: number;
     rebillRefundRev: number;
     billableRebillRev: number;
@@ -73,6 +77,8 @@ const fetchTransactionSummary = async (
         // Process the response data
         const summary: TransactionSummary = data.message[0];
         const rebillRevenue = Number(summary.rebillRev);
+        const rebillApproval = Number(summary.rebillCnt);
+        const rebillDeclines = Number(summary.rebillDeclinesCnt);
         const rebillApprovedPerc = Number(summary.rebillApprovedPerc);
         const rebillRefundRev = Number(summary.refundRev);
         const chargebackCnt = Number(summary.chargebackCnt);
@@ -84,6 +90,8 @@ const fetchTransactionSummary = async (
 
         return {
             rebillRevenue,
+            rebillApproval,
+            rebillDeclines,
             rebillApprovedPerc: rebillApprovedPerc / 100, // Convert to decimal
             rebillRefundRev,
             billableRebillRev,

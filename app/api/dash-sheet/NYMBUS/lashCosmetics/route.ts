@@ -35,6 +35,8 @@ interface OrderSummaryResponse {
 
 interface TransactionSummaryResponse {
     rebillRevenue: number;
+    rebillApproval: number;
+    rebillDeclines: number;
     rebillApprovedPerc: number; // Already in decimal form (0-1)
     rebillRefundRev: number;
     billableRebillRev: number;
@@ -64,6 +66,8 @@ interface CombinedResponse {
     partial: number;
     avgTicket: number;
     rebillRevenue: number;
+    rebillApproval: number;
+    rebillDeclines: number;
     rebillApprovedPerc: number;
     rebillRefundRev: number;
     billableRebillRev: number;
@@ -209,6 +213,8 @@ export async function POST(request: NextRequest): Promise<Response> {
             partial: orders.partial || 0,
             avgTicket: orders.avgTicket || 0,
             rebillRevenue: transaction.rebillRevenue || 0,
+            rebillApproval: transaction.rebillApproval || 0,
+            rebillDeclines: transaction.rebillDeclines || 0,
             rebillApprovedPerc: transaction.rebillApprovedPerc || 0,
             rebillRefundRev: transaction.rebillRefundRev || 0,
             billableRebillRev: transaction.billableRebillRev || 0,
