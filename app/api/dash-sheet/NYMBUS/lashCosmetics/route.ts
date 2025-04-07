@@ -150,7 +150,6 @@ const calculateMetrics = (
         ? Number((sales.vipInitial.totalInitialVip / orders.initialSales).toFixed(4))
         : 0;
 
-    console.log("totalOptPPCC:", totalOptPPCC);
     return { ccOptVip, ppOptVip, totalOptPPCC };
 };
 
