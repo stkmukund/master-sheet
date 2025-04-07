@@ -122,17 +122,17 @@ const fetchApiData = async <T>(
 // Specific API handlers
 const fetchOrderSummary = async (params: QueryParams, config: ApiConfig): Promise<OrderSummaryResponse> => {
     const apiUrl = constructApiUrl(config, 'order-summary', params);
-    return fetchApiData<OrderSummaryResponse>(apiUrl, 'GET');
+    return await fetchApiData<OrderSummaryResponse>(apiUrl, 'GET');
 };
 
 const fetchTransactionSummary = async (params: QueryParams, config: ApiConfig): Promise<TransactionSummaryResponse> => {
     const apiUrl = constructApiUrl(config, 'transaction-summary', params);
-    return fetchApiData<TransactionSummaryResponse>(apiUrl, 'GET');
+    return await fetchApiData<TransactionSummaryResponse>(apiUrl, 'GET');
 };
 
 const fetchSalesContinuity = async (params: QueryParams, config: ApiConfig): Promise<SalesContinuityResponse> => {
     const apiUrl = constructApiUrl(config, 'continuity', params);
-    return fetchApiData<SalesContinuityResponse>(apiUrl, 'GET');
+    return await fetchApiData<SalesContinuityResponse>(apiUrl, 'GET');
 };
 
 // Utility function to calculate metrics

@@ -86,7 +86,6 @@ export async function GET(request: NextRequest) {
 
             while (page <= count) {
                 const url = `https://api.checkoutchamp.com/purchase/query/?loginId=${brand.loginId}&password=${brand.password}&status=ACTIVE&campaignId=${campaignId}&startDate=${startDate}&endDate=${endDate}&resultsPerPage=200&page=${page}`;
-
                 const response = await fetchWithErrorHandling(url);
                 if (response.result === 'SUCCESS') {
                     intialResults = response.message.totalResults;
