@@ -87,7 +87,6 @@ export default function MasterSheet() {
             }
             if (response.result === 'SUCCESS' && typeof response.message !== "string") {
                 console.log(JSON.stringify(response, null, 2))
-                return;
                 const { heading, values } = response.message; // Narrow the type here
                 setTableHeading(heading);
                 setTableData((prev) => ({ ...prev, [brandName]: values }));
