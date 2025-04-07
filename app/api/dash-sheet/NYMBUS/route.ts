@@ -1,3 +1,4 @@
+import { campaignCategory } from "@/lib/campaign-details";
 import { apiResponse } from "@/lib/utils";
 
 interface OrderQueryResponse {
@@ -15,22 +16,30 @@ export async function POST(request: Request): Promise<Response> {
         return apiResponse({ result: "ERROR", message: "Missing startDate or endDate" });
     }
 
+    const finalData: {
+        result: string;
+        message: any[]; // You can define a more specific type here if necessary
+    } = {
+        result: "SUCCESS",
+        message: []
+    }
+
     try {
         // Assuming you want to use an environment variable for the API base URL
-        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/dash-sheet/report/order-summary/?startDate=${startDate}&endDate=${endDate}&brandName=NYMBUS`;
+        // const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/dash-sheet/report/order-summary/?startDate=${startDate}&endDate=${endDate}&brandName=NYMBUS`;
 
-        // Fetch data from the external API
-        const response = await fetch(apiUrl);
-
-        // Check if the response is successful
-        if (!response.ok) {
-            throw new Error(`API error: ${response.statusText}`);
+        const campaignData = Object.values(campaignCategory.NYMBUS).map((campaign) => campaign.apiEndpoint);
+        // console.log("Campaign Data:", campaignData);
+        for (let index = 0; index < campaignData.length; index++) {
+            console.log("Campaign Data:", campaignData[index]);
+            const response: { message: object } = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/dash-sheet/NYMBUS/${campaignData[index]}?startDate=${startDate}&endDate=${endDate}`, {
+                method: "POST",
+            }).then((res) => res.json())
+            finalData.message.push(response.message)
+            console.log("Campaign Data:", finalData);
         }
 
-        // Parse the JSON response
-        const orderQuery: OrderQueryResponse = await response.json();
-
-        return apiResponse({ result: "SUCCESS", message: orderQuery });
+        return apiResponse({ result: "SUCCESS", message: finalData });
     } catch (error: unknown) {
         // Handle the error gracefully
         const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
