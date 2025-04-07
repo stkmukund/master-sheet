@@ -170,7 +170,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
         // Get brand-specific data
         const brandName = 'NYMBUS'; // Could be made dynamic via query param
-        const categoryId = 12 // this is important to get the right campaign data
+        const categoryId = 23 // this is important to get the right campaign data
         const campaign: Campaign = campaignCategory.NYMBUS[categoryId];
         const id = campaign.campaignId;
 
