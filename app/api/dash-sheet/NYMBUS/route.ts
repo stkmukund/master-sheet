@@ -1,11 +1,6 @@
 import { campaignCategory } from "@/lib/campaign-details";
 import { apiResponse } from "@/lib/utils";
 
-interface OrderQueryResponse {
-    result: string;
-    message: any; // You can define a more specific type here if necessary
-}
-
 export async function POST(request: Request): Promise<Response> {
     const url = new URL(request.url);
     const startDate = url.searchParams.get('startDate');

@@ -52,11 +52,11 @@ const fetchTransactionSummary = async (
 
         // Conditionally include startTime and endTime for HELIKON
         const timeParams = brandName.toUpperCase() === 'HELIKON'
-            ? '&startTime=03:00&endTime=02:59'
+            ? 'startTime=03:00&endTime=02:59'
             : '';
 
-        const url = `https://api.checkoutchamp.com/transactions/summary/?loginId=${brand.loginId}&password=${brand.password}&startDate=${query.startDate}&endDate=${adjustedEndDate}&${timeParams}&reportType=currency&productId=RECURRING&campaignCategory=${query.id}`;
-
+        const url = `https://api.checkoutchamp.com/transactions/summary/?loginId=${brand.loginId}&password=${brand.password}&startDate=${query.startDate}&endDate=${query.endDate}&${timeParams}&reportType=currency&productId=RECURRING&campaignCategory=${query.id}`;
+        console.log('Fetching URL:', url); // Debugging line
         const response = await fetch(url, {
             method: 'GET',
             headers: {
@@ -64,14 +64,20 @@ const fetchTransactionSummary = async (
             },
         });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
         const data = await response.json();
+        console.log('API Response:', data);
 
         if (data.result !== 'SUCCESS' || !Array.isArray(data.message) || data.message.length === 0) {
-            throw new Error(data.message || 'Invalid response format');
+            return {
+                rebillRevenue: 0,
+                rebillApproval: 0,
+                rebillDeclines: 0,
+                rebillApprovedPerc: 0, // Convert to decimal
+                rebillRefundRev: 0,
+                billableRebillRev: 0,
+                rebillRefundPerc: 0,
+                chargebackCnt: 0,
+            };
         }
 
         // Process the response data
