@@ -34,11 +34,11 @@ interface QueryParams {
 }
 
 // Utility function to add one day to a date
-const addOneDay = (dateStr: string): string => {
-    const date = new Date(dateStr);
-    date.setDate(date.getDate() + 1);
-    return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD format
-};
+// const addOneDay = (dateStr: string): string => {
+//     const date = new Date(dateStr);
+//     date.setDate(date.getDate() + 1);
+//     return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD format
+// };
 
 // API fetch function with conditional time parameters
 const fetchTransactionSummary = async (
@@ -48,7 +48,7 @@ const fetchTransactionSummary = async (
 ): Promise<ResponseData> => {
     try {
         // Adjust endDate by adding 1 day
-        const adjustedEndDate = addOneDay(query.endDate!);
+        // const adjustedEndDate = addOneDay(query.endDate!);
 
         // Conditionally include startTime and endTime for HELIKON
         const timeParams = brandName.toUpperCase() === 'HELIKON'

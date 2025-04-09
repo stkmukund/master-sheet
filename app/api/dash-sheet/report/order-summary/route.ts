@@ -23,17 +23,12 @@ interface QueryParams {
     endDate: string;
 }
 
-interface ApiResponse {
-    totalResults: number;
-    data: Order[];
-}
-
 // Utility function to add one day to a date
-const addOneDay = (dateStr: string): string => {
-    const date = new Date(dateStr);
-    date.setDate(date.getDate() + 1);
-    return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD format
-};
+// const addOneDay = (dateStr: string): string => {
+//     const date = new Date(dateStr);
+//     date.setDate(date.getDate() + 1);
+//     return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD format
+// };
 
 // Order query API with conditional time parameters
 const orderQuery = async (
@@ -183,7 +178,7 @@ export async function GET(request: Request) {
         const paySources: PaySources = { creditCard: 0, payPal: 0 };
         let completeCount = 0;
         let refundCount = 0;
-        let cancelCount = 0;
+        const cancelCount = 0;
 
         // Fetch data for all statuses
         completeCount = await fetchAllPages(brand, query, "COMPLETE", totals, paySources, brandName);

@@ -1,27 +1,11 @@
 // app/api/vips/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-
-// Response interface
-interface ApiResponse {
-    vipInitial: {
-        totalInitialVip: number;
-        creditCardVip: number;
-        payPalVip: number;
-    };
-    vipDeclined: number;
-    vipRecycleRebill: number;
-    vipTotal: number;
-}
+import { apiResponse } from '@/lib/utils';
+import { NextRequest } from 'next/server';
 
 interface BrandConfig {
     loginId: string;
     password: string;
 }
-
-// Helper function to create API responses
-const apiResponse = (data: any, status: number = 200) => {
-    return NextResponse.json(data, { status });
-};
 
 // Fetch helper with error handling
 const fetchWithErrorHandling = async (url: string) => {
@@ -151,11 +135,11 @@ export async function GET(request: NextRequest) {
             }
         });
 
-    } catch (error: any) {
-        console.error('API Error:', error.message || error);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
         return apiResponse(
-            { result: 'ERROR', message: 'Internal server error' },
-            500
+            { result: 'ERROR', message: errorMessage },
+            200
         );
     }
 }

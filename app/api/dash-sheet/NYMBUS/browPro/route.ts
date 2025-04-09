@@ -243,7 +243,7 @@ export async function POST(request: NextRequest): Promise<Response> {
             result: "SUCCESS",
             message: combinedResponse,
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
         console.error("API Error:", errorMessage);
         return apiResponse({

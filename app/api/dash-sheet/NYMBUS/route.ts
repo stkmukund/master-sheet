@@ -49,8 +49,8 @@ function getSummaryDateRanges(): { startDate: string; endDate: string }[] {
 
 export async function POST(request: Request): Promise<Response> {
     const url = new URL(request.url);
-    let startDate = url.searchParams.get('startDate');
-    let endDate = url.searchParams.get('endDate');
+    const startDate = url.searchParams.get('startDate');
+    const endDate = url.searchParams.get('endDate');
     const reportType = url.searchParams.get('reportType');
 
     // Handle case when startDate and endDate are not provided
@@ -59,7 +59,7 @@ export async function POST(request: Request): Promise<Response> {
             const dateRanges = getSummaryDateRanges();
             const finalData: {
                 result: string;
-                message: any[];
+                message: object[];
             } = {
                 result: "SUCCESS",
                 message: []
@@ -72,7 +72,7 @@ export async function POST(request: Request): Promise<Response> {
 
                 // Process all date ranges
                 for (const range of dateRanges) {
-                    const rangeData: any[] = [];
+                    const rangeData: object[] = [];
                     console.log("Fetching data for range:", range);
                     for (const endpoint of campaignData) {
                         console.log("Fetching endpoint:", `${process.env.NEXT_PUBLIC_API_URL}/api/dash-sheet/NYMBUS/${endpoint}?startDate=${range.startDate}&endDate=${range.endDate}`);
@@ -106,7 +106,7 @@ export async function POST(request: Request): Promise<Response> {
     // Original logic for when dates are provided
     const finalData: {
         result: string;
-        message: any[];
+        message: object[];
     } = {
         result: "SUCCESS",
         message: []
