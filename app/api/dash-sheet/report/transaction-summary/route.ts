@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server';
 import { apiResponse } from '@/lib/utils';
+import { NextRequest } from 'next/server';
 
 // Define interfaces for type safety
 interface TransactionSummary {
@@ -56,7 +56,7 @@ const fetchTransactionSummary = async (
             : '';
 
         const url = `https://api.checkoutchamp.com/transactions/summary/?loginId=${brand.loginId}&password=${brand.password}&startDate=${query.startDate}&endDate=${query.endDate}&${timeParams}&reportType=currency&productId=RECURRING&campaignCategory=${query.id}`;
-        console.log('Fetching URL:', url); // Debugging line
+        // console.log('Fetching URL:', url); // Debugging line
         const response = await fetch(url, {
             method: 'GET',
             headers: {
@@ -65,7 +65,7 @@ const fetchTransactionSummary = async (
         });
 
         const data = await response.json();
-        console.log('API Response:', data);
+        // console.log('API Response:', data);
 
         if (data.result !== 'SUCCESS' || !Array.isArray(data.message) || data.message.length === 0) {
             return {

@@ -104,6 +104,7 @@ const fetchApiData = async <T>(
     apiUrl: string,
     method: string = 'GET'
 ): Promise<T> => {
+    console.log("Fetching API URL:", apiUrl); // Debugging line
     const response = await fetch(apiUrl, {
         method,
         headers: {
@@ -111,11 +112,12 @@ const fetchApiData = async <T>(
         },
     });
 
+    const data = await response.json();
+    console.log("API Response:", data); // Debugging line
     if (!response.ok) {
         throw new Error(`API error: ${response.status} - ${response.statusText}`);
     }
 
-    const data = await response.json();
     return data.result === "SUCCESS" ? data.message : Promise.reject(data.message);
 };
 
@@ -169,8 +171,8 @@ export async function POST(request: NextRequest): Promise<Response> {
         }
 
         // Get brand-specific data
-        const brandName = 'NYMBUS'; // Could be made dynamic via query param
-        const categoryId = 28 // this is important to get the right campaign data
+        const brandName = 'NYMBUS';
+        const categoryId = 28;
         const campaign: Campaign = campaignCategory.NYMBUS[categoryId];
         const id = campaign.campaignId;
 
@@ -191,12 +193,15 @@ export async function POST(request: NextRequest): Promise<Response> {
         const apiConfig: ApiConfig = { baseUrl };
         const queryParams: QueryParams = { startDate, endDate, brandName, id };
 
-        // Fetch data from all APIs concurrently
-        const [orders, transaction, sales] = await Promise.all([
-            fetchOrderSummary(queryParams, apiConfig),
-            fetchTransactionSummary({ startDate, endDate, brandName, id: categoryId }, apiConfig),
-            fetchSalesContinuity(queryParams, apiConfig),
-        ]);
+        // Fetch data from all APIs sequentially instead of concurrently
+        const orders = await fetchOrderSummary(queryParams, apiConfig);
+        const transaction = await fetchTransactionSummary({
+            startDate,
+            endDate,
+            brandName,
+            id: categoryId
+        }, apiConfig);
+        const sales = await fetchSalesContinuity(queryParams, apiConfig);
 
         // Calculate additional metrics
         const { ccOptVip, ppOptVip, totalOptPPCC } = calculateMetrics(orders, sales);
@@ -234,16 +239,13 @@ export async function POST(request: NextRequest): Promise<Response> {
             vipRecycleRebill: sales.vipRecycleRebill || 0,
         };
 
-        // Here you could add logic to update a Google Sheet if needed
-        // const response = await updateSheet(Object.values(combinedResponse), queryParams.type);
-
         return apiResponse({
             result: "SUCCESS",
             message: combinedResponse,
         });
     } catch (error: any) {
-        console.error("API Error:", error);
         const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+        console.error("API Error:", errorMessage);
         return apiResponse({
             result: "ERROR",
             message: errorMessage,
@@ -253,5 +255,5 @@ export async function POST(request: NextRequest): Promise<Response> {
 
 // Export config for edge runtime (optional)
 export const config = {
-    runtime: 'edge', // Uncomment to use edge runtime for better performance
+    runtime: 'edge',
 };

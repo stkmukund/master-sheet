@@ -46,15 +46,15 @@ const orderQuery = async (
 ): Promise<{ message: string; totalResults: number; data: Order[] }> => {
     try {
         // Adjust endDate by adding 1 day
-        const adjustedEndDate = addOneDay(query.endDate);
+        // const adjustedEndDate = addOneDay(query.endDate);
 
         // Conditionally include startTime and endTime for HELIKON
         const timeParams = brandName.toUpperCase() === 'HELIKON'
-            ? '&startTime=03:00&endTime=02:59'
+            ? 'startTime=03:00&endTime=02:59'
             : '';
 
         const response = await fetch(
-            `https://api.checkoutchamp.com/order/query/?loginId=${brand.loginId}&password=${brand.password}&campaignId=${query.id}&orderStatus=${status}&startDate=${query.startDate}&endDate=${adjustedEndDate}${timeParams}&resultsPerPage=${resultsPerPage}&orderType=NEW_SALE&page=${page}`
+            `https://api.checkoutchamp.com/order/query/?loginId=${brand.loginId}&password=${brand.password}&campaignId=${query.id}&orderStatus=${status}&startDate=${query.startDate}&endDate=${query.endDate}${timeParams}&resultsPerPage=${resultsPerPage}&orderType=NEW_SALE&page=${page}`
         );
 
         if (!response.ok) {
@@ -62,6 +62,7 @@ const orderQuery = async (
         }
 
         const data = await response.json();
+        console.log("Order Query Response:", data); // Debugging line
 
         if (data.result === "SUCCESS") {
             return {
@@ -69,6 +70,9 @@ const orderQuery = async (
                 totalResults: data.message.totalResults,
                 data: data.message.data || []
             };
+        } else {
+            console.error(`Error fetching ${status} orders:`, data.message);
+            return { message: "ERROR", totalResults: 0, data: [] };
         }
         // throw new Error(data.message);
     } catch (error) {
