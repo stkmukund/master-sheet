@@ -23,7 +23,7 @@ function Navbar({ className }: { className?: string }) {
         { href: '/reports/projectedRebillRevenue', label: 'Projected Rebill Revenue' },
         { href: '/reports/totalVipTracking', label: 'Total VIP Tracking' },
         { href: '/reports/upsellTakeRateReport', label: 'Upsell Take Rate Report', },
-        { href: '/reports/dashSheet', label: 'Dash Sheet' },
+        // { href: '/reports/dashSheet', label: 'Dash Sheet' },
     ];
 
     useEffect(() => {

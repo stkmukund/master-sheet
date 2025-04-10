@@ -88,7 +88,6 @@ interface CombinedResponse {
     vipRecycleRebill: number;
 }
 
-// Utility function to construct the dynamic URL
 const constructApiUrl = (
     config: ApiConfig,
     dynamicPath: string,
@@ -96,45 +95,71 @@ const constructApiUrl = (
 ): string => {
     const { baseUrl } = config;
     const { startDate, endDate, brandName, id } = params;
-    return `${baseUrl}/api/dash-sheet/report/${dynamicPath}/?startDate=${startDate}&endDate=${endDate}&brandName=${brandName}&id=${id}`;
+    return `${baseUrl}/api/dashSheet/report/${dynamicPath}/?startDate=${startDate}&endDate=${endDate}&brandName=${brandName}&id=${id}`;
 };
 
-// Base API fetch function with generic typing
 const fetchApiData = async <T>(
     apiUrl: string,
-    method: string = 'GET'
+    method: string = 'GET',
+    customHeaders: Record<string, string> = {}
 ): Promise<T> => {
-    console.log("Fetching API URL:", apiUrl); // Debugging line
-    const response = await fetch(apiUrl, {
-        method,
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
+    const requestId = Math.random().toString(36).substring(2, 15);
+    console.log(`[${requestId}] Fetching API URL: ${apiUrl}`);
+    try {
+        const response = await fetch(apiUrl, {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Request-ID': requestId,
+                ...customHeaders,
+            },
+        });
 
-    const data = await response.json();
-    console.log("API Response:", data); // Debugging line
-    if (!response.ok) {
-        throw new Error(`API error: ${response.status} - ${response.statusText}`);
+        const data = await response.json();
+        console.log(`[${requestId}] API Response:`, data);
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status} - ${response.statusText} - ${JSON.stringify(data)}`);
+        }
+
+        return data.result === "SUCCESS" ? data.message : Promise.reject(data.message);
+    } catch (error) {
+        console.error(`[${requestId}] Fetch failed:`, error);
+        throw error instanceof Error ? error : new Error("Unknown fetch error");
     }
-
-    return data.result === "SUCCESS" ? data.message : Promise.reject(data.message);
 };
 
-// Specific API handlers
+const apiCallCache = new Map<string, Promise<any>>();
+
 const fetchOrderSummary = async (params: QueryParams, config: ApiConfig): Promise<OrderSummaryResponse> => {
     const apiUrl = constructApiUrl(config, 'order-summary', params);
-    return await fetchApiData<OrderSummaryResponse>(apiUrl, 'GET');
+    console.log(`Preparing to fetch order summary: ${apiUrl}`);
+    if (apiCallCache.has(apiUrl)) {
+        console.log(`Returning cached promise for ${apiUrl}`);
+        return apiCallCache.get(apiUrl);
+    }
+    const promise = fetchApiData<OrderSummaryResponse>(apiUrl, 'GET', { 'X-Source': 'POST-Endpoint' });
+    apiCallCache.set(apiUrl, promise);
+    console.log(`Initiated new fetch for ${apiUrl}`);
+    return promise.finally(() => {
+        console.log(`Completed fetch for ${apiUrl}, clearing cache`);
+        apiCallCache.delete(apiUrl);
+    });
 };
 
 const fetchTransactionSummary = async (params: QueryParams, config: ApiConfig): Promise<TransactionSummaryResponse> => {
     const apiUrl = constructApiUrl(config, 'transaction-summary', params);
-    return await fetchApiData<TransactionSummaryResponse>(apiUrl, 'GET');
+    if (apiCallCache.has(apiUrl)) return apiCallCache.get(apiUrl);
+    const promise = fetchApiData<TransactionSummaryResponse>(apiUrl, 'GET');
+    apiCallCache.set(apiUrl, promise);
+    return promise.finally(() => apiCallCache.delete(apiUrl));
 };
 
 const fetchSalesContinuity = async (params: QueryParams, config: ApiConfig): Promise<SalesContinuityResponse> => {
     const apiUrl = constructApiUrl(config, 'continuity', params);
-    return await fetchApiData<SalesContinuityResponse>(apiUrl, 'GET');
+    if (apiCallCache.has(apiUrl)) return apiCallCache.get(apiUrl);
+    const promise = fetchApiData<SalesContinuityResponse>(apiUrl, 'GET');
+    apiCallCache.set(apiUrl, promise);
+    return promise.finally(() => apiCallCache.delete(apiUrl));
 };
 
 // Utility function to calculate metrics
@@ -155,58 +180,56 @@ const calculateMetrics = (
     return { ccOptVip, ppOptVip, totalOptPPCC };
 };
 
-// Main API handler
 export async function POST(request: NextRequest): Promise<Response> {
+    const requestId = Math.random().toString(36).substring(2, 15);
+    console.log(`[${requestId}] Received ${request.method} request to ${request.url}`);
+    console.log(`[${requestId}] Request headers:`, Object.fromEntries(request.headers.entries()));
     try {
         const url = new URL(request.url);
         const startDate = url.searchParams.get('startDate');
         const endDate = url.searchParams.get('endDate');
 
-        // Validate required query parameters
         if (!startDate || !endDate) {
-            return apiResponse({
-                result: "ERROR",
-                message: "Missing startDate or endDate",
-            }, 400);
+            return apiResponse({ result: "ERROR", message: "Missing startDate or endDate" }, 400);
         }
 
-        // Get brand-specific data
         const brandName = 'NYMBUS';
         const categoryId = 28;
         const campaign: Campaign = campaignCategory.NYMBUS[categoryId];
         const id = campaign.campaignId;
 
-        // Validate campaign ID
         if (!id) {
-            return apiResponse({
-                result: "ERROR",
-                message: "Invalid campaign ID",
-            }, 400);
+            return apiResponse({ result: "ERROR", message: "Invalid campaign ID" }, 400);
         }
 
-        // Get API base URL from environment variables
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-        if (!baseUrl) {
-            throw new Error("API base URL is not configured in environment variables");
-        }
-
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'; // Fallback for testing
         const apiConfig: ApiConfig = { baseUrl };
         const queryParams: QueryParams = { startDate, endDate, brandName, id };
 
-        // Fetch data from all APIs sequentially instead of concurrently
-        const orders = await fetchOrderSummary(queryParams, apiConfig);
-        const transaction = await fetchTransactionSummary({
-            startDate,
-            endDate,
-            brandName,
-            id: categoryId
-        }, apiConfig);
-        const sales = await fetchSalesContinuity(queryParams, apiConfig);
+        let orders: OrderSummaryResponse;
+        let transaction: TransactionSummaryResponse;
+        let sales: SalesContinuityResponse;
 
-        // Calculate additional metrics
+        try {
+            orders = await fetchOrderSummary(queryParams, apiConfig);
+        } catch (error) {
+            throw new Error(`Order summary fetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+
+        try {
+            transaction = await fetchTransactionSummary({ startDate, endDate, brandName, id: categoryId }, apiConfig);
+        } catch (error) {
+            throw new Error(`Transaction summary fetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+
+        try {
+            sales = await fetchSalesContinuity(queryParams, apiConfig);
+        } catch (error) {
+            throw new Error(`Sales continuity fetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+
         const { ccOptVip, ppOptVip, totalOptPPCC } = calculateMetrics(orders, sales);
 
-        // Combine all data into a single response
         const combinedResponse: CombinedResponse = {
             campaignName: campaign.name,
             startDate,
@@ -239,21 +262,15 @@ export async function POST(request: NextRequest): Promise<Response> {
             vipRecycleRebill: sales.vipRecycleRebill || 0,
         };
 
-        return apiResponse({
-            result: "SUCCESS",
-            message: combinedResponse,
-        });
+        return apiResponse({ result: "SUCCESS", message: combinedResponse });
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
-        console.error("API Error:", errorMessage);
-        return apiResponse({
-            result: "ERROR",
-            message: errorMessage,
-        }, 500);
+        console.error(`[${requestId}] API Error base call:`, errorMessage);
+        return apiResponse({ result: "ERROR base call", message: errorMessage }, 500);
     }
 }
 
-// Export config for edge runtime (optional)
-export const config = {
-    runtime: 'edge',
-};
+export async function GET(request: NextRequest): Promise<Response> {
+    console.warn(`Unexpected GET request to ${request.url}`);
+    return apiResponse({ result: "ERROR", message: "This endpoint only supports POST requests" }, 405);
+}

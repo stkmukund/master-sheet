@@ -162,7 +162,7 @@ export const reportDateRange: ReportDateRange = {
     projectedRebillRevenue: ["Today", "This Month", "Next Month", "Tomorrow", "Coming Week", "Next 2 Weeks", "Next 30 Days", "Next 3 Months", "Next 6 Months", "Coming Year"],
     totalVipTracking: ["Today", "This Month", "Last Month", "Yesterday", "Last Week", "Past Week", "Past 2 Weeks", "Past 30 Days", "Past 3 Months", "Past 6 Months", "Past Year"],
     upsellTakeRateReport: ["Today", "This Month", "Last Month", "Yesterday", "Last Week", "Past Week", "Past 2 Weeks", "Past 30 Days", "Past 3 Months", "Past 6 Months", "Past Year"],
-    dashSheet: ["Today", "This Month", "Last Month", "Yesterday", "Last Week", "Past Week", "Past 2 Weeks", "Past 30 Days", "Past 3 Months", "Past 6 Months", "Past Year"]
+    // dashSheet: ["Today", "This Month", "Last Month", "Yesterday", "Last Week", "Past Week", "Past 2 Weeks", "Past 30 Days", "Past 3 Months", "Past 6 Months", "Past Year"]
 }
 
 // Define interfaces for type safety

@@ -39,9 +39,9 @@ function getSummaryDateRanges(): { startDate: string; endDate: string }[] {
             startDate: formatDate(getDateDaysAgo(7)),
             endDate: yesterdayStr
         },
-        // Last 30 days
+        // Last 30 days 
         {
-            startDate: formatDate(getDateDaysAgo(30)),
+            startDate: formatDate(getDateDaysAgo(20)), // modefied to use 20 now
             endDate: yesterdayStr
         }
     ];

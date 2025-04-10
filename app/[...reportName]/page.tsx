@@ -52,8 +52,8 @@ export default function MasterSheet() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
-        if (sheetName === "dashSheet") await dashSheet();
-        else if (sheetName === "totalVipTracking") await handleTotalVipTracking();
+        // if (sheetName === "dashSheet") await dashSheet();
+        if (sheetName === "totalVipTracking") await handleTotalVipTracking();
         else if (sheetName === "upsellTakeRateReport") await handleUpsellTakeRateReport();
         else {
             try {
@@ -77,26 +77,26 @@ export default function MasterSheet() {
 
     };
 
-    // Dash Sheet Calculation
-    const dashSheet = async () => {
-        try {
-            const response: ApiResponse = await apiHandler({ endpoint: 'dash-sheet/' + brandName, queryParams: { startDate, endDate, startTime, endTime } })
-            if (response.result === 'ERROR') {
-                setError(response.message);
-                setLoading(false);
-            }
-            if (response.result === 'SUCCESS' && typeof response.message !== "string") {
-                console.log(JSON.stringify(response, null, 2))
-                const { heading, values } = response.message; // Narrow the type here
-                setTableHeading(heading);
-                setTableData((prev) => ({ ...prev, [brandName]: values }));
-            }
-            setLoading(false);
-        } catch (error) {
-            console.error(error);
-            setLoading(false);
-        }
-    }
+    // // Dash Sheet Calculation
+    // const dashSheet = async () => {
+    //     try {
+    //         const response: ApiResponse = await apiHandler({ endpoint: 'dash-sheet/' + brandName, queryParams: { startDate, endDate, startTime, endTime }, method: "POST" });
+    //         if (response.result === 'ERROR') {
+    //             setError(response.message);
+    //             setLoading(false);
+    //         }
+    //         if (response.result === 'SUCCESS' && typeof response.message !== "string") {
+    //             console.log(JSON.stringify(response, null, 2))
+    //             const { heading, values } = response.message; // Narrow the type here
+    //             setTableHeading(heading);
+    //             setTableData((prev) => ({ ...prev, [brandName]: values }));
+    //         }
+    //         setLoading(false);
+    //     } catch (error) {
+    //         console.error(error);
+    //         setLoading(false);
+    //     }
+    // }
 
     const handleTotalVipTracking = async () => {
         const response: ApiResponse = await apiHandler({ endpoint: 'master-sheet/total-vip-tracking/', queryParams: { brandName, startDate, endDate, startTime, endTime } });

@@ -15,6 +15,7 @@
     "@nextui-org/react": "^2.6.10",
     "@radix-ui/react-tooltip": "^1.1.6",
     "@types/chart.js": "^2.9.41",
+    "axios": "^1.8.4",
     "chart.js": "^4.4.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
