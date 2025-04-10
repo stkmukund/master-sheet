@@ -1,6 +1,7 @@
 import { campaignCategory } from "@/lib/campaign-details";
 import { apiResponse } from "@/lib/utils";
 import { NextRequest } from "next/server";
+import axios from "axios";
 
 // Define interfaces for type safety
 interface QueryParams {
@@ -12,14 +13,13 @@ interface QueryParams {
 
 interface Campaign {
     campaignId: string;
-    name: string; // Added for campaign name
+    name: string;
 }
 
 interface ApiConfig {
     baseUrl: string;
 }
 
-// Define specific response types for each API
 interface OrderSummaryResponse {
     totalAmount: number;
     refundedAmount: number;
@@ -37,7 +37,7 @@ interface TransactionSummaryResponse {
     rebillRevenue: number;
     rebillApproval: number;
     rebillDeclines: number;
-    rebillApprovedPerc: number; // Already in decimal form (0-1)
+    rebillApprovedPerc: number;
     rebillRefundRev: number;
     billableRebillRev: number;
     rebillRefundPerc: number;
@@ -55,7 +55,6 @@ interface SalesContinuityResponse {
     vipRecycleRebill: number;
 }
 
-// Combined response type
 interface CombinedResponse {
     campaignName: string;
     startDate: string;
@@ -88,6 +87,19 @@ interface CombinedResponse {
     vipRecycleRebill: number;
 }
 
+// Cache and Rate Limit Setup
+interface CacheEntry<T> {
+    data: T;
+    timestamp: number;
+}
+
+const cache = new Map<string, CacheEntry<any>>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes TTL
+
+const rateLimit = new Map<string, { count: number; lastReset: number }>();
+const RATE_LIMIT = 5; // Max 5 requests per minute per URL
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+
 const constructApiUrl = (
     config: ApiConfig,
     dynamicPath: string,
@@ -95,19 +107,42 @@ const constructApiUrl = (
 ): string => {
     const { baseUrl } = config;
     const { startDate, endDate, brandName, id } = params;
-    return `${baseUrl}/api/dashSheet/report/${dynamicPath}/?startDate=${startDate}&endDate=${endDate}&brandName=${brandName}&id=${id}`;
+    return `${baseUrl}/api/dash-sheet/report/${dynamicPath}/?startDate=${startDate}&endDate=${endDate}&brandName=${brandName}&id=${id}`;
 };
 
 const fetchApiData = async <T>(
     apiUrl: string,
-    method: string = 'GET',
     customHeaders: Record<string, string> = {}
 ): Promise<T> => {
     const requestId = Math.random().toString(36).substring(2, 15);
     console.log(`[${requestId}] Fetching API URL: ${apiUrl}`);
+
+    // Check cache
+    const cached = cache.get(apiUrl);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        console.log(`[${requestId}] Returning cached data for ${apiUrl}`);
+        return cached.data;
+    }
+
+    // Rate limiting
+    const now = Date.now();
+    const rateLimitKey = apiUrl;
+    let rateLimitEntry = rateLimit.get(rateLimitKey);
+
+    if (!rateLimitEntry || now - rateLimitEntry.lastReset > RATE_LIMIT_WINDOW) {
+        rateLimitEntry = { count: 0, lastReset: now };
+        rateLimit.set(rateLimitKey, rateLimitEntry);
+    }
+
+    if (rateLimitEntry.count >= RATE_LIMIT) {
+        throw new Error(`Rate limit exceeded for ${apiUrl}. Try again later.`);
+    }
+
+    rateLimitEntry.count += 1;
+
     try {
-        const response = await fetch(apiUrl, {
-            method,
+        const response = await axios.get(apiUrl, {
+            timeout: 0, // No timeout for long-running requests
             headers: {
                 'Content-Type': 'application/json',
                 'X-Request-ID': requestId,
@@ -115,54 +150,36 @@ const fetchApiData = async <T>(
             },
         });
 
-        const data = await response.json();
-        console.log(`[${requestId}] API Response:`, data);
-        if (!response.ok) {
-            throw new Error(`API error: ${response.status} - ${response.statusText} - ${JSON.stringify(data)}`);
+        console.log(`[${requestId}] API Response:`, response.data);
+
+        if (response.data.result !== "SUCCESS") {
+            throw new Error(`API error: ${response.data.message}`);
         }
 
-        return data.result === "SUCCESS" ? data.message : Promise.reject(data.message);
+        const data = response.data.message;
+        cache.set(apiUrl, { data, timestamp: Date.now() });
+        return data;
     } catch (error) {
         console.error(`[${requestId}] Fetch failed:`, error);
         throw error instanceof Error ? error : new Error("Unknown fetch error");
     }
 };
 
-const apiCallCache = new Map<string, Promise<any>>();
-
 const fetchOrderSummary = async (params: QueryParams, config: ApiConfig): Promise<OrderSummaryResponse> => {
     const apiUrl = constructApiUrl(config, 'order-summary', params);
-    console.log(`Preparing to fetch order summary: ${apiUrl}`);
-    if (apiCallCache.has(apiUrl)) {
-        console.log(`Returning cached promise for ${apiUrl}`);
-        return apiCallCache.get(apiUrl);
-    }
-    const promise = fetchApiData<OrderSummaryResponse>(apiUrl, 'GET', { 'X-Source': 'POST-Endpoint' });
-    apiCallCache.set(apiUrl, promise);
-    console.log(`Initiated new fetch for ${apiUrl}`);
-    return promise.finally(() => {
-        console.log(`Completed fetch for ${apiUrl}, clearing cache`);
-        apiCallCache.delete(apiUrl);
-    });
+    return await fetchApiData<OrderSummaryResponse>(apiUrl);
 };
 
 const fetchTransactionSummary = async (params: QueryParams, config: ApiConfig): Promise<TransactionSummaryResponse> => {
     const apiUrl = constructApiUrl(config, 'transaction-summary', params);
-    if (apiCallCache.has(apiUrl)) return apiCallCache.get(apiUrl);
-    const promise = fetchApiData<TransactionSummaryResponse>(apiUrl, 'GET');
-    apiCallCache.set(apiUrl, promise);
-    return promise.finally(() => apiCallCache.delete(apiUrl));
+    return await fetchApiData<TransactionSummaryResponse>(apiUrl);
 };
 
 const fetchSalesContinuity = async (params: QueryParams, config: ApiConfig): Promise<SalesContinuityResponse> => {
     const apiUrl = constructApiUrl(config, 'continuity', params);
-    if (apiCallCache.has(apiUrl)) return apiCallCache.get(apiUrl);
-    const promise = fetchApiData<SalesContinuityResponse>(apiUrl, 'GET');
-    apiCallCache.set(apiUrl, promise);
-    return promise.finally(() => apiCallCache.delete(apiUrl));
+    return await fetchApiData<SalesContinuityResponse>(apiUrl);
 };
 
-// Utility function to calculate metrics
 const calculateMetrics = (
     orders: OrderSummaryResponse,
     sales: SalesContinuityResponse
@@ -183,14 +200,17 @@ const calculateMetrics = (
 export async function POST(request: NextRequest): Promise<Response> {
     const requestId = Math.random().toString(36).substring(2, 15);
     console.log(`[${requestId}] Received ${request.method} request to ${request.url}`);
-    console.log(`[${requestId}] Request headers:`, Object.fromEntries(request.headers.entries()));
+
     try {
         const url = new URL(request.url);
         const startDate = url.searchParams.get('startDate');
         const endDate = url.searchParams.get('endDate');
 
         if (!startDate || !endDate) {
-            return apiResponse({ result: "ERROR", message: "Missing startDate or endDate" }, 400);
+            return apiResponse({
+                result: "ERROR",
+                message: "Missing startDate or endDate",
+            }, 400);
         }
 
         const brandName = 'NYMBUS';
@@ -199,34 +219,22 @@ export async function POST(request: NextRequest): Promise<Response> {
         const id = campaign.campaignId;
 
         if (!id) {
-            return apiResponse({ result: "ERROR", message: "Invalid campaign ID" }, 400);
+            return apiResponse({
+                result: "ERROR",
+                message: "Invalid campaign ID",
+            }, 400);
         }
 
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'; // Fallback for testing
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+        console.log(`[${requestId}] Using baseUrl: ${baseUrl}`);
         const apiConfig: ApiConfig = { baseUrl };
         const queryParams: QueryParams = { startDate, endDate, brandName, id };
 
-        let orders: OrderSummaryResponse;
-        let transaction: TransactionSummaryResponse;
-        let sales: SalesContinuityResponse;
-
-        try {
-            orders = await fetchOrderSummary(queryParams, apiConfig);
-        } catch (error) {
-            throw new Error(`Order summary fetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-        }
-
-        try {
-            transaction = await fetchTransactionSummary({ startDate, endDate, brandName, id: categoryId }, apiConfig);
-        } catch (error) {
-            throw new Error(`Transaction summary fetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-        }
-
-        try {
-            sales = await fetchSalesContinuity(queryParams, apiConfig);
-        } catch (error) {
-            throw new Error(`Sales continuity fetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-        }
+        const [orders, transaction, sales] = await Promise.all([
+            fetchOrderSummary(queryParams, apiConfig),
+            fetchTransactionSummary({ startDate, endDate, brandName, id: categoryId }, apiConfig),
+            fetchSalesContinuity(queryParams, apiConfig),
+        ]);
 
         const { ccOptVip, ppOptVip, totalOptPPCC } = calculateMetrics(orders, sales);
 
@@ -262,15 +270,24 @@ export async function POST(request: NextRequest): Promise<Response> {
             vipRecycleRebill: sales.vipRecycleRebill || 0,
         };
 
-        return apiResponse({ result: "SUCCESS", message: combinedResponse });
+        return apiResponse({
+            result: "SUCCESS",
+            message: combinedResponse,
+        });
     } catch (error: unknown) {
+        console.error(`[${requestId}] API Error:`, error);
         const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
-        console.error(`[${requestId}] API Error base call:`, errorMessage);
-        return apiResponse({ result: "ERROR base call", message: errorMessage }, 500);
+        return apiResponse({
+            result: "ERROR",
+            message: errorMessage,
+        }, 500);
     }
 }
 
 export async function GET(request: NextRequest): Promise<Response> {
-    console.warn(`Unexpected GET request to ${request.url}`);
-    return apiResponse({ result: "ERROR", message: "This endpoint only supports POST requests" }, 405);
+    console.warn(`[${request.url}] Unexpected GET request to ${request.url}`);
+    return apiResponse({
+        result: "ERROR",
+        message: "This endpoint only supports POST requests",
+    }, 405);
 }

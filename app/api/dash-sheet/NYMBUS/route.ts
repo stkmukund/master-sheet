@@ -1,5 +1,7 @@
 import { campaignCategory } from "@/lib/campaign-details";
 import { apiResponse } from "@/lib/utils";
+import axios from "axios";
+import { NextRequest } from "next/server";
 
 // Helper function to format date to MM/DD/YYYY
 function formatDate(date: Date): string {
@@ -30,28 +32,93 @@ function getSummaryDateRanges(): { startDate: string; endDate: string }[] {
 
     return [
         // Yesterday
-        {
-            startDate: yesterdayStr,
-            endDate: yesterdayStr
-        },
+        { startDate: yesterdayStr, endDate: yesterdayStr },
         // Last 7 days
-        {
-            startDate: formatDate(getDateDaysAgo(7)),
-            endDate: yesterdayStr
-        },
-        // Last 30 days 
-        {
-            startDate: formatDate(getDateDaysAgo(20)), // modefied to use 20 now
-            endDate: yesterdayStr
-        }
+        { startDate: formatDate(getDateDaysAgo(7)), endDate: yesterdayStr },
+        // Last 20 days (modified from 30)
+        { startDate: formatDate(getDateDaysAgo(20)), endDate: yesterdayStr },
     ];
 }
 
-export async function POST(request: Request): Promise<Response> {
+// Cache and Rate Limit Setup
+interface CacheEntry<T> {
+    data: T;
+    timestamp: number;
+}
+
+const cache = new Map<string, CacheEntry<any>>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes TTL
+
+const rateLimit = new Map<string, { count: number; lastReset: number }>();
+const RATE_LIMIT = 5; // Max 5 requests per minute per URL
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+
+const fetchApiData = async <T>(
+    apiUrl: string,
+    method: string = 'POST'
+): Promise<T> => {
+    const requestId = Math.random().toString(36).substring(2, 15);
+    console.log(`[${requestId}] Fetching API URL: ${apiUrl}`);
+
+    // Check cache
+    const cached = cache.get(apiUrl);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        console.log(`[${requestId}] Returning cached data for ${apiUrl}`);
+        return cached.data;
+    }
+
+    // Rate limiting
+    const now = Date.now();
+    const rateLimitKey = apiUrl;
+    let rateLimitEntry = rateLimit.get(rateLimitKey);
+
+    if (!rateLimitEntry || now - rateLimitEntry.lastReset > RATE_LIMIT_WINDOW) {
+        rateLimitEntry = { count: 0, lastReset: now };
+        rateLimit.set(rateLimitKey, rateLimitEntry);
+    }
+
+    if (rateLimitEntry.count >= RATE_LIMIT) {
+        throw new Error(`Rate limit exceeded for ${apiUrl}. Try again later.`);
+    }
+
+    rateLimitEntry.count += 1;
+
+    try {
+        const response = await axios({
+            method,
+            url: apiUrl,
+            timeout: 0, // No timeout for long-running requests
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Request-ID': requestId,
+            },
+        });
+
+        console.log(`[${requestId}] API Response:`, response.data);
+
+        if (response.data.result !== "SUCCESS") {
+            throw new Error(`API error: ${response.data.message}`);
+        }
+
+        const data = response.data.message;
+        cache.set(apiUrl, { data, timestamp: Date.now() });
+        return data;
+    } catch (error) {
+        console.error(`[${requestId}] Fetch failed:`, error);
+        throw error instanceof Error ? error : new Error("Unknown fetch error");
+    }
+};
+
+export async function POST(request: NextRequest): Promise<Response> {
+    const requestId = Math.random().toString(36).substring(2, 15);
+    console.log(`[${requestId}] Received ${request.method} request to ${request.url}`);
+
     const url = new URL(request.url);
     const startDate = url.searchParams.get('startDate');
     const endDate = url.searchParams.get('endDate');
     const reportType = url.searchParams.get('reportType');
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    console.log(`[${requestId}] Using baseUrl: ${baseUrl}`);
 
     // Handle case when startDate and endDate are not provided
     if (!startDate || !endDate) {
@@ -59,48 +126,45 @@ export async function POST(request: Request): Promise<Response> {
             const dateRanges = getSummaryDateRanges();
             const finalData: {
                 result: string;
-                message: object[];
+                message: { period: string; data: object[] }[];
             } = {
                 result: "SUCCESS",
-                message: []
+                message: [],
             };
 
             try {
                 // const campaignData = Object.values(campaignCategory.NYMBUS).map((campaign) => campaign.apiEndpoint);
-                const campaignData = ['browPro'];
+                const campaignData = ['browPro']; // Hardcoded for now
 
-
-                // Process all date ranges
                 for (const range of dateRanges) {
                     const rangeData: object[] = [];
-                    console.log("Fetching data for range:", range);
+                    console.log(`[${requestId}] Fetching data for range:`, range);
+
                     for (const endpoint of campaignData) {
-                        console.log("Fetching endpoint:", `${process.env.NEXT_PUBLIC_API_URL}/api/dash-sheet/NYMBUS/${endpoint}?startDate=${range.startDate}&endDate=${range.endDate}`);
-                        const response: { message: object } = await fetch(
-                            `${process.env.NEXT_PUBLIC_API_URL}/api/dash-sheet/NYMBUS/${endpoint}?startDate=${range.startDate}&endDate=${range.endDate}`,
-                            {
-                                method: "POST",
-                            }
-                        ).then((res) => res.json());
-                        rangeData.push(response.message);
+                        const apiUrl = `${baseUrl}/api/dash-sheet/NYMBUS/${endpoint}?startDate=${range.startDate}&endDate=${range.endDate}`;
+                        console.log(`[${requestId}] Fetching endpoint: ${apiUrl}`);
+                        const data = await fetchApiData<object>(apiUrl);
+                        rangeData.push(data);
                     }
+
                     finalData.message.push({
                         period: `${range.startDate} - ${range.endDate}`,
-                        data: rangeData
+                        data: rangeData,
                     });
-                    console.log("Range data:", rangeData);
+                    console.log(`[${requestId}] Range data:`, rangeData);
                 }
 
-                return apiResponse({ result: "SUCCESS", message: finalData });
+                return apiResponse(finalData);
             } catch (error: unknown) {
                 const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+                console.error(`[${requestId}] Summary Error:`, errorMessage);
                 return apiResponse({
                     result: "ERROR",
                     message: errorMessage,
-                });
+                }, 500);
             }
         }
-        return apiResponse({ result: "ERROR", message: "Missing startDate or endDate" });
+        return apiResponse({ result: "ERROR", message: "Missing startDate or endDate" }, 400);
     }
 
     // Original logic for when dates are provided
@@ -109,28 +173,34 @@ export async function POST(request: Request): Promise<Response> {
         message: object[];
     } = {
         result: "SUCCESS",
-        message: []
+        message: [],
     };
 
     try {
         const campaignData = Object.values(campaignCategory.NYMBUS).map((campaign) => campaign.apiEndpoint);
 
         for (const endpoint of campaignData) {
-            const response: { message: object } = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/dash-sheet/NYMBUS/${endpoint}?startDate=${startDate}&endDate=${endDate}`,
-                {
-                    method: "POST",
-                }
-            ).then((res) => res.json());
-            finalData.message.push(response.message);
+            const apiUrl = `${baseUrl}/api/dash-sheet/NYMBUS/${endpoint}?startDate=${startDate}&endDate=${endDate}`;
+            console.log(`[${requestId}] Fetching endpoint: ${apiUrl}`);
+            const data = await fetchApiData<object>(apiUrl);
+            finalData.message.push(data);
         }
 
-        return apiResponse({ result: "SUCCESS", message: finalData });
+        return apiResponse(finalData);
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+        console.error(`[${requestId}] API Error:`, errorMessage);
         return apiResponse({
             result: "ERROR",
             message: errorMessage,
-        });
+        }, 500);
     }
+}
+
+export async function GET(request: NextRequest): Promise<Response> {
+    console.warn(`[${request.url}] Unexpected GET request to ${request.url}`);
+    return apiResponse({
+        result: "ERROR",
+        message: "This endpoint only supports POST requests",
+    }, 405);
 }

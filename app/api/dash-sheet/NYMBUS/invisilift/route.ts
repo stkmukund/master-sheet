@@ -1,6 +1,7 @@
 import { campaignCategory } from "@/lib/campaign-details";
 import { apiResponse } from "@/lib/utils";
 import { NextRequest } from "next/server";
+import axios from "axios";
 
 // Define interfaces for type safety
 interface QueryParams {
@@ -12,14 +13,13 @@ interface QueryParams {
 
 interface Campaign {
     campaignId: string;
-    name: string; // Added for campaign name
+    name: string;
 }
 
 interface ApiConfig {
     baseUrl: string;
 }
 
-// Define specific response types for each API
 interface OrderSummaryResponse {
     totalAmount: number;
     refundedAmount: number;
@@ -37,7 +37,7 @@ interface TransactionSummaryResponse {
     rebillRevenue: number;
     rebillApproval: number;
     rebillDeclines: number;
-    rebillApprovedPerc: number; // Already in decimal form (0-1)
+    rebillApprovedPerc: number;
     rebillRefundRev: number;
     billableRebillRev: number;
     rebillRefundPerc: number;
@@ -55,7 +55,6 @@ interface SalesContinuityResponse {
     vipRecycleRebill: number;
 }
 
-// Combined response type
 interface CombinedResponse {
     campaignName: string;
     startDate: string;
@@ -88,7 +87,19 @@ interface CombinedResponse {
     vipRecycleRebill: number;
 }
 
-// Utility function to construct the dynamic URL
+// Cache and Rate Limit Setup
+interface CacheEntry<T> {
+    data: T;
+    timestamp: number;
+}
+
+const cache = new Map<string, CacheEntry<any>>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes TTL
+
+const rateLimit = new Map<string, { count: number; lastReset: number }>();
+const RATE_LIMIT = 5; // Max 5 requests per minute per URL
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+
 const constructApiUrl = (
     config: ApiConfig,
     dynamicPath: string,
@@ -99,43 +110,76 @@ const constructApiUrl = (
     return `${baseUrl}/api/dash-sheet/report/${dynamicPath}/?startDate=${startDate}&endDate=${endDate}&brandName=${brandName}&id=${id}`;
 };
 
-// Base API fetch function with generic typing
 const fetchApiData = async <T>(
     apiUrl: string,
-    method: string = 'GET'
+    customHeaders: Record<string, string> = {}
 ): Promise<T> => {
-    const response = await fetch(apiUrl, {
-        method,
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
+    const requestId = Math.random().toString(36).substring(2, 15);
+    console.log(`[${requestId}] Fetching API URL: ${apiUrl}`);
 
-    if (!response.ok) {
-        throw new Error(`API error: ${response.status} - ${response.statusText}`);
+    // Check cache
+    const cached = cache.get(apiUrl);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        console.log(`[${requestId}] Returning cached data for ${apiUrl}`);
+        return cached.data;
     }
 
-    const data = await response.json();
-    return data.result === "SUCCESS" ? data.message : Promise.reject(data.message);
+    // Rate limiting
+    const now = Date.now();
+    const rateLimitKey = apiUrl;
+    let rateLimitEntry = rateLimit.get(rateLimitKey);
+
+    if (!rateLimitEntry || now - rateLimitEntry.lastReset > RATE_LIMIT_WINDOW) {
+        rateLimitEntry = { count: 0, lastReset: now };
+        rateLimit.set(rateLimitKey, rateLimitEntry);
+    }
+
+    if (rateLimitEntry.count >= RATE_LIMIT) {
+        throw new Error(`Rate limit exceeded for ${apiUrl}. Try again later.`);
+    }
+
+    rateLimitEntry.count += 1;
+
+    try {
+        const response = await axios.get(apiUrl, {
+            timeout: 0, // No timeout for long-running requests
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Request-ID': requestId,
+                ...customHeaders,
+            },
+        });
+
+        console.log(`[${requestId}] API Response:`, response.data);
+
+        if (response.data.result !== "SUCCESS") {
+            throw new Error(`API error: ${response.data.message}`);
+        }
+
+        const data = response.data.message;
+        cache.set(apiUrl, { data, timestamp: Date.now() });
+        return data;
+    } catch (error) {
+        console.error(`[${requestId}] Fetch failed:`, error);
+        throw error instanceof Error ? error : new Error("Unknown fetch error");
+    }
 };
 
-// Specific API handlers
 const fetchOrderSummary = async (params: QueryParams, config: ApiConfig): Promise<OrderSummaryResponse> => {
     const apiUrl = constructApiUrl(config, 'order-summary', params);
-    return await fetchApiData<OrderSummaryResponse>(apiUrl, 'GET');
+    return await fetchApiData<OrderSummaryResponse>(apiUrl);
 };
 
 const fetchTransactionSummary = async (params: QueryParams, config: ApiConfig): Promise<TransactionSummaryResponse> => {
     const apiUrl = constructApiUrl(config, 'transaction-summary', params);
-    return await fetchApiData<TransactionSummaryResponse>(apiUrl, 'GET');
+    return await fetchApiData<TransactionSummaryResponse>(apiUrl);
 };
 
 const fetchSalesContinuity = async (params: QueryParams, config: ApiConfig): Promise<SalesContinuityResponse> => {
     const apiUrl = constructApiUrl(config, 'continuity', params);
-    return await fetchApiData<SalesContinuityResponse>(apiUrl, 'GET');
+    return await fetchApiData<SalesContinuityResponse>(apiUrl);
 };
 
-// Utility function to calculate metrics
 const calculateMetrics = (
     orders: OrderSummaryResponse,
     sales: SalesContinuityResponse
@@ -153,14 +197,15 @@ const calculateMetrics = (
     return { ccOptVip, ppOptVip, totalOptPPCC };
 };
 
-// Main API handler
 export async function POST(request: NextRequest): Promise<Response> {
+    const requestId = Math.random().toString(36).substring(2, 15);
+    console.log(`[${requestId}] Received ${request.method} request to ${request.url}`);
+
     try {
         const url = new URL(request.url);
         const startDate = url.searchParams.get('startDate');
         const endDate = url.searchParams.get('endDate');
 
-        // Validate required query parameters
         if (!startDate || !endDate) {
             return apiResponse({
                 result: "ERROR",
@@ -168,13 +213,11 @@ export async function POST(request: NextRequest): Promise<Response> {
             }, 400);
         }
 
-        // Get brand-specific data
-        const brandName = 'NYMBUS'; // Could be made dynamic via query param
-        const categoryId = 16 // this is important to get the right campaign data
+        const brandName = 'NYMBUS';
+        const categoryId = 16;
         const campaign: Campaign = campaignCategory.NYMBUS[categoryId];
         const id = campaign.campaignId;
 
-        // Validate campaign ID
         if (!id) {
             return apiResponse({
                 result: "ERROR",
@@ -182,26 +225,19 @@ export async function POST(request: NextRequest): Promise<Response> {
             }, 400);
         }
 
-        // Get API base URL from environment variables
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-        if (!baseUrl) {
-            throw new Error("API base URL is not configured in environment variables");
-        }
-
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+        console.log(`[${requestId}] Using baseUrl: ${baseUrl}`);
         const apiConfig: ApiConfig = { baseUrl };
         const queryParams: QueryParams = { startDate, endDate, brandName, id };
 
-        // Fetch data from all APIs concurrently
         const [orders, transaction, sales] = await Promise.all([
             fetchOrderSummary(queryParams, apiConfig),
             fetchTransactionSummary({ startDate, endDate, brandName, id: categoryId }, apiConfig),
             fetchSalesContinuity(queryParams, apiConfig),
         ]);
 
-        // Calculate additional metrics
         const { ccOptVip, ppOptVip, totalOptPPCC } = calculateMetrics(orders, sales);
 
-        // Combine all data into a single response
         const combinedResponse: CombinedResponse = {
             campaignName: campaign.name,
             startDate,
@@ -234,15 +270,12 @@ export async function POST(request: NextRequest): Promise<Response> {
             vipRecycleRebill: sales.vipRecycleRebill || 0,
         };
 
-        // Here you could add logic to update a Google Sheet if needed
-        // const response = await updateSheet(Object.values(combinedResponse), queryParams.type);
-
         return apiResponse({
             result: "SUCCESS",
             message: combinedResponse,
         });
     } catch (error: unknown) {
-        console.error("API Error:", error);
+        console.error(`[${requestId}] API Error:`, error);
         const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
         return apiResponse({
             result: "ERROR",
@@ -251,7 +284,10 @@ export async function POST(request: NextRequest): Promise<Response> {
     }
 }
 
-// Export config for edge runtime (optional)
-export const config = {
-    runtime: 'edge', // Uncomment to use edge runtime for better performance
-};
+export async function GET(request: NextRequest): Promise<Response> {
+    console.warn(`[${request.url}] Unexpected GET request to ${request.url}`);
+    return apiResponse({
+        result: "ERROR",
+        message: "This endpoint only supports POST requests",
+    }, 405);
+}
