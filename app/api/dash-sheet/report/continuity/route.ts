@@ -159,13 +159,7 @@ export interface Vip {
     // ... other properties
 }
 
-// utils/vip-utils.ts
-export function getCampaignIdById(id: number): string {
-    // Your implementation
-    return id.toString(); // Placeholder
-}
-
-export async function filterVipsByStatus(orders: Vip[]) {
+async function filterVipsByStatus(orders: Vip[]) {
     // Your implementation
     const creditCardVips = orders.filter(vip => vip.transactions[0].paySource === 'CREDITCARD').length;
     const payPalVips = orders.filter(vip => vip.transactions[0].paySource === 'PAYPAL').length;
