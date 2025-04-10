@@ -35,6 +35,27 @@ export const addToSheet = async (baseUrl: string, data: (string | number)[], she
     return response;
 }
 
+export const summaryToSheet = async (baseUrl: string, data: { result: string; message: { period: string; data: object[] }[] }, sheetDetails: object) => {
+    // const finalValues = Object.values(data);
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    const sheetData = {
+        sheetDetails,
+        apiResponse: data
+    }
+
+    console.log("sheetData", sheetData)
+    const raw = await JSON.stringify(sheetData);
+
+    const response = await fetch(baseUrl + '/api/google-sheets/dash-sheet/summary', {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow"
+    }).then(result => result.json());
+    return response;
+}
+
 // Total VIP Tracking
 // Calculate campaignIDs
 export const calculateVIPid = async (brandName: string): Promise<[string[] | object, string[]]> => {

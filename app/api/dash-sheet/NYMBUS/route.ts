@@ -1,5 +1,5 @@
 import { campaignCategory } from "@/lib/campaign-details";
-import { apiResponse } from "@/lib/utils";
+import { apiResponse, summaryToSheet } from "@/lib/utils";
 import axios from "axios";
 import { NextRequest } from "next/server";
 
@@ -133,8 +133,8 @@ export async function POST(request: NextRequest): Promise<Response> {
             };
 
             try {
-                // const campaignData = Object.values(campaignCategory.NYMBUS).map((campaign) => campaign.apiEndpoint);
-                const campaignData = ['browPro']; // Hardcoded for now
+                const campaignData = Object.values(campaignCategory.NYMBUS).map((campaign) => campaign.apiEndpoint);
+                // const campaignData = ['browPro']; // Hardcoded for now
 
                 for (const range of dateRanges) {
                     const rangeData: object[] = [];
@@ -154,6 +154,7 @@ export async function POST(request: NextRequest): Promise<Response> {
                     console.log(`[${requestId}] Range data:`, rangeData);
                 }
 
+                await summaryToSheet(baseUrl, finalData, { sheetId: "1w0RZBZChXhOZGf73FYcO78bNZmUrYI-FcEaXMgEssYo", sheetName: "API-Overview" });
                 return apiResponse(finalData);
             } catch (error: unknown) {
                 const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
