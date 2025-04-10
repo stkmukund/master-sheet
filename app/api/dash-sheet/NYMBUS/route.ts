@@ -165,35 +165,35 @@ export async function POST(request: NextRequest): Promise<Response> {
             }
         }
         return apiResponse({ result: "ERROR", message: "Missing startDate or endDate" }, 400);
-    }
+    } else {
+        // Original logic for when dates are provided
+        const finalData: {
+            result: string;
+            message: object[];
+        } = {
+            result: "SUCCESS",
+            message: [],
+        };
 
-    // Original logic for when dates are provided
-    const finalData: {
-        result: string;
-        message: object[];
-    } = {
-        result: "SUCCESS",
-        message: [],
-    };
+        try {
+            const campaignData = Object.values(campaignCategory.NYMBUS).map((campaign) => campaign.apiEndpoint);
 
-    try {
-        const campaignData = Object.values(campaignCategory.NYMBUS).map((campaign) => campaign.apiEndpoint);
+            for (const endpoint of campaignData) {
+                const apiUrl = `${baseUrl}/api/dash-sheet/NYMBUS/${endpoint}?startDate=${startDate}&endDate=${endDate}`;
+                console.log(`[${requestId}] Fetching endpoint: ${apiUrl}`);
+                const data = await fetchApiData<object>(apiUrl);
+                finalData.message.push(data);
+            }
 
-        for (const endpoint of campaignData) {
-            const apiUrl = `${baseUrl}/api/dash-sheet/NYMBUS/${endpoint}?startDate=${startDate}&endDate=${endDate}`;
-            console.log(`[${requestId}] Fetching endpoint: ${apiUrl}`);
-            const data = await fetchApiData<object>(apiUrl);
-            finalData.message.push(data);
+            return apiResponse(finalData);
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+            console.error(`[${requestId}] API Error:`, errorMessage);
+            return apiResponse({
+                result: "ERROR",
+                message: errorMessage,
+            }, 500);
         }
-
-        return apiResponse(finalData);
-    } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
-        console.error(`[${requestId}] API Error:`, errorMessage);
-        return apiResponse({
-            result: "ERROR",
-            message: errorMessage,
-        }, 500);
     }
 }
 
