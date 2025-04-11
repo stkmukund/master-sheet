@@ -95,7 +95,7 @@ interface CacheEntry<T> {
     timestamp: number;
 }
 
-const cache = new Map<string, CacheEntry<any>>();
+const cache = new Map<string, CacheEntry<unknown>>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes TTL
 
 const rateLimit = new Map<string, { count: number; lastReset: number }>();
@@ -123,7 +123,7 @@ const fetchApiData = async <T>(
     const cached = cache.get(apiUrl);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
         console.log(`[${requestId}] Returning cached data for ${apiUrl}`);
-        return cached.data;
+        return cached.data as T;
     }
 
     // Rate limiting
