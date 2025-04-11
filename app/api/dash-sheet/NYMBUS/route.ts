@@ -2,7 +2,6 @@ import { campaignCategory } from "@/lib/campaign-details";
 import { apiResponse, summaryToSheet } from "@/lib/utils";
 import axios from "axios";
 import { NextRequest } from "next/server";
-import { sampleResponse } from ".";
 
 // Helper function to format date to MM/DD/YYYY
 function formatDate(date: Date): string {
@@ -140,35 +139,35 @@ export async function POST(request: NextRequest): Promise<Response> {
                 const campaignData = Object.values(campaignCategory.NYMBUS).map((campaign) => campaign.apiEndpoint);
                 // const campaignData = ['floralSecrets']; // Hardcoded for now
 
-                // for (const endpoint of campaignData) {
-                //     const rangeData: {
-                //         period: string;
-                //         data: object;
-                //     }[] = new Array(dateRanges.length).fill(null).map(() => ({ period: "", data: {} }));
-                //     for (let index = 0; index < dateRanges.length; index++) {
-                //         const range = dateRanges[index];
-                //         console.log(`Fetching data for range (index ${index}):`, range);
+                for (const endpoint of campaignData) {
+                    const rangeData: {
+                        period: string;
+                        data: object;
+                    }[] = new Array(dateRanges.length).fill(null).map(() => ({ period: "", data: {} }));
+                    for (let index = 0; index < dateRanges.length; index++) {
+                        const range = dateRanges[index];
+                        console.log(`Fetching data for range (index ${index}):`, range);
 
-                //         const apiUrl = `${baseUrl}/api/dash-sheet/NYMBUS/${endpoint}?startDate=${range.startDate}&endDate=${range.endDate}`;
-                //         const data = await fetchApiData<object>(apiUrl);
+                        const apiUrl = `${baseUrl}/api/dash-sheet/NYMBUS/${endpoint}?startDate=${range.startDate}&endDate=${range.endDate}`;
+                        const data = await fetchApiData<object>(apiUrl);
 
-                //         rangeData[index].period = `${range.startDate} - ${range.endDate}`;
-                //         rangeData[index].data = data;
+                        rangeData[index].period = `${range.startDate} - ${range.endDate}`;
+                        rangeData[index].data = data;
 
-                //         console.log(`data rangeData (index ${index})`, rangeData);
-                //     }
+                        console.log(`data rangeData (index ${index})`, rangeData);
+                    }
 
-                //     finalData.message.push(rangeData);
-                //     // console.log(`[${requestId}] Range data:`, rangeData);
-                // }
+                    finalData.message.push(rangeData);
+                    // console.log(`[${requestId}] Range data:`, rangeData);
+                }
 
                 // Write to Google Sheets
-                const sheetResponse = await summaryToSheet(baseUrl, sampleResponse, {
+                const sheetResponse = await summaryToSheet(baseUrl, finalData, {
                     sheetId: "1w0RZBZChXhOZGf73FYcO78bNZmUrYI-FcEaXMgEssYo",
                     sheetName: "API-Overview",
                 });
                 console.log(`[${requestId}] Sheet write response:`, sheetResponse);
-                return apiResponse(sampleResponse);
+                return apiResponse(finalData);
             } catch (error: unknown) {
                 const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
                 console.error(`[${requestId}] Summary Error:`, errorMessage);
