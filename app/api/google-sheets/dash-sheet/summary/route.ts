@@ -34,7 +34,7 @@ const googleJSON: GoogleCredentials = {
     universe_domain: "googleapis.com",
 };
 
-// Define the API response structure
+// Define the API response structure based on the provided API
 interface ApiResponse {
     result: string;
     message: {
@@ -52,6 +52,7 @@ interface ApiResponse {
             rebillApproval: number;
             rebillDeclines: number;
             rebillApprovedPerc: number;
+            rebillDeclinedPerc: number;
             rebillRefundRev: number;
             billableRebillRev: number;
             refundedAmount: number;
@@ -69,8 +70,8 @@ interface ApiResponse {
             totalOptPPCC: number;
             vipTotal: number;
             vipRecycleRebill: number;
-        }[];
-    }[];
+        };
+    }[][]; // message is an array of arrays of period/data objects
 }
 
 interface SheetDetails {
@@ -82,11 +83,11 @@ interface SheetDetails {
 function getFilterFromPeriod(period: string): string {
     const today = new Date().toLocaleDateString("en-US");
     const [start, end] = period.split(" - ");
-    if (start === end && start === today) return "Yesterday";
+    if (start === end && start === today) return "Yesterday"; // This need to be modify
     const daysDiff = Math.floor((new Date(end).getTime() - new Date(start).getTime()) / (1000 * 60 * 60 * 24)) + 1;
     if (daysDiff === 7) return "Last 7 days";
-    if (daysDiff === 20) return "Last 20 days";
-    return "Custom";
+    if (daysDiff === 30) return "Last 30 days";
+    return "Yesterday"; // Default case
 }
 
 // Function to write data to Google Sheets
@@ -98,6 +99,7 @@ async function writeToSheet(
 ): Promise<sheets_v4.Schema$AppendValuesResponse> {
     const sheets = google.sheets({ version: "v4", auth });
     try {
+        // console.log("Values", JSON.stringify(values, null, 2));
         const response = await sheets.spreadsheets.values.append({
             spreadsheetId: spreadsheetID,
             range,
@@ -174,14 +176,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         const partner = "Nymbus";
         const valuesToWrite: (string | number)[][] = [];
 
-        // Process each period and its data
-        for (const periodObj of apiResponse.message) {
-            const filter = getFilterFromPeriod(periodObj.period);
-            for (const brandData of periodObj.data) {
-                // Calculate % Rebill Refunds as a percentage if rebillRevenue is non-zero
-                const percentRebillRefunds = brandData.rebillRevenue !== 0
-                    ? (brandData.rebillRefundRev / brandData.rebillRevenue) * 100
-                    : 0;
+        // Process each campaign's array of periods
+        for (const campaignPeriods of apiResponse.message) {
+            for (const periodObj of campaignPeriods) {
+                const filter = getFilterFromPeriod(periodObj.period);
+                const brandData = periodObj.data;
 
                 const row: (string | number)[] = [
                     partner,
@@ -195,14 +194,32 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                     brandData.avgTicket,
                     brandData.rebillRevenue,
                     brandData.rebillApproval,
-                    percentRebillRefunds, // Calculated percentage
+                    brandData.rebillDeclines,
+                    brandData.rebillApprovedPerc,
+                    brandData.rebillDeclinedPerc,
+                    brandData.rebillRefundRev,
                     brandData.billableRebillRev,
+                    brandData.refundedAmount,
+                    brandData.frontendRefundPerc,
+                    brandData.rebillRefundPerc,
+                    brandData.chargebackCnt,
+                    brandData.totalInitialVip,
+                    brandData.vipDeclined,
+                    brandData.creditCardVip,
+                    brandData.ccOptVip,
+                    brandData.creditCard,
+                    brandData.payPal,
+                    brandData.payPalVip,
+                    brandData.ppOptVip,
+                    brandData.totalOptPPCC,
+                    brandData.vipTotal,
+                    brandData.vipRecycleRebill
                 ];
 
                 // Check for existing row
                 const existingData = await sheets.spreadsheets.values.get({
                     spreadsheetId: sheetDetails.sheetId,
-                    range: `${sheetDetails.sheetName}!A2:M1000`, // Adjust range as needed
+                    range: `${sheetDetails.sheetName}!A2:AG1000`, // Adjust range as needed
                 });
                 const existingRows = existingData.data.values || [];
                 const existingRowIndex = existingRows.findIndex((rowData: (string | number)[]) =>
@@ -210,9 +227,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                 );
 
                 if (existingRowIndex !== -1) {
+                    // console.log("Values", JSON.stringify(row, null, 2));
                     await sheets.spreadsheets.values.update({
                         spreadsheetId: sheetDetails.sheetId,
-                        range: `${sheetDetails.sheetName}!A${existingRowIndex + 2}:M${existingRowIndex + 2}`,
+                        range: `${sheetDetails.sheetName}!A${existingRowIndex + 2}:AG${existingRowIndex + 2}`,
                         valueInputOption: "USER_ENTERED",
                         requestBody: { values: [row] },
                     });
@@ -225,13 +243,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         }
 
         if (valuesToWrite.length > 0) {
+            // console.log("Writing new rows to Google Sheets:", valuesToWrite);
             await writeToSheet(valuesToWrite, sheetDetails.sheetId, `${sheetDetails.sheetName}!A:A`, auth);
             console.log(`[${requestId}] Appended ${valuesToWrite.length} new rows`);
         }
 
         return NextResponse.json({ success: true, message: "Data logged successfully" }, { status: 200 });
     } catch (error) {
-        console.error(`[${requestId}] Error in POST handler:`, error);
+        console.error(`[${requestId}] Error in POST handler:`, error instanceof Error ? error.message : error);
         return NextResponse.json(
             { success: false, error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }

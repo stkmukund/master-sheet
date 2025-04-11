@@ -1,7 +1,7 @@
 import { campaignCategory } from "@/lib/campaign-details";
 import { apiResponse } from "@/lib/utils";
-import { NextRequest } from "next/server";
 import axios from "axios";
+import { NextRequest } from "next/server";
 
 // Define interfaces for type safety
 interface QueryParams {
@@ -38,6 +38,7 @@ interface TransactionSummaryResponse {
     rebillApproval: number;
     rebillDeclines: number;
     rebillApprovedPerc: number;
+    rebillDeclinedPerc: number;
     rebillRefundRev: number;
     billableRebillRev: number;
     rebillRefundPerc: number;
@@ -68,6 +69,7 @@ interface CombinedResponse {
     rebillApproval: number;
     rebillDeclines: number;
     rebillApprovedPerc: number;
+    rebillDeclinedPerc: number;
     rebillRefundRev: number;
     billableRebillRev: number;
     refundedAmount: number;
@@ -251,6 +253,7 @@ export async function POST(request: NextRequest): Promise<Response> {
             rebillApproval: transaction.rebillApproval || 0,
             rebillDeclines: transaction.rebillDeclines || 0,
             rebillApprovedPerc: transaction.rebillApprovedPerc || 0,
+            rebillDeclinedPerc: transaction.rebillDeclinedPerc || 0,
             rebillRefundRev: transaction.rebillRefundRev || 0,
             billableRebillRev: transaction.billableRebillRev || 0,
             refundedAmount: orders.refundedAmount || 0,

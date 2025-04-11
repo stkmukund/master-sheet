@@ -2,6 +2,7 @@ import { campaignCategory } from "@/lib/campaign-details";
 import { apiResponse, summaryToSheet } from "@/lib/utils";
 import axios from "axios";
 import { NextRequest } from "next/server";
+import { sampleResponse } from ".";
 
 // Helper function to format date to MM/DD/YYYY
 function formatDate(date: Date): string {
@@ -35,8 +36,8 @@ function getSummaryDateRanges(): { startDate: string; endDate: string }[] {
         { startDate: yesterdayStr, endDate: yesterdayStr },
         // Last 7 days
         { startDate: formatDate(getDateDaysAgo(7)), endDate: yesterdayStr },
-        // Last 20 days (modified from 30)
-        { startDate: formatDate(getDateDaysAgo(20)), endDate: yesterdayStr },
+        // Last 30 days (modified from 30)
+        { startDate: formatDate(getDateDaysAgo(30)), endDate: yesterdayStr },
     ];
 }
 
@@ -58,12 +59,12 @@ const fetchApiData = async <T>(
     method: string = 'POST'
 ): Promise<T> => {
     const requestId = Math.random().toString(36).substring(2, 15);
-    console.log(`[${requestId}] Fetching API URL: ${apiUrl}`);
+    // console.log(`[${requestId}] Fetching API URL: ${apiUrl}`);
 
     // Check cache
     const cached = cache.get(apiUrl);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-        console.log(`[${requestId}] Returning cached data for ${apiUrl}`);
+        // console.log(`[${requestId}] Returning cached data for ${apiUrl}`);
         return cached.data;
     }
 
@@ -94,7 +95,7 @@ const fetchApiData = async <T>(
             },
         });
 
-        console.log(`[${requestId}] API Response:`, response.data);
+        // console.log(`[${requestId}] API Response:`, response.data);
 
         if (response.data.result !== "SUCCESS") {
             throw new Error(`API error: ${response.data.message}`);
@@ -111,14 +112,14 @@ const fetchApiData = async <T>(
 
 export async function POST(request: NextRequest): Promise<Response> {
     const requestId = Math.random().toString(36).substring(2, 15);
-    console.log(`[${requestId}] Received ${request.method} request to ${request.url}`);
+    // console.log(`[${requestId}] Received ${request.method} request to ${request.url}`);
 
     const url = new URL(request.url);
     const startDate = url.searchParams.get('startDate');
     const endDate = url.searchParams.get('endDate');
     const reportType = url.searchParams.get('reportType');
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    console.log(`[${requestId}] Using baseUrl: ${baseUrl}`);
+    // console.log(`[${requestId}] Using baseUrl: ${baseUrl}`);
 
     // Handle case when startDate and endDate are not provided
     if (!startDate || !endDate) {
@@ -126,7 +127,10 @@ export async function POST(request: NextRequest): Promise<Response> {
             const dateRanges = getSummaryDateRanges();
             const finalData: {
                 result: string;
-                message: { period: string; data: object[] }[];
+                message: {
+                    period: string;
+                    data: object;
+                }[][];
             } = {
                 result: "SUCCESS",
                 message: [],
@@ -134,28 +138,37 @@ export async function POST(request: NextRequest): Promise<Response> {
 
             try {
                 const campaignData = Object.values(campaignCategory.NYMBUS).map((campaign) => campaign.apiEndpoint);
-                // const campaignData = ['browPro']; // Hardcoded for now
+                // const campaignData = ['floralSecrets']; // Hardcoded for now
 
-                for (const range of dateRanges) {
-                    const rangeData: object[] = [];
-                    console.log(`[${requestId}] Fetching data for range:`, range);
+                // for (const endpoint of campaignData) {
+                //     const rangeData: {
+                //         period: string;
+                //         data: object;
+                //     }[] = new Array(dateRanges.length).fill(null).map(() => ({ period: "", data: {} }));
+                //     for (let index = 0; index < dateRanges.length; index++) {
+                //         const range = dateRanges[index];
+                //         console.log(`Fetching data for range (index ${index}):`, range);
 
-                    for (const endpoint of campaignData) {
-                        const apiUrl = `${baseUrl}/api/dash-sheet/NYMBUS/${endpoint}?startDate=${range.startDate}&endDate=${range.endDate}`;
-                        console.log(`[${requestId}] Fetching endpoint: ${apiUrl}`);
-                        const data = await fetchApiData<object>(apiUrl);
-                        rangeData.push(data);
-                    }
+                //         const apiUrl = `${baseUrl}/api/dash-sheet/NYMBUS/${endpoint}?startDate=${range.startDate}&endDate=${range.endDate}`;
+                //         const data = await fetchApiData<object>(apiUrl);
 
-                    finalData.message.push({
-                        period: `${range.startDate} - ${range.endDate}`,
-                        data: rangeData,
-                    });
-                    console.log(`[${requestId}] Range data:`, rangeData);
-                }
+                //         rangeData[index].period = `${range.startDate} - ${range.endDate}`;
+                //         rangeData[index].data = data;
 
-                await summaryToSheet(baseUrl, finalData, { sheetId: "1w0RZBZChXhOZGf73FYcO78bNZmUrYI-FcEaXMgEssYo", sheetName: "API-Overview" });
-                return apiResponse(finalData);
+                //         console.log(`data rangeData (index ${index})`, rangeData);
+                //     }
+
+                //     finalData.message.push(rangeData);
+                //     // console.log(`[${requestId}] Range data:`, rangeData);
+                // }
+
+                // Write to Google Sheets
+                const sheetResponse = await summaryToSheet(baseUrl, sampleResponse, {
+                    sheetId: "1w0RZBZChXhOZGf73FYcO78bNZmUrYI-FcEaXMgEssYo",
+                    sheetName: "API-Overview",
+                });
+                console.log(`[${requestId}] Sheet write response:`, sheetResponse);
+                return apiResponse(sampleResponse);
             } catch (error: unknown) {
                 const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
                 console.error(`[${requestId}] Summary Error:`, errorMessage);
@@ -181,7 +194,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
             for (const endpoint of campaignData) {
                 const apiUrl = `${baseUrl}/api/dash-sheet/NYMBUS/${endpoint}?startDate=${startDate}&endDate=${endDate}`;
-                console.log(`[${requestId}] Fetching endpoint: ${apiUrl}`);
+                // console.log(`[${requestId}] Fetching endpoint: ${apiUrl}`);
                 const data = await fetchApiData<object>(apiUrl);
                 finalData.message.push(data);
             }

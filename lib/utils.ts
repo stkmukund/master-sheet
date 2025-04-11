@@ -35,26 +35,58 @@ export const addToSheet = async (baseUrl: string, data: (string | number)[], she
     return response;
 }
 
-export const summaryToSheet = async (baseUrl: string, data: { result: string; message: { period: string; data: object[] }[] }, sheetDetails: object) => {
-    // const finalValues = Object.values(data);
+interface SheetDetails {
+    sheetId: string;
+    sheetName: string;
+}
+
+interface ApiResponse {
+    result: string;
+    message: {
+        period: string;
+        data: object;
+    }[][];
+}
+
+export const summaryToSheet = async (
+    baseUrl: string,
+    data: ApiResponse,
+    sheetDetails: SheetDetails
+): Promise<{ success: boolean; message: string }> => {
+    const requestId = Math.random().toString(36).substring(2, 15);
+    // console.log(`[${requestId}] Sending data to Google Sheets`, { sheetDetails, data });
+
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
+
     const sheetData = {
         sheetDetails,
-        apiResponse: data
+        apiResponse: data,
+    };
+
+    try {
+        const response = await fetch(`${baseUrl}/api/google-sheets/dash-sheet/summary`, {
+            method: "POST",
+            headers: myHeaders,
+            body: JSON.stringify(sheetData),
+            redirect: "follow",
+        });
+
+        if (!response.ok) {
+            throw new Error(`Google Sheets API request failed: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        // console.log(`[${requestId}] Google Sheets response:`, result);
+        return result;
+    } catch (error) {
+        console.error(`[${requestId}] Error in summaryToSheet:`, error);
+        return {
+            success: false,
+            message: error instanceof Error ? error.message : "Unknown error in summaryToSheet",
+        };
     }
-
-    console.log("sheetData", sheetData)
-    const raw = await JSON.stringify(sheetData);
-
-    const response = await fetch(baseUrl + '/api/google-sheets/dash-sheet/summary', {
-        method: "POST",
-        headers: myHeaders,
-        body: raw,
-        redirect: "follow"
-    }).then(result => result.json());
-    return response;
-}
+};
 
 // Total VIP Tracking
 // Calculate campaignIDs

@@ -57,7 +57,7 @@ const orderQuery = async (
         }
 
         const data = await response.json();
-        console.log("Order Query Response:", data); // Debugging line
+        // console.log("Order Query Response:", data); // Debugging line
 
         if (data.result === "SUCCESS") {
             return {
